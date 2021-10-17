@@ -1,0 +1,14 @@
+{
+    "files.associations": {
+        "raylib.h": "c",
+        "stdbool.h": "c",
+        "checkcolliders_float.h": "c",
+        "levelstructs.h": "c",
+        "vector2pp.h": "c",
+        "velocity.h": "c",
+        "checkcolliders.h": "c",
+        "stdio.h": "c",
+        "boxpp.h": "c",
+        "loadnew.h": "c"
+    }
+}
