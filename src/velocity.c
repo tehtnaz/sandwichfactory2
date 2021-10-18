@@ -2,6 +2,7 @@
 #include "checkColliders.h"
 #include "checkColliders_Float.h"
 #include "velocity.h"
+#include "recpp.h"
 
 /*
 * 0 = None
@@ -13,16 +14,16 @@
 */
 
 bool isTouchingPlayer(PhysicsObject input, Vector2 playerPosition, Vector2 playerSize, int resMultiplier){
-    float self[4];
-    self[0] = input.position.x;
-    self[1] = input.position.y;
-    self[2] = input.sizeX;
-    self[3] = input.sizeY;
-    float box[4];
-    box[0] = playerPosition.x - (resMultiplier * 2);
-    box[1] = playerPosition.y + resMultiplier;
-    box[2] = playerSize.x + (resMultiplier * 4);
-    box[3] = playerSize.y - (resMultiplier * 2);
+    Rectangle self;
+    self.x = input.position.x;
+    self.y = input.position.y;
+    self.width = input.sizeX;
+    self.height = input.sizeY;
+    Rectangle box;
+    box.x = playerPosition.x - (resMultiplier * 2);
+    box.y = playerPosition.y + resMultiplier;
+    box.width = playerSize.x + (resMultiplier * 4);
+    box.height = playerSize.y - (resMultiplier * 2);
     int result = f_checkCollider(box, self, false, true);
     if(result == 0){
         return false;
@@ -33,7 +34,7 @@ bool isTouchingPlayer(PhysicsObject input, Vector2 playerPosition, Vector2 playe
 }
 
 PhysicsObject updateObject(
-        PhysicsObject input, Vector2 playerPosition, Vector2 playerPosition2, Vector2 playerSize, Vector2 playerVelocity, Vector2 playerVelocity2, float friction, int screenFPS, float gravity, int crateID, bool flipX, int resMultiplier,
+        PhysicsObject input, Vector2 playerPosition, Vector2 playerPosition2, Vector2 playerSize, Vector2 playerSize2, Vector2 playerVelocity, Vector2 playerVelocity2, float friction, int screenFPS, float gravity, int crateID, bool flipX, int resMultiplier,
         int colliderNum, int ladderNum, int crateNum, int leverNum, int doorNum, BoxCollider2D Col[15], PhysicsObject crate[2]
     ){
     
@@ -44,20 +45,12 @@ PhysicsObject updateObject(
     temp.velocity.x -= (temp.velocity.x - (temp.velocity.x * friction)) * 60 / screenFPS;
 
     //Check against level colliders
-    float self[4];
-    self[0] = input.position.x;
-    self[1] = input.position.y;
-    self[2] = input.sizeX;
-    self[3] = input.sizeY;
+    Rectangle self = combineVec2(input.position, (Vector2){input.sizeX, input.sizeY});
     CollisionInfo objCollision = checkAllColliders(self, false, colliderNum, ladderNum, crateNum, leverNum, doorNum, Col, crate);
     objCollision = checkObjects(objCollision, self, crateID, crateNum, crate);
 
     //Check against given player
-    float box[4];
-    box[0] = playerPosition.x;
-    box[1] = playerPosition.y;
-    box[2] = playerSize.x;
-    box[3] = playerSize.y;
+    Rectangle box = combineVec2(playerPosition, playerSize);
     int result = f_checkCollider(box, self, false, true);
     switch(result){
         case 1:
@@ -82,10 +75,7 @@ PhysicsObject updateObject(
     }
 
     //Player 2
-    box[0] = playerPosition2.x;
-    box[1] = playerPosition2.y;
-    box[2] = playerSize.x;
-    box[3] = playerSize.y;
+    box = combineVec2(playerPosition2, playerSize2);
     result = f_checkCollider(box, self, false, true);
     switch(result){
         case 1:
@@ -109,12 +99,14 @@ PhysicsObject updateObject(
         temp.isTouchingPlayer = true;
     }
 
+
+    //Can interact?
     if(IsKeyDown(KEY_E) && isTouchingPlayer(temp, playerPosition, playerSize, resMultiplier)){
         temp.velocity.x = playerVelocity.x;
         temp.velocity.y = -playerVelocity.y;
     }
 
-    if(IsKeyDown(KEY_RIGHT_CONTROL) && isTouchingPlayer(temp, playerPosition2, playerSize, resMultiplier)){
+    if(IsKeyDown(KEY_RIGHT_CONTROL) && isTouchingPlayer(temp, playerPosition2, playerSize2, resMultiplier)){
         temp.velocity.x = playerVelocity2.x;
         temp.velocity.y = -playerVelocity2.y;
     }

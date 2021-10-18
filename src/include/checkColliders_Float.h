@@ -1,5 +1,6 @@
 #pragma once
 #include <stdbool.h>
+#include "raylib.h"
 /*
 *  0 = x Position
 *  1 = y Position
@@ -7,24 +8,40 @@
 *  3 = size Y
 */
 
-bool f_up(float box[4], float self[4]);
-bool f_left(float box[4], float self[4]);
-bool f_right(float box[4], float self[4]);
-bool f_down(float box[4], float self[4]);
+//checkColliders_Float.h version 2
+//changelog
+//version 2: changed float arrays into Rectangle type
+
+#ifndef RAYLIB_H
+    #ifndef RECTANGLE_DEFINED
+        #define RECTANGLE_DEFINED
+        typedef struct Rectangle {
+            float x;
+            float y;
+            float width;
+            float height;
+        } Rectangle;
+    #endif
+#endif
+
+bool f_up(Rectangle box, Rectangle self);
+bool f_left(Rectangle box, Rectangle self);
+bool f_right(Rectangle box, Rectangle self);
+bool f_down(Rectangle box, Rectangle self);
 
 
-bool f_betweenX(float box[4], float self[4]);
-bool f_betweenY(float box[4], float self[4]);
+bool f_betweenX(Rectangle box, Rectangle self);
+bool f_betweenY(Rectangle box, Rectangle self);
 
-bool f_objectBetweenX(float box[4], float self[4]);
-bool f_objectBetweenY(float box[4], float self[4]);
+bool f_objectBetweenX(Rectangle box, Rectangle self);
+bool f_objectBetweenY(Rectangle box, Rectangle self);
 
-bool f_botLeftEdgeCheck(float box[4], float self[4]);
-bool f_botRightEdgeCheck(float box[4], float self[4]);
-bool f_topLeftEdgeCheck(float box[4], float self[4]);
-bool f_topRightEdgeCheck(float box[4], float self[4]);
+bool f_botLeftEdgeCheck(Rectangle box, Rectangle self);
+bool f_botRightEdgeCheck(Rectangle box, Rectangle self);
+bool f_topLeftEdgeCheck(Rectangle box, Rectangle self);
+bool f_topRightEdgeCheck(Rectangle box, Rectangle self);
 
-int f_checkCollider(float box[4], float self[4], bool trigger, bool enabled);
+int f_checkCollider(Rectangle box, Rectangle self, bool trigger, bool enabled);
 
 /*
 *  0 = x Position

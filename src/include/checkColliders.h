@@ -1,4 +1,5 @@
 #include "levelStructs.h"
+#include "raylib.h"
 #pragma once
 /*
 *  0 = x Position
@@ -7,22 +8,38 @@
 *  3 = size Y
 */
 
-bool up(int box[4], float self[4]);
-bool left(int box[4], float self[4]);
-bool right(int box[4], float self[4]);
-bool down(int box[4], float self[4]);
+//checkColliders version 2
+//changelog
+//version 2: changed float arrays into Rectangle type
+
+#ifndef RAYLIB_H
+    #ifndef RECTANGLE_DEFINED
+        #define RECTANGLE_DEFINED
+        typedef struct Rectangle {
+            float x;
+            float y;
+            float width;
+            float height;
+        } Rectangle;
+    #endif
+#endif
+
+bool up(int box[4], Rectangle self);
+bool left(int box[4], Rectangle self);
+bool right(int box[4], Rectangle self);
+bool down(int box[4], Rectangle self);
 
 
-bool betweenX(int box[4], float self[4]);
-bool betweenY(int box[4], float self[4]);
+bool betweenX(int box[4], Rectangle self);
+bool betweenY(int box[4], Rectangle self);
 
-bool objectBetweenX(int box[4], float self[4]);
-bool objectBetweenY(int box[4], float self[4]);
+bool objectBetweenX(int box[4], Rectangle self);
+bool objectBetweenY(int box[4], Rectangle self);
 
-bool botLeftEdgeCheck(int box[4], float self[4]);
-bool botRightEdgeCheck(int box[4], float self[4]);
-bool topLeftEdgeCheck(int box[4], float self[4]);
-bool topRightEdgeCheck(int box[4], float self[4]);
+bool botLeftEdgeCheck(int box[4], Rectangle self);
+bool botRightEdgeCheck(int box[4], Rectangle self);
+bool topLeftEdgeCheck(int box[4], Rectangle self);
+bool topRightEdgeCheck(int box[4], Rectangle self);
 
 /*
 * Return value = direction of collision
@@ -40,7 +57,7 @@ bool topRightEdgeCheck(int box[4], float self[4]);
 *  2 = size X
 *  3 = size Y
 */
-int checkCollider(int box[4], float self[4], bool trigger, bool enabled, bool ladder);
+int checkCollider(int box[4], Rectangle self, bool trigger, bool enabled, bool ladder);
 
 typedef struct CollisionInfo{
     bool left;
@@ -74,6 +91,6 @@ typedef struct BoxColInfo{
     bool inLadder;
 }BoxColInfo;
 
-CollisionInfo checkAllColliders(float self[4], bool checkObjects, int colliderNum, int ladderNum, int crateNum, int leverNum, int doorNum, BoxCollider2D Col[15], PhysicsObject crate[2]);
+CollisionInfo checkAllColliders(Rectangle self, bool checkObjects, int colliderNum, int ladderNum, int crateNum, int leverNum, int doorNum, BoxCollider2D Col[15], PhysicsObject crate[2]);
 
-CollisionInfo checkObjects(CollisionInfo collision, float self[4], int selfObjID, int crateNum, PhysicsObject crate[2]);
+CollisionInfo checkObjects(CollisionInfo collision, Rectangle self, int selfObjID, int crateNum, PhysicsObject crate[2]);

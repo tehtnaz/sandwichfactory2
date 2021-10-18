@@ -1,6 +1,7 @@
 #include "raylib.h"
 #include <stdio.h>
 #include "animation.h"
+#include "vector2pp.h"
 
 // Animation.h version 2.0
 
@@ -14,6 +15,7 @@ Animation assignProperties(int spriteSize, int currentFrame, int fps, bool isAni
     temp.currentFrame = currentFrame;
     temp.isAnimating = isAnimating;
     temp.allowSnap = allowsnap;
+    temp.cycleBackward = false;
 
     temp.frameBuffer = 0;
     return temp;
@@ -41,7 +43,7 @@ Animation getFromFolder(Animation input, char path[64], bool autoSize){
     }else{
         printf("getFromFolder: animation spriteSize: %d\n", temp.spriteSize);
     }
-    Image atlas = GenImageColor(img.width * input.frameCount, img.height, PINK);
+    Image atlas = GenImageColor(img.width * input.frameCount, img.height, BLANK);
     for(int i = 0; i < input.frameCount; i++){
         sprintf(str, "%s%d.png", path, i);
         img = LoadImage(str);
@@ -122,27 +124,32 @@ Animation cycleAnimationBackwards(Animation input, float screenFPS){
 }
 
 //ignores isAnimating property and only works while allowSnap property is disabled
+
+//BROKEN: DOES NOT GO BACKWARD PROPERLY
+//PLAYERANIM IS BROKEN BECAUSE OF NEGATIVE FPS
+
 Animation shakeCycleAnimation(Animation input, float screenFPS){
     if(input.allowSnap){
         printf("allowSnap is enabled for this object. Did you mean to cycle it and not shake it? Skipping...\n");
         return input;
     }
     if(input.isAnimating){
-        if(input.fps >= 0){
+        if(!input.cycleBackward){
+            //printf("cycle\n");
             return cycleAnimation(input, screenFPS);
         }else{
-            Animation temp = input;
-            temp.fps = -temp.fps;
-            return cycleAnimationBackwards(temp, screenFPS);
+            //printf("cycleBack\n");
+            return cycleAnimationBackwards(input, screenFPS);
         }
     }else{
         Animation temp = input;
-        temp.fps = -temp.fps;
+        temp.cycleBackward = !temp.cycleBackward;
         temp.isAnimating = true;
-        if(temp.fps >= 0){
+        if(!temp.cycleBackward){
+            //printf("cycle+switch\n");
             return cycleAnimation(temp, screenFPS);
         }else{
-            temp.fps = -temp.fps;
+            //printf("cycleBack+switch\n");
             return cycleAnimationBackwards(temp, screenFPS);
         }
     }
@@ -155,12 +162,18 @@ Animation shakeCycleAnimation(Animation input, float screenFPS){
 * 2 = cycleBackward
 * 3 = shakeCycle
 */
+
+
+
 void DrawAnimationPro(Animation* input, Vector2 position, float scale, Color tint, float screenFPS, int cycleAnim){
     DrawTextureTiled(input->texture,
                     (Rectangle){input->currentFrame * input->spriteSize, 0, input->spriteSize, input->texture.height},
                     (Rectangle){0,0,scale*input->spriteSize,scale*input->texture.height},
-                    position,0,scale,tint);
-    printf("DrawAnimationPro: animating %d;  cycleType: %d\n", input->currentFrame, position.x, position.y, scale*input->spriteSize, scale*input->texture.height, input->frameBuffer);
+                    negVec2(position),0,scale,tint);
+    if(cycleAnim == 3){
+        //printf("DrawAnimationPro: animating %d;   buffer: %f  isAnimating:%d  isBack:%d ", input->currentFrame, input->frameBuffer, input->isAnimating, input->cycleBackward);
+        DrawTextureRec(input->texture, (Rectangle){input->currentFrame * input->spriteSize, 0, input->spriteSize, input->texture.height}, (Vector2){0,0}, WHITE);
+    }
     switch(cycleAnim){
         case 1:
             *input = cycleAnimation((*input), screenFPS);

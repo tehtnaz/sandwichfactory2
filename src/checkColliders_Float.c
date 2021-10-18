@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include "checkColliders_Float.h"
+#include "raylib.h"
 /*
 *  0 = x Position
 *  1 = y Position
@@ -7,29 +8,33 @@
 *  3 = size Y
 */
 
-bool f_up(float box[4], float self[4]){
-    if((self[1] < box[1] + box[3] && self[1] > box[1]) || self[1] == box[1]){
+//checkColliders_Float.h version 2
+//changelog
+//version 2: changed float arrays into Rectangle type
+
+bool f_up(Rectangle box, Rectangle self){
+    if((self.y < box.y + box.height && self.y > box.y) || self.y == box.y){
         return true;
     }else{
         return false;
     }
 }
-bool f_left(float box[4], float self[4]){
-    if(self[0] < box[0] + box[2] && self[0] > box[0]){
+bool f_left(Rectangle box, Rectangle self){
+    if(self.x < box.x + box.width && self.x > box.x){
         return true;
     }else{
         return false;
     }
 }
-bool f_right(float box[4], float self[4]){
-    if(self[0] + self[2] > box[0] && self[0] + self[2] < box[0] + box[2]){
+bool f_right(Rectangle box, Rectangle self){
+    if(self.x + self.width > box.x && self.x + self.width < box.x + box.width){
         return true;
     }else{
         return false;
     }
 }
-bool f_down(float box[4], float self[4]){
-    if((self[1] + self[3] > box[1] && self[1] + self[3] < box[1] + box[3]) || self[1] + self[3] == box[1] + box[3]){
+bool f_down(Rectangle box, Rectangle self){
+    if((self.y + self.height > box.y && self.y + self.height < box.y + box.height) || self.y + self.height == box.y + box.height){
         return true;
     }else{
         return false;
@@ -37,39 +42,39 @@ bool f_down(float box[4], float self[4]){
 }
 
 
-bool f_betweenX(float box[4], float self[4]){
-    if(self[0] > box[0] && self[0] + self[2] < box[0] + box[2]){
+bool f_betweenX(Rectangle box, Rectangle self){
+    if(self.x > box.x && self.x + self.width < box.x + box.width){
         return true;
     }else{
         return false;
     }
 }
-bool f_betweenY(float box[4], float self[4]){
-    if(self[1] > box[1] && self[1] + self[3] < box[1] + box[3]){
-        return true;
-    }else{
-        return false;
-    }
-}
-
-bool f_objectBetweenX(float box[4], float self[4]){
-    if(box[0] > self[0] && box[0] + box[2] < self[0] + self[2]){
-        return true;
-    }else{
-        return false;
-    }
-}
-bool f_objectBetweenY(float box[4], float self[4]){
-    if(box[1] > self[1] && box[1] + box[3] < self[1] + self[3]){
+bool f_betweenY(Rectangle box, Rectangle self){
+    if(self.y > box.y && self.y + self.height < box.y + box.height){
         return true;
     }else{
         return false;
     }
 }
 
-bool f_botLeftEdgeCheck(float box[4], float self[4]){
-    float distanceY = self[1] + self[3] - box[1];
-    float distanceX = box[0] + box[2] - self[0];
+bool f_objectBetweenX(Rectangle box, Rectangle self){
+    if(box.x > self.x && box.x + box.width < self.x + self.width){
+        return true;
+    }else{
+        return false;
+    }
+}
+bool f_objectBetweenY(Rectangle box, Rectangle self){
+    if(box.y > self.y && box.y + box.height < self.y + self.height){
+        return true;
+    }else{
+        return false;
+    }
+}
+
+bool f_botLeftEdgeCheck(Rectangle box, Rectangle self){
+    float distanceY = self.y + self.height - box.y;
+    float distanceX = box.x + box.width - self.x;
     if(distanceX < distanceY){
         //horizontal collision
         return true;
@@ -78,9 +83,9 @@ bool f_botLeftEdgeCheck(float box[4], float self[4]){
         return false;
     }
 }
-bool f_botRightEdgeCheck(float box[4], float self[4]){
-    float distanceY = self[1] + self[3] - box[1];
-    float distanceX = self[0] + self[2] - box[0];
+bool f_botRightEdgeCheck(Rectangle box, Rectangle self){
+    float distanceY = self.y + self.height - box.y;
+    float distanceX = self.x + self.width - box.x;
     if(distanceX < distanceY){
         //horizontal collision
         return true;
@@ -89,9 +94,9 @@ bool f_botRightEdgeCheck(float box[4], float self[4]){
         return false;
     }
 }
-bool f_topLeftEdgeCheck(float box[4], float self[4]){
-    float distanceY = box[1] + box[3] - self[1];
-    float distanceX = box[0] + box[2] - self[0];
+bool f_topLeftEdgeCheck(Rectangle box, Rectangle self){
+    float distanceY = box.y + box.height - self.y;
+    float distanceX = box.x + box.width - self.x;
     if(distanceX < distanceY){
         //horizontal collision
         return true;
@@ -100,9 +105,9 @@ bool f_topLeftEdgeCheck(float box[4], float self[4]){
         return false;
     }
 }
-bool f_topRightEdgeCheck(float box[4], float self[4]){
-    float distanceY = box[1] + box[3] - self[1];
-    float distanceX = self[0] + self[2] - box[0];
+bool f_topRightEdgeCheck(Rectangle box, Rectangle self){
+    float distanceY = box.y + box.height - self.y;
+    float distanceX = self.x + self.width - box.x;
     if(distanceX < distanceY){
         //horizontal collision
         return true;
@@ -129,7 +134,7 @@ bool f_topRightEdgeCheck(float box[4], float self[4]){
 * 4 = Down
 * 5 = trigger
 */
-int f_checkCollider(float box[4], float self[4], bool trigger, bool enabled){
+int f_checkCollider(Rectangle box, Rectangle self, bool trigger, bool enabled){
     if(enabled == false){
         return 0;
     }

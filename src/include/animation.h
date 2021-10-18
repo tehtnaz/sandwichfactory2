@@ -36,6 +36,7 @@ typedef struct Animation{
     int currentFrame;
     bool isAnimating;
     bool allowSnap; // This defines whether the currentFrame will reset to 0 once it overflows, or whether it won't. Vice versa for underflowing. If false, it will stop the animation.
+    bool cycleBackward;
     
     float frameBuffer; //Amount of frames since last switch. This is scaled to the rendered FPS so that this animation can have any speed you want
 }Animation;

@@ -10,6 +10,9 @@
 
 /* TODO LIST!! (Top to bottom)s
 
+* change collisionInfo so that floor is returned as the position and not a collider selection
+
+
 * VECTOR 2 READING FROM PHYSICS OBJECTS IS BROKEN!!!
 * Custom level mode
 * Ladders (setup for collision checking done, physics manipulation still need to be done)
@@ -127,6 +130,8 @@ int main(void){
     rlDisableBackfaceCulling(); // disabled so that triangles aren't culled
     InitAudioDevice();
     SetTargetFPS(screenFPS);
+    Image icon = LoadImage("resources/icon_large.png");
+    SetWindowIcon(icon);
 
     //prepare level variables
     prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath);
@@ -146,10 +151,10 @@ int main(void){
     //Animation ladder = assignProperties(0, 0, 0, false, 7, true);
     //ladder = getFromFolder(ladder, "resources/objects/ladder/", true);
 
-    Animation playerAnim = assignProperties(0, 0, 1, true, 4, false);
-    Animation playerAnim_flipped = assignProperties(0, 0, 1, true, 5, false);
+    Animation playerAnim = assignProperties(0, 0, 30, true, 4, false);
+    Animation playerAnim_flipped = assignProperties(0, 0, 30, true, 5, false);
 
-    playerAnim = getFromFolder(playerAnim, "resources/objects/animTest/", true);
+    playerAnim = getFromFolder(playerAnim, "resources/objects/playerAnim/", true);
     playerAnim_flipped = getFromFolder(playerAnim, "resources/objects/playerAnim_flip/", true);
 
     //load images
@@ -206,16 +211,16 @@ int main(void){
 
         //Prepare collision check
 
-        float self[4];
-        self[0] = playerPos.x;
-        self[1] = playerPos.y;
+        Rectangle self;
+        self.x = playerPos.x;
+        self.y = playerPos.y;
 
-        if(IsKeyDown(KEY_A) || IsKeyDown(KEY_D)){
-            self[2] = playerSizeLarge.x;
-            self[3] = playerSizeLarge.y;
+        if(!(IsKeyDown(KEY_A) && IsKeyDown(KEY_D)) && (IsKeyDown(KEY_A) || IsKeyDown(KEY_D))){
+            self.width = playerSizeLarge.x;
+            self.height = playerSizeLarge.y;
         }else{
-            self[2] = playerSize.x;
-            self[3] = playerSize.y;
+            self.width = playerSize.x;
+            self.height = playerSize.y;
         }
         CollisionInfo collision = checkAllColliders(self, true, colliderNum, ladderNum, crateNum, leverNum, doorNum, Col, crate);
 
@@ -231,10 +236,8 @@ int main(void){
             }
         }
 
-        self[0] = playerPos2.x;
-        self[1] = playerPos2.y;
-        self[2] = playerSize.x;
-        self[3] = playerSize.y;
+        self = combineVec2(playerPos2, playerSize);
+
         CollisionInfo collision2 = checkAllColliders(self, true, colliderNum, ladderNum, crateNum, leverNum, doorNum, Col, crate);
 
         TriColInfo triCollision2 = {0,0,0,0,-1}; //= isRecInTri(combineVec2(playerPos2, playerSize), triCol[0]);
@@ -396,8 +399,18 @@ int main(void){
         inputVelocity.y = velocity;
         inputVelocity2.y = velocity2;
 
-        crate[0] = updateObject(crate[0], playerPos, playerPos2, playerSize, inputVelocity, inputVelocity2, frictionCoefficient, screenFPS, gravity, 0, player_flipX, resolutionMultiplier, colliderNum, ladderNum, crateNum, leverNum, doorNum, Col, crate);
-        crate[1] = updateObject(crate[1], playerPos, playerPos2, playerSize, inputVelocity, inputVelocity2, frictionCoefficient, screenFPS, gravity, 1, player_flipX, resolutionMultiplier, colliderNum, ladderNum, crateNum, leverNum, doorNum, Col, crate);
+        if(!(IsKeyDown(KEY_A) && IsKeyDown(KEY_D)) && (IsKeyDown(KEY_A) || IsKeyDown(KEY_D))){
+            //p1 large
+            crate[0] = updateObject(crate[0], playerPos, playerPos2, playerSizeLarge, playerSize, inputVelocity, inputVelocity2, frictionCoefficient, screenFPS, gravity, 0, player_flipX, resolutionMultiplier, colliderNum, ladderNum, crateNum, leverNum, doorNum, Col, crate);
+        }else{
+            crate[0] = updateObject(crate[0], playerPos, playerPos2, playerSize, playerSize, inputVelocity, inputVelocity2, frictionCoefficient, screenFPS, gravity, 0, player_flipX, resolutionMultiplier, colliderNum, ladderNum, crateNum, leverNum, doorNum, Col, crate);
+        }
+        if(!(IsKeyDown(KEY_A) && IsKeyDown(KEY_D)) && (IsKeyDown(KEY_A) || IsKeyDown(KEY_D))){
+            //p1 large
+            crate[1] = updateObject(crate[1], playerPos, playerPos2, playerSizeLarge, playerSize, inputVelocity, inputVelocity2, frictionCoefficient, screenFPS, gravity, 1, player_flipX, resolutionMultiplier, colliderNum, ladderNum, crateNum, leverNum, doorNum, Col, crate);
+        }else{
+            crate[1] = updateObject(crate[1], playerPos, playerPos2, playerSize, playerSize, inputVelocity, inputVelocity2, frictionCoefficient, screenFPS, gravity, 1, player_flipX, resolutionMultiplier, colliderNum, ladderNum, crateNum, leverNum, doorNum, Col, crate);
+        }
 
         //Change camera position
         /*Vector2 camInput = addNewVec2(negVec2(playerPos), screenWidth / 2.00f, screenHeight / 2.00f);
@@ -497,7 +510,7 @@ int main(void){
             }*/
 
             //Player
-            if(IsKeyDown(KEY_A) || IsKeyDown(KEY_D)){
+            if(!(IsKeyDown(KEY_A) && IsKeyDown(KEY_D)) && (IsKeyDown(KEY_A) || IsKeyDown(KEY_D))){
                 if(player_flipX){
                     DrawAnimationPro(&playerAnim_flipped, playerPos, resolutionMultiplier, WHITE, screenFPS, 3);
                 }else{
@@ -519,7 +532,7 @@ int main(void){
 
             //Debug related - DOES NOT FOLLOW CAM!!
             if(ColliderDebugMode){
-                if(IsKeyDown(KEY_A) || IsKeyDown(KEY_D)) DrawRectangle(playerPos.x, playerPos.y, playerSizeLarge.x, playerSizeLarge.y, PINK);
+                if(!(IsKeyDown(KEY_A) && IsKeyDown(KEY_D)) && (IsKeyDown(KEY_A) || IsKeyDown(KEY_D))) DrawRectangle(playerPos.x, playerPos.y, playerSizeLarge.x, playerSizeLarge.y, PINK);
                     else DrawRectangle(playerPos.x, playerPos.y, playerSize.x, playerSize.y, PINK);
 
                 if(triCollision.botRight) DrawCircleV(addVec2(playerPos, playerSize), 3, PURPLE);
