@@ -170,10 +170,6 @@ void DrawAnimationPro(Animation* input, Vector2 position, float scale, Color tin
                     (Rectangle){input->currentFrame * input->spriteSize, 0, input->spriteSize, input->texture.height},
                     (Rectangle){0,0,scale*input->spriteSize,scale*input->texture.height},
                     negVec2(position),0,scale,tint);
-    if(cycleAnim == 3){
-        //printf("DrawAnimationPro: animating %d;   buffer: %f  isAnimating:%d  isBack:%d ", input->currentFrame, input->frameBuffer, input->isAnimating, input->cycleBackward);
-        DrawTextureRec(input->texture, (Rectangle){input->currentFrame * input->spriteSize, 0, input->spriteSize, input->texture.height}, (Vector2){0,0}, WHITE);
-    }
     switch(cycleAnim){
         case 1:
             *input = cycleAnimation((*input), screenFPS);

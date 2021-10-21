@@ -3,8 +3,6 @@
     #include "raylib.h"
 
 // TODO:
-// Fix all issues in main.c caused by animation.h version 2
-    // make getFromFolder get the images from the folder and turn it into a texture atlas
 // Maybe split all the sections of the main.c loop into different functions
 //try to fix prepare level
 //with all source files containing texutre loading, add texture unloading maybe? (ie. UnloadAnimation)

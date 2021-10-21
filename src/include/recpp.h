@@ -15,4 +15,6 @@ Rectangle resizeRec(Rectangle input, float scale);
 
 Rectangle combineVec2(Vector2 position, Vector2 size);
 
+bool isPointInRec(Rectangle rec, Vector2 point);
+
 #endif // recpp_h

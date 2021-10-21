@@ -7,6 +7,7 @@
 #include "boxPP.h"
 #include "rlgl.h"
 #include "recpp.h"
+#include "gui2.h"
 
 /* TODO LIST!! (Top to bottom)s
 
@@ -197,7 +198,7 @@ int main(void){
         if(!IsSoundPlaying(soundtrack)){
             PlaySound(soundtrack);
         }
-
+        
         //Cycle anims
 
         if(door.isAnimating){
@@ -460,7 +461,6 @@ int main(void){
             //Background
             //cycle and draw
             DrawAnimationPro(&background, bgPosition, backgroundResMultiplier, WHITE, screenFPS, 1);
-            //Vector2 tempVector;
 
             //Level + Text
             DrawTextureEx(level, bgPosition, 0, resolutionMultiplier, WHITE);
@@ -582,9 +582,6 @@ int main(void){
                     DrawRectangle(playerPos.x, playerPos.y + playerSize.y, playerSize.x + 4, 4, PURPLE);
                 }
             }*/
-            /*if(IsKeyPressed(KEY_F2)){
-                DrawRectangle(playerPos.x, playerPos.y, playerSize.x, playerSize.y, PURPLE);
-            }*/
             if(showVelocity){
                 sprintf(str, "%f", velocity);
                 DrawText(str, 0, 50, 100, WHITE);
@@ -606,6 +603,14 @@ int main(void){
                 sprintf(str, "%f", inputVelocity2.x);
                 DrawText(str, 0, 200, 100, RED);
             }
+            
+
+            //GUI
+
+            //renderGuiBox((GuiBox){newRec(0,0,100,100), NULL, NULL, 0, WHITE, 5, BLACK},false);
+
+
+            
         EndDrawing();
     }
     CloseWindow();
@@ -619,6 +624,7 @@ void prepareLevel(int resolutionMultiplier,
                     TextBox levelText[2], int textNum, 
                     int crateNum, PhysicsObject crate[2], 
                     int ladderNum, BoxCollider2D ladderCol[2], char levelImagePath[64]){
+
     //load level image
     if(levelImagePath[0] == '\0'){
         sprintf(str, "resources/levels/%d.png", selectedLevel + 1);
