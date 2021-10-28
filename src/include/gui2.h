@@ -6,7 +6,8 @@
     #include "recpp.h"
 
     typedef struct GuiText{
-        Vector2 center;
+        Font* font;
+        Vector2 center; // default = (0, 0)   can be used to make a GuiBox a parent object
         Vector2 offset;
 
         char text[50];
@@ -44,7 +45,7 @@
         return temp;
     }
 
-    GuiText assignGuiText(Vector2 center, Vector2 offset, char text[50], int size, Color color, float spacing){
+    GuiText assignGuiText(Font* font, Vector2 center, Vector2 offset, char text[50], int size, Color color, float spacing){
         GuiText temp;
         temp.center = center;
         temp.offset = offset;
@@ -76,6 +77,28 @@
                 printf("Warning: renderGuiBox - Tried to render text when textNum is 0");
             }
         }*/
+    }
+
+    GuiText setGuiTextOrigin(GuiBox box, GuiText guiText, bool fromCenter){
+        GuiText temp = guiText;
+        if(fromCenter){
+            //Vector2 textSize = MeasureTextEx(*guiText.font, guiText.text, guiText.size, guiText.spacing);
+            Vector2 textSize = MeasureTextEx(GetFontDefault(), guiText.text, guiText.size, guiText.spacing);
+            temp.center = (Vector2){box.rec.x + box.rec.width / 2 - textSize.x / 2, box.rec.y + box.rec.height / 2 - textSize.y / 2};
+        }else{
+            temp.center = (Vector2){box.rec.x, box.rec.y};
+        }
+        return temp;
+    }
+
+    Vector2 GetTextCenter(Font font, char text[64], float fontSize, float spacing, int screenWidth, int screenHeight){
+        Vector2 textSize = MeasureTextEx(font, text, fontSize, spacing);
+        return (Vector2){screenWidth / 2 - textSize.x / 2, screenHeight / 2 - textSize.y / 2};
+    }
+
+    Vector2 GetTextCenterGUI(GuiText guiText, int screenWidth, int screenHeight){
+        //return GetTextCenter(*guiText.font, guiText.text, guiText.size, guiText.spacing, screenWidth, screenHeight);
+        return GetTextCenter(GetFontDefault(), guiText.text, guiText.size, guiText.spacing, screenWidth, screenHeight);
     }
 
     bool isMouseInGuiBox(GuiBox box){

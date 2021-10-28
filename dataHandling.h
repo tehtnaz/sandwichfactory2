@@ -997,6 +997,7 @@ int readFileSF(char path[128],
                     }
                 }else if(strEquals(propertyName, "img;")){
                     temp = 0;
+                    //Note(BUG): if we read the EOF, the property doesnt terminate properly resulting in garbage data
                     while(ch != ';' && ch != '\n' && ch != '\0' && temp < 64){
                         levelImagePath[temp] = ch;
                         charSelect++;

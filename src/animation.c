@@ -165,19 +165,22 @@ Animation shakeCycleAnimation(Animation input, float screenFPS){
 
 
 
-void DrawAnimationPro(Animation* input, Vector2 position, float scale, Color tint, float screenFPS, int cycleAnim){
+void DrawAnimationPro(Animation* input, Vector2 position, float scale, Color tint, float screenFPS, CycleType cycleAnim){
     DrawTextureTiled(input->texture,
                     (Rectangle){input->currentFrame * input->spriteSize, 0, input->spriteSize, input->texture.height},
                     (Rectangle){0,0,scale*input->spriteSize,scale*input->texture.height},
                     negVec2(position),0,scale,tint);
     switch(cycleAnim){
-        case 1:
+        case CYCLE_NONE:
+            break;
+        case CYCLE_FORWARD:
             *input = cycleAnimation((*input), screenFPS);
             break;
-        case 2:
+        case CYCLE_BACKWARD:
             *input = cycleAnimationBackwards((*input), screenFPS);
             break;
-        case 3:
+        case CYCLE_SHAKE:
             *input = shakeCycleAnimation((*input), screenFPS);
+            break;
     }
 }

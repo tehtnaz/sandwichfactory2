@@ -46,6 +46,13 @@ typedef struct SwitchAnimation{
     int currentFrame;
 }SwitchAnimation;
 
+typedef enum CycleType{
+    CYCLE_NONE,
+    CYCLE_FORWARD,
+    CYCLE_BACKWARD,
+    CYCLE_SHAKE
+}CycleType;
+
 Animation assignProperties(int spriteSize, int currentFrame, int fps, bool isAnimating, int frameCount, bool allowsnap);
 SwitchAnimation switchAssignProperties(int currentFrame, int fps, bool isAnimation);
 
@@ -56,6 +63,6 @@ Animation cycleAnimation(Animation input, float screenFPS);
 Animation cycleAnimationBackwards(Animation input, float screenFPS);
 Animation shakeCycleAnimation(Animation input, float screenFPS); //ignores isAnimating property and only works while allowSnap property is disabled
 
-void DrawAnimationPro(Animation* input, Vector2 position, float scale, Color tint, float screenFPS, int cycleAnim);
+void DrawAnimationPro(Animation* input, Vector2 position, float scale, Color tint, float screenFPS, CycleType cycleAnim);
 
 #endif //animation_h_2

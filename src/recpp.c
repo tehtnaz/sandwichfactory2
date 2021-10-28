@@ -45,5 +45,5 @@ Rectangle combineVec2(Vector2 position, Vector2 size){
 }
 
 bool isPointInRec(Rectangle rec, Vector2 point){
-    return point.x > rec.x && point.y > rec.y && point.x < rec.width + rec.x && point.y < rec.height + rec.y;
+    return point.x >= rec.x && point.y >= rec.y && point.x <= rec.width + rec.x && point.y <= rec.height + rec.y;
 }
