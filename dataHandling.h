@@ -71,10 +71,16 @@ int parseInt(char input[11], int arraySize){ // Sometimes while parsing garbage 
             case '!':
             case ';':
             case ',':
+            case '\0':
                 isEnd = true;
                 break;
             case '.':
                 printf("ERROR: parseInt - Received \'.\' as input. This will fail because the parser checks for integers. Ending function...");
+                isEnd = true;
+                output = 0;
+                break;
+            default:
+                printf("ERROR: parseInt - Received non-number as input. Ending function...");
                 isEnd = true;
                 output = 0;
                 break;
@@ -839,7 +845,7 @@ int readFileSF(char path[128],
             Vector2* startingPos, Vector2* startingPos2,
             BoxCollider2D levelCol[15], BoxCollider2D ladders[2], TextBox texts[2], PhysicsObject physobjects[2], Triangle triCol[10],
             int* levelTexts, int* levelColNum, int* ladderNum, int* physObjNum,
-            int* isLever, int* isDoor
+            int* isLever, int* isDoor, int* isMultiplayer
         ){
     
     
@@ -868,6 +874,7 @@ int readFileSF(char path[128],
     //*disableCam = true;
     bool lever = false;
     bool door = false;
+    *isMultiplayer = 0; // default
 
     //Note: This means only 1024 characters can be stored per line
     printf("FILE_READLINE_SF:");
@@ -1022,6 +1029,10 @@ int readFileSF(char path[128],
                     ch = input[charSelect];
                 }else if(strEquals(propertyName, "playerImg")){
                     printf("ERROR: parseProperty: playerImg not implemented yet. Skipping...\n");
+                }else if(strEquals(propertyName, "isMultiplayer;")){
+                    *isMultiplayer = parseBool(ch);
+                    charSelect++;
+                    ch = input[charSelect];
                 }else{
                     printf("ERROR: parseProperty - Invalid property name");
                     printf("Given name: %s\n", propertyName);

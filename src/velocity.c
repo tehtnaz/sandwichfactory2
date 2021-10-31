@@ -13,7 +13,7 @@
 * 5 = Trigger
 */
 
-bool isTouchingPlayer(PhysicsObject input, Vector2 playerPosition, Vector2 playerSize, int resMultiplier){
+bool isTouchingPlayerGrabZone(PhysicsObject input, Vector2 playerPosition, Vector2 playerSize, int resMultiplier){
     Rectangle self;
     self.x = input.position.x;
     self.y = input.position.y;
@@ -34,12 +34,13 @@ bool isTouchingPlayer(PhysicsObject input, Vector2 playerPosition, Vector2 playe
 }
 
 PhysicsObject updateObject(
-        PhysicsObject input, Vector2 playerPosition, Vector2 playerPosition2, Vector2 playerSize, Vector2 playerSize2, Vector2 playerVelocity, Vector2 playerVelocity2, float friction, int screenFPS, float gravity, int crateID, bool flipX, int resMultiplier,
+        PhysicsObject input, Vector2 playerPosition, Vector2 playerPosition2, Vector2 playerSize, Vector2 playerSize2, Vector2 playerVelocity, Vector2 playerVelocity2, 
+        float friction, int screenFPS, float gravity, int crateID, bool flipX, int resMultiplier,
         int colliderNum, int ladderNum, int crateNum, int leverNum, int doorNum, BoxCollider2D Col[15], PhysicsObject crate[2]
     ){
     
+    //make sure no properties are erased when returned
     PhysicsObject temp = input;
-    float fpsMultiplier = (1.0f/(float)screenFPS);
 
     //Friction
     temp.velocity.x -= (temp.velocity.x - (temp.velocity.x * friction)) * 60 / screenFPS;
@@ -100,20 +101,23 @@ PhysicsObject updateObject(
     }
 
 
-    //Can interact?
-    if(IsKeyDown(KEY_E) && isTouchingPlayer(temp, playerPosition, playerSize, resMultiplier)){
+    //Is being grabbed by player?
+    if(IsKeyDown(KEY_E) && isTouchingPlayerGrabZone(temp, playerPosition, playerSize, resMultiplier)){
         temp.velocity.x = playerVelocity.x;
         temp.velocity.y = -playerVelocity.y;
     }
 
-    if(IsKeyDown(KEY_RIGHT_CONTROL) && isTouchingPlayer(temp, playerPosition2, playerSize2, resMultiplier)){
+    //How about player 2?
+    if(IsKeyDown(KEY_RIGHT_CONTROL) && isTouchingPlayerGrabZone(temp, playerPosition2, playerSize2, resMultiplier)){
         temp.velocity.x = playerVelocity2.x;
         temp.velocity.y = -playerVelocity2.y;
     }
 
+
+
     //Change velocity based on collision
     if(!objCollision.down){
-        temp.velocity.y -= gravity / (screenFPS / 60.00f);
+        temp.velocity.y -= gravity * (60.00f / screenFPS);
     }
 
     if((objCollision.down && temp.velocity.y > 0) || (objCollision.up && temp.velocity.y < 0)){
@@ -126,11 +130,7 @@ PhysicsObject updateObject(
     }
 
     //Update Velocity
-    temp.position.x += temp.velocity.x * fpsMultiplier;
-    temp.position.y += temp.velocity.y * fpsMultiplier;
-
-    //printf("x = %f\n", temp.velocity.x);
-    //printf("y = %f\n", temp.velocity.y);
-    //printf("touch = %d\n", temp.isTouchingPlayer);
+    temp.position.x += temp.velocity.x / screenFPS;
+    temp.position.y += temp.velocity.y / screenFPS;
     return temp;
 }

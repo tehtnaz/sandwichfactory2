@@ -35,13 +35,19 @@ typedef enum GameState{
     STATE_PAUSED // everything relating to gameplay except rendering disabled; pauseGui Enabled
 }GameState;
 
-int main(void){
+typedef enum PlayerMode{
+    ONE_PLAYER,
+    TWO_PLAYERS
+}PlayerMode;
+
+int main(int argc, char* argv[]){
 
     //ask for resolution and fps
     int screenWidth = 1920;
     int screenHeight = 1080;
     int screenFPS = 60;
     int gameState = STATE_MENU;
+    int playerMode = ONE_PLAYER;
 
     //generic str
     char str[40];
@@ -58,7 +64,7 @@ int main(void){
 
     //load colliders and resize starting position and declare which level we start with
     int selectedLevel = 0;
-    const int maxLevel = 3;
+    const int maxLevel = 4; //default level count - 1 (because index 0)
 
     float velocity = 0.00f;
     float velocity2 = 0.00f;
@@ -93,15 +99,34 @@ int main(void){
     bool showVelocity = false;
     int ShowCollider = 0;
 
-    
+    if(argc == 1){
+        //Window properties prompt
+        printf("Enter Resolution (recommended: 135, 270, 540, 1080): ");
+        scanf("%d", &screenHeight);
+        screenWidth = screenHeight / 9.00f * 16.00f;
 
-    //Window properties prompt
-    printf("Enter Resolution (recommended: 135, 270, 540, 1080): ");
-    scanf("%d", &screenHeight);
-    screenWidth = screenHeight / 9.00f * 16.00f;
+        printf("Enter desired FPS: ");
+        scanf("%d", &screenFPS);
 
-    printf("Enter desired FPS: ");
-    scanf("%d", &screenFPS);
+    }else{
+        printf("Getting arg1: ");
+        screenHeight = parseInt(argv[1], 10);
+        screenWidth = screenHeight / 9.00f * 16.00f;
+
+        printf("Getting arg2: ");
+        screenFPS = parseInt(argv[2], 10);
+
+        if(screenHeight == 0){
+            printf("ERROR: readArgs - screenHeight (argument 1) is not valid\n");
+        }
+        if(screenFPS == 0){
+            printf("ERROR: readArgs - screenFPS (argument 2) is not valid\n");
+        }
+
+        /*if(argv[3] == "1" || argv[3] == "s"){
+
+        }*/
+    }
 
 
     //image related variables
@@ -129,7 +154,7 @@ int main(void){
 
     //ask which path then load it
     if(customLevel == 1){
-        loadNew(selectedLevel, true, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum);
+        loadNew(selectedLevel, true, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode);
     }
 
     //start raylib
@@ -139,6 +164,7 @@ int main(void){
     SetTargetFPS(screenFPS);
     Image icon = LoadImage("resources/icon_large.png");
     SetWindowIcon(icon);
+    ToggleFullscreen();
 
     //prepare level (if custom, unneeded at this point if not custom)
     //cannot be placed before init window since it loads textures and scales
@@ -201,8 +227,8 @@ int main(void){
     Vector2 inputVelocity = {0,0};
     Vector2 inputVelocity2 = {0,0};
 
-    CollisionInfo collision;
-    CollisionInfo collision2;
+    CollisionInfo collision = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    CollisionInfo collision2 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 
     //Variables for testing purposes
@@ -215,19 +241,22 @@ int main(void){
     TriColInfo triCollision;
     TriColInfo triCollision2;
 
-    Font defaultFont = GetFontDefault();
-    Font bade = LoadFont("resources/fonts/bade2.ttf");
+    Font montserrat = LoadFontEx("resources/fonts/Montserrat-Regular.ttf", 100, 0, 0);
+    SetTextureFilter(montserrat.texture, TEXTURE_FILTER_BILINEAR);
+    Font bade = LoadFontEx("resources/fonts/bade2.ttf", 100, 0, 0);
+    SetTextureFilter(bade.texture, TEXTURE_FILTER_BILINEAR);
 
-    GuiBox guiBox = (GuiBox){newRec(0,0,100,100), NULL, NULL, 0, WHITE, 5, BLACK};
-    GuiText guiText = assignGuiText(&defaultFont, (Vector2){0,0}, (Vector2){20,20}, "yooo. \nThis Works??", 20, GREEN, 2);
+    GuiText playText = assignGuiText(&montserrat, (Vector2){0,0}, (Vector2){0,0}, "Play", 100, BLACK, 0);
+    GuiBox playButton = (GuiBox){RECZERO, &playText, NULL, 1, WHITE, 4, BLACK};
+    playButton = offsetGuiBox(playButton, (Vector2){0,125}, (Vector2){250,125}, true, screenWidth, screenHeight);
 
-    GuiText playText = assignGuiText(&defaultFont, (Vector2){0,0}, (Vector2){0,0}, "Play", 40, BLACK, 2);
-    GuiBox playButton = (GuiBox){newRec(screenWidth / 2 - 100,screenHeight / 2 - 50,200,100), &playText, NULL, 1, WHITE, 5, BLACK};
-
-    GuiText titleText = assignGuiText(&bade, (Vector2){0,0}, (Vector2){0,-200}, "SANDWICH\nFACTORY", 100, WHITE, 10);
-    printf("a %f\n", GetTextCenter(bade, "Bro", 10, 10, 1920,1080).x);
+    GuiText titleText = assignGuiText(&bade, (Vector2){0,0}, (Vector2){0,-350}, "SANDWICH", 175, WHITE, 0);
+    GuiText titleText2 = assignGuiText(&bade, (Vector2){0,0}, (Vector2){0,-150}, "FACTORY", 175, WHITE, 0);
+    
     titleText.center = GetTextCenterGUI(titleText, screenWidth, screenHeight);
-    printf("b");
+    titleText2.center = GetTextCenterGUI(titleText2, screenWidth, screenHeight);
+
+    printf("pM: %d\n", playerMode);
 
     while(!WindowShouldClose()){
         if(IsKeyPressed(KEY_F11)){
@@ -288,19 +317,21 @@ int main(void){
                 }
             }
 
-            self = combineVec2(playerPos2, playerSize);
+            if(playerMode == TWO_PLAYERS){
+                self = combineVec2(playerPos2, playerSize);
 
-            collision2 = checkAllColliders(self, true, colliderNum, ladderNum, crateNum, leverNum, doorNum, Col, crate);
+                collision2 = checkAllColliders(self, true, colliderNum, ladderNum, crateNum, leverNum, doorNum, Col, crate);
 
-            triCollision2 = (TriColInfo){0,0,0,0,-1}; //= isRecInTri(combineVec2(playerPos2, playerSize), triCol[0]);
-            //playerPos2 = moveGetPlayerInput(combineVec2(playerPos2, playerSize), triCol[0], characterSpeed, &velocity2, &triCollision2, IsKeyDown(KEY_LEFT), IsKeyDown(KEY_RIGHT), &collision2);
+                triCollision2 = (TriColInfo){0,0,0,0,-1}; //= isRecInTri(combineVec2(playerPos2, playerSize), triCol[0]);
+                //playerPos2 = moveGetPlayerInput(combineVec2(playerPos2, playerSize), triCol[0], characterSpeed, &velocity2, &triCollision2, IsKeyDown(KEY_LEFT), IsKeyDown(KEY_RIGHT), &collision2);
 
-            if(collision2.down == true || triCollision.floor != -1){
-                velocity2 = 0;
-                if(triCollision2.floor != -1){
-                    playerPos2.y = triCollision2.floor;
-                }else if(collision2.floor <= colliderNum - 1){
-                    playerPos2.y = Col[collision2.floor].y - playerSize.y + 0.1f;
+                if(collision2.down == true || triCollision.floor != -1){
+                    velocity2 = 0;
+                    if(triCollision2.floor != -1){
+                        playerPos2.y = triCollision2.floor;
+                    }else if(collision2.floor <= colliderNum - 1){
+                        playerPos2.y = Col[collision2.floor].y - playerSize.y + 0.1f;
+                    }
                 }
             }
 
@@ -322,12 +353,6 @@ int main(void){
                 velocity += jumpHeight;
                 //jump
             }
-            if(IsKeyDown(KEY_UP) && ((collision2.up == false && collision2.down == true) || (playerTriColInfo2.botLeft || playerTriColInfo2.botRight))){
-                velocity2 += jumpHeight;
-                //jump
-            }
-
-
             if(IsKeyDown(KEY_A)){
                 //left
                 player_flipX = true;
@@ -335,14 +360,6 @@ int main(void){
                     playerPos.x -= characterSpeed * (1.0f/(float)screenFPS);
                 }
             }
-            if(IsKeyDown(KEY_LEFT)){
-                player2_flipX = true;
-                if(collision2.left == false){
-                    playerPos2.x -= characterSpeed * (1.0f/(float)screenFPS);
-                }
-            }
-
-
             if(IsKeyDown(KEY_D)){
                 //right
                 player_flipX = false;
@@ -350,15 +367,28 @@ int main(void){
                     playerPos.x += characterSpeed * (1.0f/(float)screenFPS);
                 }
             }
-            if(IsKeyDown(KEY_RIGHT)){
-                player2_flipX = false;
-                if(collision2.right == false){
-                    playerPos2.x += characterSpeed * (1.0f/(float)screenFPS);
+
+            if(playerMode == TWO_PLAYERS){
+                if(IsKeyDown(KEY_UP) && ((collision2.up == false && collision2.down == true) || (playerTriColInfo2.botLeft || playerTriColInfo2.botRight))){
+                    velocity2 += jumpHeight;
+                    //jump
+                }
+                if(IsKeyDown(KEY_LEFT)){
+                    player2_flipX = true;
+                    if(collision2.left == false){
+                        playerPos2.x -= characterSpeed * (1.0f/(float)screenFPS);
+                    }
+                }
+                if(IsKeyDown(KEY_RIGHT)){
+                    player2_flipX = false;
+                    if(collision2.right == false){
+                        playerPos2.x += characterSpeed * (1.0f/(float)screenFPS);
+                    }
                 }
             }
 
             //Interact
-            if((IsKeyPressed(KEY_E) && collision.inTrigger) || (IsKeyPressed(KEY_RIGHT_CONTROL) && collision2.inTrigger)){
+            if((IsKeyPressed(KEY_E) && collision.inTrigger) || (IsKeyPressed(KEY_RIGHT_CONTROL) && collision2.inTrigger && playerMode == TWO_PLAYERS)){
                 //interact with lever
                 if(lever.currentFrame == 0){
                     lever.currentFrame = 1;
@@ -383,7 +413,7 @@ int main(void){
             if(playerPos.y > screenHeight || IsKeyPressed(KEY_R)){
                 playerPos = startingPos;
             }
-            if(playerPos2.y > screenHeight || IsKeyPressed(KEY_R)){
+            if(playerMode == TWO_PLAYERS && (playerPos2.y > screenHeight || IsKeyPressed(KEY_R))){
                 playerPos2 = startingPos2;
             }
 
@@ -396,7 +426,7 @@ int main(void){
                     return 0;
                 }else{
                     printf("Attemping to load level %d because posX: %f > width: %d\n", selectedLevel, playerPos.x, screenWidth);
-                    if(loadNew(selectedLevel, false, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum) == 0){
+                    if(loadNew(selectedLevel, false, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode) == 0){
                         printf("Succesfully loaded\n");
                     }else{
                         printf("Failed loading level.");
@@ -409,18 +439,18 @@ int main(void){
 
             //Velocity management
             if((velocity <= 0 && collision.down == false) || velocity > 0){
-                velocity += gravity / (screenFPS / 60.00f);
+                velocity += gravity * (60.00f/(float)screenFPS);
                 if(!(velocity > 0 && collision.up == true)){
-                    playerPos.y -= velocity * (1/(float)screenFPS);
+                    playerPos.y -= velocity / (float)screenFPS;
                 }else{
                     velocity = 0;
                 }
             }
 
-            if((velocity2 <= 0 && collision2.down == false) || velocity2 > 0){
-                velocity2 += gravity / (screenFPS / 60.00f);
+            if(playerMode == TWO_PLAYERS && ((velocity2 <= 0 && collision2.down == false) || velocity2 > 0)){
+                velocity2 += gravity * (60.00f/(float)screenFPS);
                 if(!(velocity2 > 0 && collision2.up == true)){
-                    playerPos2.y -= velocity2 * (1/(float)screenFPS);
+                    playerPos2.y -= velocity2 / (float)screenFPS;
                 }else{
                     velocity2 = 0;
                 }
@@ -429,38 +459,39 @@ int main(void){
             //Manage crate collisions
             
             inputVelocity = (Vector2){0,0};
-            inputVelocity2 = (Vector2){0,0};
-            if(IsKeyDown(KEY_LEFT)){
-                inputVelocity2.x = -characterSpeed;
-            }
             if(IsKeyDown(KEY_A)){
                 inputVelocity.x = -characterSpeed;
             }
-            if(IsKeyDown(KEY_RIGHT)){
-                inputVelocity2.x = characterSpeed;
-            }
             if(IsKeyDown(KEY_D)){
                 inputVelocity.x = characterSpeed;
-            }
-            if(IsKeyDown(KEY_LEFT) && IsKeyDown(KEY_RIGHT)){
-                inputVelocity2.x = 0;
             }
             if(IsKeyDown(KEY_A) && IsKeyDown(KEY_D)){
                 inputVelocity.x = 0;
             }
             inputVelocity.y = velocity;
-            inputVelocity2.y = velocity2;
+
+            if(playerMode == TWO_PLAYERS){
+                inputVelocity2 = (Vector2){0,0};
+                if(IsKeyDown(KEY_LEFT)){
+                    inputVelocity2.x = -characterSpeed;
+                }
+                
+                if(IsKeyDown(KEY_RIGHT)){
+                    inputVelocity2.x = characterSpeed;
+                }
+                
+                if(IsKeyDown(KEY_LEFT) && IsKeyDown(KEY_RIGHT)){
+                    inputVelocity2.x = 0;
+                }
+                inputVelocity2.y = velocity2;
+            }
 
             if(!(IsKeyDown(KEY_A) && IsKeyDown(KEY_D)) && (IsKeyDown(KEY_A) || IsKeyDown(KEY_D))){
                 //p1 large
                 crate[0] = updateObject(crate[0], playerPos, playerPos2, playerSizeLarge, playerSize, inputVelocity, inputVelocity2, frictionCoefficient, screenFPS, gravity, 0, player_flipX, resolutionMultiplier, colliderNum, ladderNum, crateNum, leverNum, doorNum, Col, crate);
-            }else{
-                crate[0] = updateObject(crate[0], playerPos, playerPos2, playerSize, playerSize, inputVelocity, inputVelocity2, frictionCoefficient, screenFPS, gravity, 0, player_flipX, resolutionMultiplier, colliderNum, ladderNum, crateNum, leverNum, doorNum, Col, crate);
-            }
-            if(!(IsKeyDown(KEY_A) && IsKeyDown(KEY_D)) && (IsKeyDown(KEY_A) || IsKeyDown(KEY_D))){
-                //p1 large
                 crate[1] = updateObject(crate[1], playerPos, playerPos2, playerSizeLarge, playerSize, inputVelocity, inputVelocity2, frictionCoefficient, screenFPS, gravity, 1, player_flipX, resolutionMultiplier, colliderNum, ladderNum, crateNum, leverNum, doorNum, Col, crate);
             }else{
+                crate[0] = updateObject(crate[0], playerPos, playerPos2, playerSize, playerSize, inputVelocity, inputVelocity2, frictionCoefficient, screenFPS, gravity, 0, player_flipX, resolutionMultiplier, colliderNum, ladderNum, crateNum, leverNum, doorNum, Col, crate);
                 crate[1] = updateObject(crate[1], playerPos, playerPos2, playerSize, playerSize, inputVelocity, inputVelocity2, frictionCoefficient, screenFPS, gravity, 1, player_flipX, resolutionMultiplier, colliderNum, ladderNum, crateNum, leverNum, doorNum, Col, crate);
             }
 
@@ -590,10 +621,12 @@ int main(void){
                     }
                 }
 
-                if(player2_flipX){
-                    DrawTextureEx(player2_flipped, playerPos2, 0, resolutionMultiplier, WHITE);
-                }else{
-                    DrawTextureEx(player2, playerPos2, 0, resolutionMultiplier, WHITE);
+                if(playerMode == TWO_PLAYERS){
+                    if(player2_flipX){
+                        DrawTextureEx(player2_flipped, playerPos2, 0, resolutionMultiplier, WHITE);
+                    }else{
+                        DrawTextureEx(player2, playerPos2, 0, resolutionMultiplier, WHITE);
+                    }
                 }
             }
 
@@ -684,31 +717,15 @@ int main(void){
                 //buttons
                 renderGuiBox(playButton, false);
                 playText = setGuiTextOrigin(playButton, playText, true);
-                //printf("Render");
                 renderGuiText(playText);
 
 
                 //title
                 renderGuiText(titleText);
-
-
-
-
-                /*if(IsMouseButtonDown(0) && isMouseInGuiBox(playButton)){
-                    guiBox.color = GRAY;
-                    if(isMouseInGuiBox(guiBox)){
-                        guiBox.color = BLUE;
-                    }
-                }else{
-                    guiBox.color = WHITE;
-                }
-                //guiBox.rec = newRec(GetMouseX(), GetMouseY(), guiBox.rec.width, guiBox.rec.height);
-                //guiText = setGuiTextOrigin(guiBox, guiText);
-                //renderGuiBox(guiBox, false);
-                //renderGuiText(guiText);*/
+                renderGuiText(titleText2);
 
                 if(IsMouseButtonDown(0) && isMouseInGuiBox(playButton)){
-                    loadNew(selectedLevel, false, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum);
+                    loadNew(selectedLevel, false, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode);
                     prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath);
                     gameState = STATE_ACTIVE;
                 }

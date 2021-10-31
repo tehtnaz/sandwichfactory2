@@ -3,7 +3,12 @@
 #define RECPP_H
 #include "raylib.h"
 
-//RecPP.h version 1.1
+//RecPP.h version 1.1.1
+//changelog
+//1.1.1
+//added reczero
+
+#define RECZERO (Rectangle){0,0,0,0}
 
 Rectangle addVec2ToRec(Rectangle rec, Vector2 vec2);
 
