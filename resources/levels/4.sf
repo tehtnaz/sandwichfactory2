@@ -17,8 +17,8 @@
 / Lever + Door
     %(208,101,16,16,t,t)
     %(233,16,7,21,f,t)
-    ~isLever=t
-    ~isDoor=t
+    ~leverNum=1
+    ~doorNum=1
 
 / PhysObjs ^(posX,posY,sX,sY,trigger,enabled)
     ^(183,103,15,13,f,t)

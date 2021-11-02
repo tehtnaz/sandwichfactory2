@@ -291,6 +291,7 @@ CollisionInfo checkAllColliders(Rectangle self, bool checkObjects, int colliderN
                 break;
             case 5:
                 collision.inTrigger = true;
+                collision.triggerID = i;
                 break;
             case 6:
                 collision.inLadder = true;

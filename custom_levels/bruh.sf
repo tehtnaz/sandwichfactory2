@@ -18,8 +18,12 @@
 / Door
     %(161,83,7,21,f,t)
     %(226,83,7,21,f,t)
+    %(161,83,7,21,f,t)
+    %(226,83,7,21,f,t)
+    %(161,83,7,21,f,t)
+    %(226,83,7,21,f,t)
     ~leverNum=2
-    ~doorNum=2
+    ~doorNum=6
 
 / TextBoxes
     &(26,22,11,Use WASD or Arrow Keys to move,?(255,255,255,255))
@@ -27,4 +31,3 @@
 / Spawn position
     ~sp=@(4,68)
     ~sp2=@(8,70)
-    ~isMultiplayer=t

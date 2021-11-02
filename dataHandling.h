@@ -872,8 +872,8 @@ int readFileSF(char path[128],
     bool subFor = false;
 
     //*disableCam = true;
-    bool lever = false;
-    bool door = false;
+    int leverNum = 0;
+    int doorNum = 0;
     *isMultiplayer = 0; // default
 
     //Note: This means only 1024 characters can be stored per line
@@ -1005,7 +1005,7 @@ int readFileSF(char path[128],
                 }else if(strEquals(propertyName, "img;")){
                     temp = 0;
                     //Note(BUG): if we read the EOF, the property doesnt terminate properly resulting in garbage data
-                    while(ch != ';' && ch != '\n' && ch != '\0' && temp < 64){
+                    while(ch != ';' && ch != '\n' && ch != '\0' && temp < 64 && ch != EOF){
                         levelImagePath[temp] = ch;
                         charSelect++;
                         ch = input[charSelect];
@@ -1013,20 +1013,32 @@ int readFileSF(char path[128],
                     }
                     if(temp == 64){
                         //printf("ERROR: Overflowed allow path size (64 charcters). File missing, forgot to terminate or try renaming the file.\n");
-                        printf("ERROR: parseProperty - Overflowed allow path size (64 charcters). Forgot to terminate or try renaming the file.\n");
+                        printf("ERROR: parseProperty - Overflowed allowed path size (64 charcters). Forgot to terminate or try renaming the file.\n");
                     }else{
                         levelImagePath[temp] = '\0';
                         printf("parseProperty: Level Image set to %s\n", levelImagePath);
                     }
                     charSelect--;
-                }else if(strEquals(propertyName, "isLever;")){
-                    lever = parseBool(ch);
-                    charSelect++;
-                    ch = input[charSelect];
-                }else if(strEquals(propertyName, "isDoor;")){
-                    door = parseBool(ch);
-                    charSelect++;
-                    ch = input[charSelect];
+                }else if(strEquals(propertyName, "leverNum;")){
+                    temp = 0;
+                    while(ch != ';' && ch != '\n' && ch != '\0' && temp < 12 && ch != EOF){
+                        sendToParse[temp] = ch;
+                        charSelect++;
+                        ch = input[charSelect];
+                        temp++;
+                    }
+                    sendToParse[temp] = '\0';
+                    leverNum = parseInt(sendToParse, temp);
+                }else if(strEquals(propertyName, "doorNum;")){
+                    temp = 0;
+                    while(ch != ';' && ch != '\n' && ch != '\0' && temp < 12 && ch != EOF){
+                        sendToParse[temp] = ch;
+                        charSelect++;
+                        ch = input[charSelect];
+                        temp++;
+                    }
+                    sendToParse[temp] = '\0';
+                    doorNum = parseInt(sendToParse, temp);
                 }else if(strEquals(propertyName, "playerImg")){
                     printf("ERROR: parseProperty: playerImg not implemented yet. Skipping...\n");
                 }else if(strEquals(propertyName, "isMultiplayer;")){
@@ -1034,13 +1046,13 @@ int readFileSF(char path[128],
                     charSelect++;
                     ch = input[charSelect];
                 }else{
-                    printf("ERROR: parseProperty - Invalid property name");
+                    printf("ERROR: parseProperty - Invalid property name\n");
                     printf("Given name: %s\n", propertyName);
                 }
 
                 
                 if(ch != ';' && ch != '!'&& ch != '\n' && ch != '\0'){
-                    printf("ERROR: reafFileSF - ERROR terminating Property");
+                    printf("ERROR: reafFileSF - Error terminating Property");
                 }else{
                     charSelect--;
                 }
@@ -1164,6 +1176,7 @@ int readFileSF(char path[128],
                 sendToParse[temp] = ch;
                 levelCol[levelColID] = parseBoxCollider(sendToParse, temp, false);
                 //printf("uhh this worked");
+                printf("parseBoxCollider (main): currentId = %d\n", levelColID);
                 levelColID++;
             }
         }else if(ch == '*'){
@@ -1311,15 +1324,9 @@ int readFileSF(char path[128],
             printf("    Getting new line\n");
         }
     }
-    
-    if(door){// fix this once the ID system is integrated
-        levelColID--;
-    }
-    if(lever){// fix this once the ID system is integrated
-        levelColID--;
-    }
-    *isDoor = door;
-    *isLever = lever;
+    levelColID -= doorNum + leverNum;
+    *isDoor = doorNum;
+    *isLever = leverNum;
 
     *levelColNum = levelColID;
     *levelTexts = textBoxID;
@@ -1329,6 +1336,7 @@ int readFileSF(char path[128],
     //printf("input - %s", input);
     printf("readFileSF: crate1: %f, %f, %d, %d, %d, %d\n", physobjects[0].position.x, physobjects[0].position.y, physobjects[0].sizeX, physobjects[0].sizeY, physobjects[0].trigger, physobjects[0].enabled);
     printf("readFileSF: crate2: %f, %f, %d, %d, %d, %d\n", physobjects[1].position.x, physobjects[1].position.y, physobjects[1].sizeX, physobjects[1].sizeY, physobjects[1].trigger, physobjects[1].enabled);
+    printf("readFileSF: levelColIDs = %d ; doorNum = %d ; leverNum = %d\n", levelColID, doorNum, leverNum);
     //printf("crate1(game): %f, %f, %d, %d, %d, %d\n", crate[0].position.x, crate[0].position.y, crate[0].sizeX, crate[0].sizeY, crate[0].trigger, crate[0].enabled);
     //printf("crate2(game): %f, %f, %d, %d, %d, %d\n", crate[1].position.x, crate[1].position.y, crate[1].sizeX, crate[1].sizeY, crate[1].trigger, crate[1].enabled);
     
