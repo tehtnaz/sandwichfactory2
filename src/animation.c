@@ -55,6 +55,23 @@ Animation getFromFolder(Animation input, char path[64], bool autoSize){
     return temp;
 }
 
+Texture getTextureFromFolder(char path[64], int textureCount){
+    char str[70];
+    sprintf(str, "%s0.png", path);
+    printf("getFromFolder: Base Image = %s\n", str);
+    Image img = LoadImage(str);
+    Image atlas = GenImageColor(img.width * textureCount, img.height, BLANK);
+    for(int i = 0; i < textureCount; i++){
+        sprintf(str, "%s%d.png", path, i);
+        img = LoadImage(str);
+        ImageDraw(&atlas, img, (Rectangle){0,0,img.width,img.height}, (Rectangle){img.width * i,0,img.width,img.height}, WHITE);
+    }
+    Texture tempTexture = LoadTextureFromImage(atlas);
+    UnloadImage(img);
+    UnloadImage(atlas);
+    return tempTexture;
+}
+
 SwitchAnimation switchGetFromFolder(SwitchAnimation input, char path[64]){
     SwitchAnimation temp = input;
     char str[70];

@@ -59,6 +59,8 @@ SwitchAnimation switchAssignProperties(int currentFrame, int fps, bool isAnimati
 Animation getFromFolder(Animation input, char path[64], bool autoSize);
 SwitchAnimation switchGetFromFolder(SwitchAnimation input, char path[64]);
 
+Texture getTextureFromFolder(char path[64], int textureCount);
+
 Animation cycleAnimation(Animation input, float screenFPS);
 Animation cycleAnimationBackwards(Animation input, float screenFPS);
 Animation shakeCycleAnimation(Animation input, float screenFPS); //ignores isAnimating property and only works while allowSnap property is disabled

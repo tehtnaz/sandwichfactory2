@@ -65,7 +65,7 @@ typedef struct CollisionInfo{
     bool up;
     bool down;
 
-    int colsTouched[14];
+    int colsTouched[15];
     //bool sidesTouched[4];
     int floor;
 

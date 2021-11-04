@@ -19,8 +19,8 @@
 
     typedef struct GuiImg{
         Texture2D img;
-        Vector2 position;
         Vector2 center;
+        Vector2 offset;
     }GuiImg;
 
     typedef struct GuiBox{
@@ -33,21 +33,25 @@
         Color borderColor;
     }GuiBox;
 
-    GuiBox assignGuiBox(int borderWidth, Rectangle rec, Color color, Color borderColor, GuiText* text1, GuiText* text2, int textNum){
+    GuiBox assignGuiBox(Rectangle rec, GuiText* text1, GuiText* text2, int textNum, Color color, int borderWidth, Color borderColor){
         GuiBox temp;
-        temp.borderWidth = borderWidth;
         temp.rec = rec;
-        temp.color = color;
-        temp.borderColor = borderColor;
         temp.texts[0] = text1;
         temp.texts[1] = text2;
         temp.textNum = textNum;
+
+        temp.color = color;
+        temp.borderWidth = borderWidth;
+        temp.borderColor = borderColor;
+        
         return temp;
     }
 
-    GuiBox offsetGuiBox(GuiBox guiBox, Vector2 position, Vector2 size, bool fromCenter, int screenWidth, int screenHeight){
+    //if fromScreenCenter, offsets center of sprite from center of screen
+    //else offset from center of sprite
+    GuiBox offsetGuiBox(GuiBox guiBox, Vector2 position, Vector2 size, bool fromScreenCenter, int screenWidth, int screenHeight){
         GuiBox temp = guiBox;
-        if(fromCenter)  temp.rec = combineVec2((Vector2){position.x - size.x/2 + GetScreenWidth()/2, position.y - size.y/2 + GetScreenHeight()/2}, size);
+        if(fromScreenCenter)  temp.rec = combineVec2((Vector2){position.x - size.x/2 + GetScreenWidth()/2, position.y - size.y/2 + GetScreenHeight()/2}, size);
         else temp.rec = combineVec2((Vector2){position.x-size.x/2, position.y-size.y/2}, size);
         return temp;
     }
@@ -76,7 +80,7 @@
             DrawRectangleLinesEx(input.rec, input.borderWidth, input.borderColor);
         }
 
-        /*if(renderText){
+        if(renderText){
             if(input.textNum > 0){
                 for(int i = 0; i < input.textNum; i++){
                     renderGuiText(*(input.texts[i]));
@@ -84,12 +88,12 @@
             }else{
                 printf("Warning: renderGuiBox - Tried to render text when textNum is 0");
             }
-        }*/
+        }
     }
 
-    GuiText setGuiTextOrigin(GuiBox box, GuiText guiText, bool fromCenter){
+    GuiText setGuiTextOrigin(GuiBox box, GuiText guiText, bool fromBoxCenter){
         GuiText temp = guiText;
-        if(fromCenter){
+        if(fromBoxCenter){
             Vector2 textSize = MeasureTextEx(*guiText.font, guiText.text, guiText.size, guiText.spacing);
             //Vector2 textSize = MeasureTextEx(GetFontDefault(), guiText.text, guiText.size, guiText.spacing);
             temp.center = (Vector2){box.rec.x + box.rec.width / 2 - textSize.x / 2, box.rec.y + box.rec.height / 2 - textSize.y / 2};

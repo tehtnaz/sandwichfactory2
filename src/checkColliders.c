@@ -275,6 +275,7 @@ CollisionInfo checkAllColliders(Rectangle self, bool checkObjects, int colliderN
             box[3] = Col[i].sizeY;
             result = checkCollider(box, self, Col[i].trigger, Col[i].enabled, Col[i].ladder);
         }
+        collision.colsTouched[i] = result;
         switch(result){
             case 1:
                 collision.left = true;

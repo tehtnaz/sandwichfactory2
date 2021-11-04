@@ -59,7 +59,13 @@ int main(int argc, char* argv[]){
     Vector2 bgPosition = {0,0};
 
     //declare prepareLevel
-    void prepareLevel();
+    void prepareLevel(int resolutionMultiplier, Vector2* playerPos, Vector2* playerPos2, Vector2 startingPos, Vector2 startingPos2, 
+                    int selectedLevel, Texture2D* level, char str[40], int colliderNum, int leverNum, int doorNum, BoxCollider2D Col[15], TextBox levelText[2], 
+                    int textNum, int crateNum, PhysicsObject crate[2], int ladderNum, BoxCollider2D ladderCol[2], char levelImagePath[64],
+                    Animation** doorList, SwitchAnimation** leverList, bool** door_isClosedList,
+                    int customLevel
+                    //Texture* defaultDoor, Texture* leverOn, Texture* leverOff
+                    );
 
     //load colliders and resize starting position and declare which level we start with
     int selectedLevel = 0;
@@ -122,6 +128,16 @@ int main(int argc, char* argv[]){
             printf("ERROR: readArgs - screenFPS (argument 2) is not valid\n");
         }
 
+        if(screenHeight == 0 || screenFPS == 0){
+            //Window properties prompt
+            printf("Enter Resolution (recommended: 135, 270, 540, 1080): ");
+            scanf("%d", &screenHeight);
+            screenWidth = screenHeight / 9.00f * 16.00f;
+
+            printf("Enter desired FPS: ");
+            scanf("%d", &screenFPS);
+        }
+
         /*if(argv[3] == "1" || argv[3] == "s"){
 
         }*/
@@ -174,15 +190,10 @@ int main(int argc, char* argv[]){
     SwitchAnimation* leverList = malloc(sizeof(SwitchAnimation));
     bool* door_isClosedList = malloc(sizeof(bool));
 
-    //Animation door = assignProperties(0, 0, 60, false, 12, false);
-    //door = getFromFolder(door, "resources/objects/door/", true);
-    //bool door_isClosed = true;
-
-    SwitchAnimation lever = switchAssignProperties(0, 10, false);
-    lever = switchGetFromFolder(lever, "resources/objects/lever/");
-
-    //Animation ladder = assignProperties(0, 0, 0, false, 7, true);
-    //ladder = getFromFolder(ladder, "resources/objects/ladder/", true);
+    //Note: For future, use this method to save memory
+    //Texture defaultDoor = getTextureFromFolder("resources/objects/door/", 12);
+    //Texture leverOn = LoadTexture("resources/objects/lever/0.png");
+    //Texture leverOff = LoadTexture("resources/objects/lever/1.png");
 
     Animation playerAnim = assignProperties(0, 0, 30, true, 4, false);
     Animation playerAnim_flipped = assignProperties(0, 0, 30, true, 5, false);
@@ -207,8 +218,11 @@ int main(int argc, char* argv[]){
     Sound door_open = LoadSound("resources/sounds/door/open.wav");
     Sound door_close = LoadSound("resources/sounds/door/close.wav");
 
-    Sound soundtrack = LoadSound("resources/sounds/soundtrack/menu.wav");
-    SetSoundVolume(soundtrack, 0.5f);
+    Music menu_soundtrack = LoadMusicStream("resources/sounds/soundtrack/menu.wav");
+    SetMusicVolume(menu_soundtrack, 0.5f);
+
+    Music game_soundtrack = LoadMusicStream("resources/sounds/soundtrack/eerieBG-quietE.wav");
+    SetMusicVolume(game_soundtrack, 0.2f);
 
     //sprite size Vec2 definition
     Vector2 playerSize;
@@ -231,7 +245,7 @@ int main(int argc, char* argv[]){
     //cannot be placed before init window since it loads textures and scales
     if(customLevel == 1){
         gameState = STATE_ACTIVE;
-        prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, *door_isClosedList);
+        prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, &door_isClosedList, customLevel);
     }
 
 
@@ -244,6 +258,8 @@ int main(int argc, char* argv[]){
 
     TriColInfo triCollision;
     TriColInfo triCollision2;
+
+    //GUI Variables + assignment
 
     Font montserrat = LoadFontEx("resources/fonts/Montserrat-Regular.ttf", 100, 0, 0);
     SetTextureFilter(montserrat.texture, TEXTURE_FILTER_BILINEAR);
@@ -260,36 +276,62 @@ int main(int argc, char* argv[]){
     titleText.center = GetTextCenterGUI(titleText, screenWidth, screenHeight);
     titleText2.center = GetTextCenterGUI(titleText2, screenWidth, screenHeight);
 
+    //pause game
+    GuiBox pauseButton = assignGuiBox(newRec(1810,10,100,100), NULL, NULL, 0, WHITE, 5, BLACK);
+
+    GuiText resumeText = assignGuiText(&montserrat, (Vector2){0,0}, (Vector2){0,0}, "Resume Game", 90, BLACK, 0);
+    resumeText.center = GetTextCenterGUI(resumeText, screenWidth, screenHeight);
+
+    GuiText menuText = assignGuiText(&montserrat, (Vector2){0,0}, (Vector2){0,0}, "Back to menu", 90, BLACK, 0);
+    menuText.center = GetTextCenterGUI(menuText, screenWidth, screenHeight);
+
+    GuiBox resumeGame = assignGuiBox(RECZERO, &resumeText, NULL, 1, WHITE, 5, BLACK);
+    GuiBox menuButton = assignGuiBox(RECZERO, &menuText, NULL, 1, WHITE, 5, BLACK);
+    resumeGame = offsetGuiBox(resumeGame, (Vector2){0,-100}, (Vector2){575,150}, true, screenWidth, screenHeight);
+    menuButton = offsetGuiBox(menuButton, (Vector2){0,100}, (Vector2){575,150}, true, screenWidth, screenHeight);
+
+    resumeText = setGuiTextOrigin(resumeGame, resumeText, true);
+    menuText = setGuiTextOrigin(menuButton, menuText, true);
+
+    PlayMusicStream(menu_soundtrack);
+
     while(!WindowShouldClose()){
         if(IsKeyPressed(KEY_F11)){
             ToggleFullscreen();
         }
 
-        if(!IsSoundPlaying(soundtrack)){
-            PlaySound(soundtrack);
+        UpdateMusicStream(menu_soundtrack);
+        UpdateMusicStream(game_soundtrack);
+        if(gameState == STATE_MENU){
+            if(IsMusicPlaying(game_soundtrack)){
+                StopMusicStream(game_soundtrack);
+            }
+            if(!IsMusicPlaying(menu_soundtrack)){
+                PlayMusicStream(menu_soundtrack);
+            }
+            //printf("mpG: %d; mpM: %d\n", IsMusicPlaying(game_soundtrack), IsMusicPlaying(menu_soundtrack));
+        }else{
+            if(IsMusicPlaying(menu_soundtrack)){
+                StopMusicStream(menu_soundtrack);
+            }
+            if(!IsMusicPlaying(game_soundtrack)){
+                PlayMusicStream(game_soundtrack);
+            }
         }
 
-        if(IsKeyPressed(KEY_LEFT_BRACKET)){
+        /*if(IsKeyPressed(KEY_LEFT_BRACKET)){
             gameState = STATE_MENU;
         }else if(IsKeyPressed(KEY_RIGHT_BRACKET)){
             gameState = STATE_ACTIVE;
         }else if(IsKeyPressed(KEY_BACKSLASH)){
             gameState = STATE_PAUSED;
-        }
+        }*/
         
         
         //Gameplay related events (collision checking, gravity, animations)
         if(gameState == STATE_ACTIVE){
 
             //Cycle anims
-
-            /*if(door.isAnimating){
-                if(door_isClosed){
-                    door = cycleAnimationBackwards(door, screenFPS);
-                }else{
-                    door = cycleAnimation(door, screenFPS);
-                }
-            }*/
             for(int i = 0; i < doorNum; i++){
                 if(doorList[i].isAnimating){
                     if(door_isClosedList[i]){
@@ -449,23 +491,38 @@ int main(int argc, char* argv[]){
                 playerPos2 = startingPos2;
             }
 
+
+            //Check if passed level ending
             if(playerPos.x > screenWidth || (IsKeyPressed(KEY_LEFT_SHIFT) && IsKeyPressed(KEY_TAB))){
-                selectedLevel++;
-                if(selectedLevel > maxLevel){
-                    printf("Error: Cannot load level above specified maximum (%d is too large for %d)\n", selectedLevel, maxLevel);
-                    playerPos = startingPos;
-                    CloseWindow();
-                    return 0;
+                if(customLevel == 0){
+                    selectedLevel++;
+                    if(selectedLevel > maxLevel){
+                        printf("Error: Cannot load level above specified maximum (%d is too large for %d)\n", selectedLevel, maxLevel);
+                        playerPos = startingPos;
+                        CloseWindow();
+                        return 0;
+                    }else{
+                        printf("Attemping to load level %d because posX: %f > width: %d\n", selectedLevel, playerPos.x, screenWidth);
+                        if(loadNew(selectedLevel, false, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode) == 0){
+                            printf("Succesfully loaded\n");
+                        }else{
+                            printf("Failed loading level.\n");
+                            CloseWindow();
+                            return 0;
+                        }
+                        prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, &door_isClosedList, customLevel);
+                    }
                 }else{
+                    customLevel++;
                     printf("Attemping to load level %d because posX: %f > width: %d\n", selectedLevel, playerPos.x, screenWidth);
                     if(loadNew(selectedLevel, false, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode) == 0){
                         printf("Succesfully loaded\n");
                     }else{
-                        printf("Failed loading level.");
+                        printf("Failed loading level.\n");
                         CloseWindow();
                         return 0;
                     }
-                    prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, &door_isClosedList);
+                    prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, &door_isClosedList, customLevel);
                 }
             }
 
@@ -707,6 +764,7 @@ int main(int argc, char* argv[]){
                                 DrawRectangle(Col[i].x, Col[i].y, Col[i].sizeX, Col[i].sizeY, BROWN);
                                 break;
                         }
+                        DrawRectangleLines(Col[i].x, Col[i].y, Col[i].sizeX, Col[i].sizeY, BLACK);
                     }
                     DrawCircle(playerPos.x + (playerSize.x / 2),triCollision.floor + playerSize.y, 3, PURPLE);
                     DrawCircle(playerPos2.x + (playerSize.x / 2),triCollision2.floor + playerSize.y, 3, PURPLE);
@@ -749,9 +807,21 @@ int main(int argc, char* argv[]){
                 }
             }
 
-            //GUI
+            //In-Game GUI
+            if(gameState == STATE_ACTIVE){
+
+                //pause button
+                renderGuiBox(pauseButton, false);
+
+                if(IsMouseButtonDown(0) && isMouseInGuiBox(pauseButton)){
+                    gameState = STATE_PAUSED;
+                }
+
+            }
+
+            //Menu GUI
             if(gameState == STATE_MENU){
-                //printf("Render");
+
                 //background
                 DrawTextureEx(main_menu, bgPosition, 0, resolutionMultiplier, WHITE);
 
@@ -765,13 +835,30 @@ int main(int argc, char* argv[]){
                 renderGuiText(titleText);
                 renderGuiText(titleText2);
 
-                if(IsMouseButtonDown(0) && isMouseInGuiBox(playButton)){
+
+                if(IsMouseButtonPressed(0) && isMouseInGuiBox(playButton)){
                     loadNew(selectedLevel, false, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode);
-                    prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, &door_isClosedList);
+                    prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, &door_isClosedList, customLevel);
                     gameState = STATE_ACTIVE;
                 }
             }
             
+            //Pause GUI
+
+            if(gameState == STATE_PAUSED){
+
+                renderGuiBox(resumeGame, true);
+                renderGuiBox(menuButton, true);
+
+                if(IsMouseButtonPressed(0) && isMouseInGuiBox(resumeGame)){
+                    gameState = STATE_ACTIVE;
+                }
+
+                if(IsMouseButtonPressed(0) && isMouseInGuiBox(menuButton)){
+                    gameState = STATE_MENU;
+                }
+            }
+
         EndDrawing();
     }
     CloseWindow();
@@ -785,18 +872,24 @@ void prepareLevel(int resolutionMultiplier,
                     TextBox levelText[2], int textNum, 
                     int crateNum, PhysicsObject crate[2], 
                     int ladderNum, BoxCollider2D ladderCol[2], char levelImagePath[64],
-                    Animation** doorList, SwitchAnimation** leverList, bool** door_isClosedList
+                    Animation** doorList, SwitchAnimation** leverList, bool** door_isClosedList,
+                    int customLevel
+                    //Texture* defaultDoor, Texture* leverOn, Texture* leverOff
                     ){
 
     //load level image
-    if(levelImagePath[0] == '\0'){
+    if(customLevel == 0){
         sprintf(str, "resources/levels/%d.png", selectedLevel + 1);
         printf("Attemping to load image: %s\n", str);
         *level = LoadTexture(str);
     }else{
-        sprintf(str, "custom_levels/%s", levelImagePath);
-        printf("Attemping to load image: %s\n", str);
-        *level = LoadTexture(str);
+        if(levelImagePath[TextLength(levelImagePath) - 1] == '/'){
+            sprintf(str, "custom_levels/%s%d.png", levelImagePath, customLevel - 1);
+        }else{
+            sprintf(str, "custom_levels/%s", levelImagePath);
+            printf("Attemping to load custom image: %s\n", str);
+            *level = LoadTexture(str);
+        }
     }
 
     //Resize doors + levers lists
@@ -814,7 +907,10 @@ void prepareLevel(int resolutionMultiplier,
         (*doorList)[i] = (Animation){0,0,0,0,0,0,0,0,0,0,0,0,0};
         printf("hasn't crashed\n");
         (*doorList)[i] = assignProperties(0, 0, 60, false, 12, false);
+
         (*doorList)[i] = getFromFolder((*doorList)[i], "resources/objects/door/", true);
+        //(*doorList)[i].texture = *defaultDoor;
+
         (*door_isClosedList)[i] = true;
         printf("prepareLevel: default vals - Completed obj %d\n", i);
     }
@@ -823,7 +919,10 @@ void prepareLevel(int resolutionMultiplier,
     *leverList = (SwitchAnimation*)realloc(*leverList, sizeof(SwitchAnimation) * leverNum);
     for(int i = 0; i < leverNum; i++){
         (*leverList)[i] = switchAssignProperties(0, 10, false);
+
         (*leverList)[i] = switchGetFromFolder((*leverList)[i], "resources/objects/lever/");
+        //(*leverList)[i].frames[0] = *leverOff;
+        //(*leverList)[i].frames[1] = *leverOn;
     }
 
     //resize Colliders according to resolution
