@@ -33,17 +33,16 @@ bool isTouchingPlayerGrabZone(PhysicsObject input, Vector2 playerPosition, Vecto
 
 }
 
+
+
 PhysicsObject updateObject(
         PhysicsObject input, Vector2 playerPosition, Vector2 playerPosition2, Vector2 playerSize, Vector2 playerSize2, Vector2 playerVelocity, Vector2 playerVelocity2, 
-        float friction, int screenFPS, float gravity, int crateID, bool flipX, int resMultiplier,
+        float friction, float bigFriction, int screenFPS, float gravity, int crateID, bool flipX, int resMultiplier,
         int colliderNum, int ladderNum, int crateNum, int leverNum, int doorNum, BoxCollider2D Col[15], PhysicsObject crate[2]
     ){
     
     //make sure no properties are erased when returned
     PhysicsObject temp = input;
-
-    //Friction
-    temp.velocity.x -= (temp.velocity.x - (temp.velocity.x * friction)) * 60 / screenFPS;
 
     //Check against level colliders
     Rectangle self = combineVec2(input.position, (Vector2){input.sizeX, input.sizeY});
@@ -99,6 +98,12 @@ PhysicsObject updateObject(
     }else{
         temp.isTouchingPlayer = true;
     }
+
+
+    //Friction
+    if(objCollision.down) temp.velocity.x -= (temp.velocity.x - (temp.velocity.x * bigFriction)) * 60 / screenFPS;
+    else temp.velocity.x -= (temp.velocity.x - (temp.velocity.x * friction)) * 60 / screenFPS;
+
 
 
     //Is being grabbed by player?
