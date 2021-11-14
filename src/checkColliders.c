@@ -244,7 +244,7 @@ int checkCollider(int box[4], Rectangle self, bool trigger, bool enabled, bool l
 */
 
 //outputs which sides of a rectangle have contacted any other collider
-CollisionInfo checkAllColliders(Rectangle self, bool checkObjects, int colliderNum, int ladderNum, int crateNum, int leverNum, int doorNum, BoxCollider2D Col[15], PhysicsObject crate[2], BoxCollider2D ladderCol[2]){
+CollisionInfo checkAllColliders(Rectangle self, bool checkObjects, int colliderNum, int ladderNum, int crateNum, int leverNum, int doorNum, BoxCollider2D Col[20], PhysicsObject crate[2], BoxCollider2D ladderCol[5]){
     CollisionInfo collision;
     int box[4];
     Rectangle f_box;

@@ -15,7 +15,6 @@
 
 * VECTOR 2 READING FROM PHYSICS OBJECTS IS BROKEN!!!
 
-* Ladders (just need to draw)
 * Allow for crates to give velocity to one another
 * Disappearing walls / portals
 * Multiple portal instance ppossibility
