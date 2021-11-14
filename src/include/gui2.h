@@ -47,6 +47,14 @@
         return temp;
     }
 
+    GuiImg assignGuiImg(Texture2D img, Vector2 center, Vector2 offset){
+        GuiImg temp;
+        temp.img = img;
+        temp.center = center;
+        temp.offset = offset;
+        return temp;
+    }
+
     //if fromScreenCenter, offsets center of sprite from center of screen
     //else offset from center of sprite
     GuiBox offsetGuiBox(GuiBox guiBox, Vector2 position, Vector2 size, bool fromScreenCenter, int screenWidth, int screenHeight){

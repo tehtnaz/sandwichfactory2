@@ -834,8 +834,12 @@ TextBox parseTextBox(char input[128], int inputSize){
 // ~sp=     (startingPosition)
 // ~sp2=    (startingPosition2)
 // ~img= (levelImage)
-// ~isLever= (will be removed)
-// ~isDoor= (will be removed)
+// ~leverNum=
+// ~doorNum=
+// ~isMultiplayer=
+
+//Arrays?
+//%{13,31,3,13,34;1093,13,42,24,24}
 
 
 int readFileSF(char path[128], 
@@ -843,7 +847,7 @@ int readFileSF(char path[128],
             //bool* disableCam, 
             s_Camera* camera, 
             Vector2* startingPos, Vector2* startingPos2,
-            BoxCollider2D levelCol[15], BoxCollider2D ladders[2], TextBox texts[2], PhysicsObject physobjects[2], Triangle triCol[10],
+            BoxCollider2D levelCol[20], BoxCollider2D ladders[5], TextBox texts[2], PhysicsObject physobjects[2], Triangle triCol[10],
             int* levelTexts, int* levelColNum, int* ladderNum, int* physObjNum,
             int* isLever, int* isDoor, int* isMultiplayer
         ){
@@ -1200,6 +1204,8 @@ int readFileSF(char path[128],
                 }
                 sendToParse[temp] = ch;
                 ladders[ladderID] = parseBoxCollider(sendToParse, temp, false); // fix this to be based on input
+                ladders[ladderID].ladder = true;
+                printf("parseBoxCollider (main - ladder): currentLadderId = %d\n", ladderID);
                 ladderID++;
             }
         }else if(ch == '^'){
@@ -1273,6 +1279,7 @@ int readFileSF(char path[128],
             }
         }else if(ch == '<'){
             //physics object  = ^{} or ^()
+            //triangle
             printf("readFileSF: attempting to parseTriangle\n");
             charSelect++;
             ch = input[charSelect];
@@ -1336,7 +1343,8 @@ int readFileSF(char path[128],
     //printf("input - %s", input);
     printf("readFileSF: crate1: %f, %f, %d, %d, %d, %d\n", physobjects[0].position.x, physobjects[0].position.y, physobjects[0].sizeX, physobjects[0].sizeY, physobjects[0].trigger, physobjects[0].enabled);
     printf("readFileSF: crate2: %f, %f, %d, %d, %d, %d\n", physobjects[1].position.x, physobjects[1].position.y, physobjects[1].sizeX, physobjects[1].sizeY, physobjects[1].trigger, physobjects[1].enabled);
-    printf("readFileSF: levelColIDs = %d ; doorNum = %d ; leverNum = %d\n", levelColID, doorNum, leverNum);
+    printf("readFileSF: levelColIDs = %d ; doorNum = %d ; leverNum = %d ; ladderNum = %d\n", levelColID, doorNum, leverNum, ladderID);
+    printf("readFileSF: ladder1: %d, %d, %d, %d, %d, %d, %d\n", ladders[0].x, ladders[0].y, ladders[0].sizeX, ladders[0].sizeY, ladders[0].trigger, ladders[0].ladder, ladders[0].enabled);
     //printf("crate1(game): %f, %f, %d, %d, %d, %d\n", crate[0].position.x, crate[0].position.y, crate[0].sizeX, crate[0].sizeY, crate[0].trigger, crate[0].enabled);
     //printf("crate2(game): %f, %f, %d, %d, %d, %d\n", crate[1].position.x, crate[1].position.y, crate[1].sizeX, crate[1].sizeY, crate[1].trigger, crate[1].enabled);
     

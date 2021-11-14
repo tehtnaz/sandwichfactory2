@@ -5,7 +5,7 @@
             "includePath": [
                 "${default}",
                 "${workspaceFolder}/src/include",
-                "${workspaceFolder}/include"
+                "${workspaceFolder}/include/4.0"
             ],
             "windowsSdkVersion": "10.0.19041.0",
             "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.28.29910/bin/Hostx64/x64/cl.exe",

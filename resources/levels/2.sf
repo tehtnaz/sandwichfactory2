@@ -9,9 +9,6 @@
 / Col 4
     %(224,71,16,12,f,t)
 
-/ Extra col (test)
-    %(0,0,0,0,f,f)
-
 / Lever
     %(14,99,16,16,t,t)
 / Door

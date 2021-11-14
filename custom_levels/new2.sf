@@ -1,2 +1,9 @@
 %(0,119,240,16,f,t)
-%(200,0,40,200,f,t)
+/ Lever
+    %(14,99,16,16,t,t)
+/ Door
+    %(226,83,7,21,f,t)
+~leverNum=1
+~doorNum=1
+~img=1.png
+~isMultiplayer=t

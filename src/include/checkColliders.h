@@ -65,7 +65,7 @@ typedef struct CollisionInfo{
     bool up;
     bool down;
 
-    int colsTouched[15];
+    int colsTouched[20];
     //bool sidesTouched[4];
     int floor;
 
@@ -91,6 +91,6 @@ typedef struct BoxColInfo{
     bool inLadder;
 }BoxColInfo;
 
-CollisionInfo checkAllColliders(Rectangle self, bool checkObjects, int colliderNum, int ladderNum, int crateNum, int leverNum, int doorNum, BoxCollider2D Col[15], PhysicsObject crate[2]);
+CollisionInfo checkAllColliders(Rectangle self, bool checkObjects, int colliderNum, int ladderNum, int crateNum, int leverNum, int doorNum, BoxCollider2D Col[15], PhysicsObject crate[2], BoxCollider2D ladderCol[2]);
 
 CollisionInfo checkObjects(CollisionInfo collision, Rectangle self, int selfObjID, int crateNum, PhysicsObject crate[2]);

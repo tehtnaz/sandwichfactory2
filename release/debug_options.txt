@@ -1,0 +1,19 @@
+F1 - Shows all colliders and how they're colliding with player 1 as the origin
+    * Red    = Left
+    * Green  = Right
+    * Blue   = Up
+    * Yellow = Down
+
+F2 - Shows x velocty of crate[0] and x velocity of both players
+
+F3 - Shows y velocity of player 1
+
+F4 - Shows properties of selected collider
+    * player floor (top of last touched collider)
+    * selected col X
+    * selected col Y
+
+F5 - Prints X values of all colliders (x values present in level file, not rendered in the game) and also the id of the first lever and door in the colliders array
+
+F6 - Enables manual ladder mode. Makes it as if you were touching a ladder
+
