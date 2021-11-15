@@ -220,6 +220,8 @@ int main(int argc, char* argv[]){
 
     Texture2D crateImage = LoadTexture("resources/objects/crate.png");
 
+    Texture2D ladder = LoadTexture("resources/objects/ladder.png");
+
     //load sounds
 
     Sound door_open = LoadSound("resources/sounds/door/open.wav");
@@ -698,23 +700,11 @@ int main(int argc, char* argv[]){
 
                 //Ladders
                 for(int i = 0; i < ladderNum; i++){
-                    /*
-                    tempVector.x = ladderCol[i].x;
-                    tempVector.y = ladderCol[i].y;
-                    for(int i = 0; i < (float)ladderCol[i].sizeY / 3.00f; i++){
-                        //printf(";fard");
-                        //printf("%d", ladderCol[i].sizeY / 3);
-                        //printf(";%d", i);
-                        //printf("!%d!", i < ladderCol[i].sizeY / 3);
-                        printf("%d;", ladder.frames[0].height);
-                        printf("%d;", ladder.frames[0].width);
-                        printf("!");
-                        DrawTextureEx(ladder.frames[0], tempVector, 0, resolutionMultiplier, WHITE);
-                        tempVector.y += 3 * resolutionMultiplier;
-                        printf("%d", i);
-                        //GetRandomValue(0, ladder.frameCount - 1)
-                    }*/
-                    DrawRectangle(ladderCol[i].x, ladderCol[i].y, ladderCol[i].sizeX, ladderCol[i].sizeY, MAROON);
+                    //DrawRectangle(ladderCol[i].x, ladderCol[i].y, ladderCol[i].sizeX, ladderCol[i].sizeY, MAROON);
+                    for(int step = 0; step < (ladderCol[i].sizeY / 3) / resolutionMultiplier; step++){
+                        DrawTexturePro(ladder, (Rectangle){0,(step * 3) % 21,7,3}, (Rectangle){ladderCol[i].x, ladderCol[i].y + (step * 3 * resolutionMultiplier), 7 * resolutionMultiplier, 3 * resolutionMultiplier}, (Vector2){0,0}, 0, WHITE);
+                    }
+                    DrawTexturePro(ladder, (Rectangle){0,0,7,(ladderCol[i].sizeY % (3 * resolutionMultiplier)) / resolutionMultiplier}, (Rectangle){ladderCol[i].x, ladderCol[i].y + ladderCol[i].sizeY - (ladderCol[i].sizeY % (3 * resolutionMultiplier)), 7 * resolutionMultiplier, ladderCol[i].sizeY % (3 * resolutionMultiplier)}, (Vector2){0,0}, 0, WHITE);
                 }
 
                 //Player
