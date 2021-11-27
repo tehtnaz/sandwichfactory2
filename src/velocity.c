@@ -38,7 +38,8 @@ bool isTouchingPlayerGrabZone(PhysicsObject input, Vector2 playerPosition, Vecto
 PhysicsObject updateObject(
         PhysicsObject input, Vector2 playerPosition, Vector2 playerPosition2, Vector2 playerSize, Vector2 playerSize2, Vector2 playerVelocity, Vector2 playerVelocity2, 
         float friction, float bigFriction, int screenFPS, float gravity, int crateID, bool flipX, int resMultiplier,
-        int colliderNum, int ladderNum, int crateNum, int leverNum, int doorNum, BoxCollider2D Col[15], PhysicsObject crate[2], BoxCollider2D ladderCol[2]
+        int colliderNum, int ladderNum, int crateNum, int leverNum, int doorNum, int portalNum,
+        BoxCollider2D Col[15], PhysicsObject crate[2], BoxCollider2D ladderCol[2]
     ){
     
     //make sure no properties are erased when returned
@@ -46,7 +47,7 @@ PhysicsObject updateObject(
 
     //Check against level colliders
     Rectangle self = combineVec2(input.position, (Vector2){input.sizeX, input.sizeY});
-    CollisionInfo objCollision = checkAllColliders(self, false, colliderNum, ladderNum, crateNum, leverNum, doorNum, Col, crate, ladderCol);
+    CollisionInfo objCollision = checkAllColliders(self, false, colliderNum, ladderNum, crateNum, leverNum, doorNum, portalNum, Col, crate, ladderCol);
     objCollision = checkObjects(objCollision, self, crateID, crateNum, crate);
 
     //Check against given player

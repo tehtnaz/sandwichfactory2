@@ -9,6 +9,7 @@
         "checkcolliders.h": "c",
         "stdio.h": "c",
         "boxpp.h": "c",
-        "loadnew.h": "c"
+        "loadnew.h": "c",
+        "datahandling.h": "c"
     }
 }

@@ -18,3 +18,8 @@ F5 - Prints X values of all colliders (x values present in level file, not rende
 F6 - Enables manual ladder mode. Makes it as if you were touching a ladder
 
 F7 - Prints result of each BoxCollider2D collision check with the player
+
+
+SHIFT + Functions Keys (F1 - F12)
+    * Activate tag according to number of function key
+    * Ex. SHIFT+F1 = toggle tag 1,  SHIFT+F7 = toggle tag 7 

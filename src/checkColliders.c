@@ -244,7 +244,7 @@ int checkCollider(int box[4], Rectangle self, bool trigger, bool enabled, bool l
 */
 
 //outputs which sides of a rectangle have contacted any other collider
-CollisionInfo checkAllColliders(Rectangle self, bool checkObjects, int colliderNum, int ladderNum, int crateNum, int leverNum, int doorNum, BoxCollider2D Col[20], PhysicsObject crate[2], BoxCollider2D ladderCol[5]){
+CollisionInfo checkAllColliders(Rectangle self, bool checkObjects, int colliderNum, int ladderNum, int crateNum, int leverNum, int doorNum, int portalNum, BoxCollider2D Col[25], PhysicsObject crate[2], BoxCollider2D ladderCol[5]){
     CollisionInfo collision;
     int box[4];
     Rectangle f_box;
@@ -257,24 +257,24 @@ CollisionInfo checkAllColliders(Rectangle self, bool checkObjects, int colliderN
     collision.inTrigger = false;
     collision.inLadder = false;
 
-    int colsToCheck = colliderNum + leverNum + doorNum + ladderNum;
+    int colsToCheck = colliderNum + leverNum + doorNum + ladderNum + portalNum;
     if(checkObjects && crateNum > 0 ) colsToCheck += crateNum;
 
     for(int i = 0; i < colsToCheck; i++){
-        if(i > colliderNum - 1 + leverNum + doorNum + ladderNum){
-            f_box.x = crate[i - colliderNum - leverNum - doorNum].position.x;
-            f_box.y = crate[i - colliderNum - leverNum - doorNum].position.y;
-            f_box.width = crate[i - colliderNum - leverNum - doorNum].sizeX;
-            f_box.height = crate[i - colliderNum - leverNum - doorNum].sizeY;
-            result = f_checkCollider(f_box, self, crate[i - colliderNum - leverNum - doorNum].trigger, crate[i - colliderNum - leverNum - doorNum].enabled);
+        if(i > colliderNum - 1 + leverNum + doorNum + ladderNum + portalNum){
+            f_box.x = crate[i - colliderNum - leverNum - doorNum - portalNum].position.x;
+            f_box.y = crate[i - colliderNum - leverNum - doorNum - portalNum].position.y;
+            f_box.width = crate[i - colliderNum - leverNum - doorNum - portalNum].sizeX;
+            f_box.height = crate[i - colliderNum - leverNum - doorNum - portalNum].sizeY;
+            result = f_checkCollider(f_box, self, crate[i - colliderNum - leverNum - doorNum - portalNum].trigger, crate[i - colliderNum - leverNum - doorNum - portalNum].enabled);
             //printf("checking obj: %d\n", i - colliderNum - leverNum - doorNum);
         }else{
-            if(i > colliderNum - 1 + leverNum + doorNum){
-                box[0] = ladderCol[i - colliderNum - leverNum - doorNum].x;
-                box[1] = ladderCol[i - colliderNum - leverNum - doorNum].y;
-                box[2] = ladderCol[i - colliderNum - leverNum - doorNum].sizeX;
-                box[3] = ladderCol[i - colliderNum - leverNum - doorNum].sizeY;
-                result = checkCollider(box, self, ladderCol[i - colliderNum - leverNum - doorNum].trigger, ladderCol[i - colliderNum - leverNum - doorNum].enabled, true);
+            if(i > colliderNum - 1 + leverNum + doorNum + portalNum){
+                box[0] = ladderCol[i - colliderNum - leverNum - doorNum - portalNum].x;
+                box[1] = ladderCol[i - colliderNum - leverNum - doorNum - portalNum].y;
+                box[2] = ladderCol[i - colliderNum - leverNum - doorNum - portalNum].sizeX;
+                box[3] = ladderCol[i - colliderNum - leverNum - doorNum - portalNum].sizeY;
+                result = checkCollider(box, self, ladderCol[i - colliderNum - leverNum - doorNum - portalNum].trigger, ladderCol[i - colliderNum - leverNum - doorNum - portalNum].enabled, true);
                 //result = 6;
                 //printf("checking ladder: %d     ", i - colliderNum - leverNum - doorNum);
             }else{
@@ -303,8 +303,16 @@ CollisionInfo checkAllColliders(Rectangle self, bool checkObjects, int colliderN
                 collision.floor = i;
                 break;
             case 5:
-                collision.inTrigger = true;
-                collision.triggerID = i;
+                if(i > colliderNum - 1 + leverNum + doorNum + ladderNum + portalNum){
+                    collision.inTrigger = crate[i - colliderNum - leverNum - doorNum - portalNum].trigger;
+                }else{
+                    if(i > colliderNum - 1 + leverNum + doorNum + portalNum){
+                        collision.inTrigger = ladderCol[i - colliderNum - leverNum - doorNum - portalNum].trigger;
+                    }else{
+                        collision.inTrigger = Col[i].trigger;
+                    }
+                }
+                collision.triggerObjID = i;
                 break;
             case 6:
                 collision.inLadder = true;

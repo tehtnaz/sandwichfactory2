@@ -10,36 +10,41 @@ Properties
     ~ = property   =  ~propertyname=data;
 
     Property names
-    img              - string  (level Image)
-    sp               - Vector2 (starting point)
-    sp2              - Vector2 (starting point - player 2)
-    isMultiplayer    - bool    (enable player 2?)
-    leverNum         - int     (must specify lever num if using levers)
-    doorNum          - int     (must specify if using doors)
-
+    img              - string   (level Image)
+    sp               - Vector2  (starting point)
+    sp2              - Vector2  (starting point - player 2)
+    isMultiplayer    - bool     (enable player 2?)
+    leverNum         - int      (must specify lever num if using levers)
+    doorNum          - int      (must specify if using doors)
 
 Structs
-    % = level collider  = %(x,y,sizeX,sizeY,isTrigger,enabled)
-                            int, int, int, int, bool, bool
-    * = ladder collider = same as levelCollider but with star   = *()
+    % = level collider   = %(x,  y,  sizeX,sizeY,isTrigger, enabled, tag)
+                             int,int,int,  int,  bool,      bool,    int
+    * = ladder collider  = same as levelCollider but with star   = *()
+    # = toggled wall col = same as levelCollider but with hastag = #()
 
-    ^ = Physics object  = ^(position,sizeX,sizeY,trigger,enabled)
-                            Vector2, int,  int,  bool,   bool
+    ^ = Physics object   = ^(position,sizeX,sizeY,trigger,enabled)
+                             Vector2, int,  int,  bool,   bool
 
-    & = textBox       = &(x,y,size,text,colour)
-                                     int,int,int,string,colour
+    & = textBox          = &(x, y,  size,text,  colour)
+                            int,int,int, string,colour
+
+    # = wallTag          = #(wallID, tag)
+                             int,    int
+
 		  Notes: The string must be expressed without quotes. 
 		              Any attempts to add a comma in the text must be preceeded by a backslash ( \, ) This will display only the comma.
     
     Note: Spaces are strongly disencouraged in structs since this breaks anything involving bool because of my lazy coding. Please don't add spaces inside a struct unless you're entering a string
 
 Types
-    @ = vector 2 (int)   = @(x,y)  broken (do no use)
+    @ = vector 2 (int)   = @(x,y)
     @f= vector 2 (float) = @f(x,y) broken (do not use)
+        instead, input the numbers directly; 0,0 instead of @(0,0)
     ? = colour     = ?(r,g,b,a)
 
 Examples can be found in the custom_levels/template folder.
 
 
 Extra notes:
-The file does not need to have the .sf extension since its just a text file
+The file does not need to have the .sf extension since its just a text file (it's just cool to have .sf)

@@ -75,12 +75,12 @@ int parseInt(char input[11], int arraySize){ // Sometimes while parsing garbage 
                 isEnd = true;
                 break;
             case '.':
-                printf("ERROR: parseInt - Received \'.\' as input. This will fail because the parser checks for integers. Ending function...");
+                printf("ERROR: parseInt - Received \'.\' as input. This will fail because the parser checks for integers. Ending function...\n");
                 isEnd = true;
                 output = 0;
                 break;
             default:
-                printf("ERROR: parseInt - Received non-number as input. Ending function...");
+                printf("ERROR: parseInt - Received non-number as input. Ending function...\n");
                 isEnd = true;
                 output = 0;
                 break;
@@ -469,16 +469,38 @@ BoxCollider2D parseBoxCollider(char input[128], int inputSize, bool isLadder){
                 break;
         }
     }
-    returnedCol.trigger = parseBool(input[select]);
+    i = 0;
+    temp = 0;
+    while(input[select] != ','){
+        //printf("%c",input[select]);
+        sendToParse[i] = input[select];
+        select++;
+        i++;
+    }
+    returnedCol.trigger = parseInt(sendToParse, i);
+    
+    //printf("\n");   
+    select++;
+
+    returnedCol.enabled = parseBool(input[select]);
     select++;
     if(input[select] == ','){
         select++;
     }else{
-        printf("ERROR: parseBoxCollider2D - Input is not a bool");
+        printf("ERROR: parseBoxCollider2D - Input is not a bool\n");
     }
-    returnedCol.enabled = parseBool(input[select]);
+    i = 0;
+    temp = 0;
+    while(input[select] != ')'){
+        //printf("%c",input[select]);
+        sendToParse[i] = input[select];
+        select++;
+        i++;
+    }
+    //printf("\n");
+    returnedCol.tag = parseInt(sendToParse, i);
     if(input[select] != ';' && input[select] != ')' && (select < inputSize - 1 || select > inputSize)){
-        printf("ERROR: parseBoxCollider2D - Could not terminate Collider properly...\n\tNote: This is probably because a bool was incorrect\n");
+        printf("ERROR: parseBoxCollider2D - Could not terminate Collider properly...\n\tNote: This is probably because a bool was incorrect\n\tch = %c (%d)\n", input[select], input[select]);
     }
     return returnedCol;
 }
@@ -784,6 +806,39 @@ TextBox parseTextBox(char input[128], int inputSize){
     return returnedTextBox;
 }
 
+int parseWallTag(char input[128], int inputSize, bool returnTag){
+    int inputSelect = 0;
+    char sendToParse[11];
+    int i = 0;
+
+    printf("parseWallTag: Reading \"%s\"\n", input);
+
+    if(input[inputSelect] == '('){
+        inputSelect++;
+    }
+
+
+    if(returnTag){
+        while(input[inputSelect] != ','){
+            inputSelect++;
+        }
+        inputSelect++;
+        while(input[inputSelect] != ')'){
+            sendToParse[i] = input[inputSelect];
+            i++;
+            inputSelect++;
+        }
+        return parseInt(sendToParse, i);
+    }else{
+        while(input[inputSelect] != ','){
+            sendToParse[i] = input[inputSelect];
+            i++;
+            inputSelect++;
+        }
+        return parseInt(sendToParse, i);
+    }
+}
+
 //SandwichFactory Data structure
 //    path to level image is always first ie. levels/1/photo.png;~2323;~2343
 
@@ -847,9 +902,10 @@ int readFileSF(char path[128],
             //bool* disableCam, 
             s_Camera* camera, 
             Vector2* startingPos, Vector2* startingPos2,
-            BoxCollider2D levelCol[20], BoxCollider2D ladders[5], TextBox texts[2], PhysicsObject physobjects[2], Triangle triCol[10],
+            BoxCollider2D levelCol[25], BoxCollider2D ladders[5], TextBox texts[2], PhysicsObject physobjects[2], Triangle triCol[10],
             int* levelTexts, int* levelColNum, int* ladderNum, int* physObjNum,
-            int* isLever, int* isDoor, int* isMultiplayer
+            int* isLever, int* isDoor, int* isMultiplayer, int* portalNum,
+            int wallTags[16], int* wallNum
         ){
     
     
@@ -1043,6 +1099,26 @@ int readFileSF(char path[128],
                     }
                     sendToParse[temp] = '\0';
                     doorNum = parseInt(sendToParse, temp);
+                }else if(strEquals(propertyName, "wallNum;")){
+                    temp = 0;
+                    while(ch != ';' && ch != '\n' && ch != '\0' && temp < 12 && ch != EOF){
+                        sendToParse[temp] = ch;
+                        charSelect++;
+                        ch = input[charSelect];
+                        temp++;
+                    }
+                    sendToParse[temp] = '\0';
+                    *wallNum = parseInt(sendToParse, temp);
+                }else if(strEquals(propertyName, "portalNum;")){
+                    temp = 0;
+                    while(ch != ';' && ch != '\n' && ch != '\0' && temp < 12 && ch != EOF){
+                        sendToParse[temp] = ch;
+                        charSelect++;
+                        ch = input[charSelect];
+                        temp++;
+                    }
+                    sendToParse[temp] = '\0';
+                    *portalNum = parseInt(sendToParse, temp);
                 }else if(strEquals(propertyName, "playerImg")){
                     printf("ERROR: parseProperty: playerImg not implemented yet. Skipping...\n");
                 }else if(strEquals(propertyName, "isMultiplayer;")){
@@ -1242,6 +1318,30 @@ int readFileSF(char path[128],
                 physobjects[physObjID] = parsePhysicsObject(sendToParse, temp);
                 physObjID++;
             }
+        }else if(ch == '#'){
+            //wallTag  = #()
+            printf("readFileSF: attempting to parseWallTag\n");
+            charSelect++;
+            ch = input[charSelect];
+            if(ch == '{'){
+                //array
+            }else{
+                //single struct
+                if(ch == '('){
+                    charSelect++;
+                    ch = input[charSelect];
+                }
+                temp = 0;
+                while(ch != ')'){
+                    sendToParse[temp] = ch;
+                    charSelect++;
+                    ch = input[charSelect];
+                    temp++;
+                }
+                sendToParse[temp] = ch;
+                //(*wallTags)[parseWallTag(sendToParse, temp, false)] = parseWallTag(sendToParse, temp, true);
+                wallTags[parseWallTag(sendToParse, temp, false)] = parseWallTag(sendToParse, temp, true);
+            }
         }else if(ch == '&'){
             //textBox         = &{} or &()
             charSelect++;
@@ -1331,7 +1431,7 @@ int readFileSF(char path[128],
             printf("    Getting new line\n");
         }
     }
-    levelColID -= doorNum + leverNum;
+    levelColID -= (doorNum + leverNum + *portalNum);
     *isDoor = doorNum;
     *isLever = leverNum;
 
@@ -1345,6 +1445,7 @@ int readFileSF(char path[128],
     printf("readFileSF: crate2: %f, %f, %d, %d, %d, %d\n", physobjects[1].position.x, physobjects[1].position.y, physobjects[1].sizeX, physobjects[1].sizeY, physobjects[1].trigger, physobjects[1].enabled);
     printf("readFileSF: levelColIDs = %d ; doorNum = %d ; leverNum = %d ; ladderNum = %d\n", levelColID, doorNum, leverNum, ladderID);
     printf("readFileSF: ladder1: %d, %d, %d, %d, %d, %d, %d\n", ladders[0].x, ladders[0].y, ladders[0].sizeX, ladders[0].sizeY, ladders[0].trigger, ladders[0].ladder, ladders[0].enabled);
+    printf("readFileSF: portal1: %d, %d, %d, %d, %d, %d, %d\n", levelCol[levelColID + doorNum + leverNum].x, levelCol[levelColID + doorNum + leverNum].y, levelCol[levelColID + doorNum + leverNum].sizeX, levelCol[levelColID + doorNum + leverNum].sizeY, levelCol[levelColID + doorNum + leverNum].trigger, levelCol[levelColID + doorNum + leverNum].ladder, levelCol[levelColID + doorNum + leverNum].enabled);
     //printf("crate1(game): %f, %f, %d, %d, %d, %d\n", crate[0].position.x, crate[0].position.y, crate[0].sizeX, crate[0].sizeY, crate[0].trigger, crate[0].enabled);
     //printf("crate2(game): %f, %f, %d, %d, %d, %d\n", crate[1].position.x, crate[1].position.y, crate[1].sizeX, crate[1].sizeY, crate[1].trigger, crate[1].enabled);
     
