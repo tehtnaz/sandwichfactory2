@@ -59,7 +59,7 @@
     //else offset from center of sprite
     GuiBox offsetGuiBox(GuiBox guiBox, Vector2 position, Vector2 size, bool fromScreenCenter, int screenWidth, int screenHeight){
         GuiBox temp = guiBox;
-        if(fromScreenCenter)  temp.rec = combineVec2((Vector2){position.x - size.x/2 + GetScreenWidth()/2, position.y - size.y/2 + GetScreenHeight()/2}, size);
+        if(fromScreenCenter)  temp.rec = combineVec2((Vector2){position.x - size.x/2 + screenWidth/2, position.y - size.y/2 + screenHeight/2}, size);
         else temp.rec = combineVec2((Vector2){position.x-size.x/2, position.y-size.y/2}, size);
         return temp;
     }
@@ -125,5 +125,38 @@
         return isPointInRec(box.rec, (Vector2){GetMouseX(), GetMouseY()});
     }
 
+    GuiText resizeGuiText(GuiText guiText, float resizeAmount){
+        GuiText temp = guiText;
+        temp.center.x *= resizeAmount;
+        temp.center.y *= resizeAmount;
+        temp.offset.x *= resizeAmount;
+        temp.offset.y *= resizeAmount;
+        temp.size *= resizeAmount;
+        temp.spacing *= resizeAmount;
+        //if(!resizeCenter) 
+        printf("before resizeGuiText: %f %f %f %f %d %f\n", guiText.center.x, guiText.center.y, guiText.offset.x, guiText.offset.y, guiText.size, guiText.spacing);
+        //if(!resizeCenter) 
+        printf("resizeGuiText: %f %f %f %f %d %f\n", temp.center.x, temp.center.y, temp.offset.x, temp.offset.y, temp.size, temp.spacing);
+        return temp;
+    }
+    GuiBox resizeGuiBox(GuiBox guiBox, float resizeAmount, bool resizeTexts){
+        GuiBox temp = guiBox;
+        temp.rec = resizeRec(temp.rec, resizeAmount);
+        //temp.rec.width *= resizeAmount;
+        //temp.rec.height *= resizeAmount;
+        //temp = offsetGuiBox(temp, , , 0, )
+        temp.borderWidth *= resizeAmount;
+
+        printf("before resizeGuiBox: %f %f %f %f %d\n", guiBox.rec.x, guiBox.rec.y, guiBox.rec.width, guiBox.rec.height, guiBox.borderWidth);
+        printf("resizeGuiBox: %f %f %f %f %d\n", temp.rec.x, temp.rec.y, temp.rec.width, temp.rec.height, temp.borderWidth);
+
+        if(resizeTexts){
+            for(int i = 0; i < temp.textNum; i++){
+                printf("-> ;  ");
+                *(temp.texts[i]) = resizeGuiText(*(temp.texts[i]), resizeAmount);
+            }
+        }
+        return temp;
+    }
 
 #endif // gui_h_2

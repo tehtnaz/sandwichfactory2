@@ -292,30 +292,38 @@ int main(int argc, char* argv[]){
     //main menu GUI
     GuiText playText = assignGuiText(&montserrat, (Vector2){0,0}, (Vector2){0,0}, "Play", 100, BLACK, 0);
     GuiBox playButton = (GuiBox){RECZERO, &playText, NULL, 1, WHITE, 4, BLACK};
-    playButton = offsetGuiBox(playButton, (Vector2){0,125}, (Vector2){250,125}, true, screenWidth, screenHeight);
+    playButton = offsetGuiBox(playButton, (Vector2){0,125}, (Vector2){250,125}, true, 1920, 1080);
 
     GuiText titleText = assignGuiText(&bade, (Vector2){0,0}, (Vector2){0,-350}, "SANDWICH", 175, WHITE, 0);
     GuiText titleText2 = assignGuiText(&bade, (Vector2){0,0}, (Vector2){0,-150}, "FACTORY", 175, WHITE, 0);
     
-    titleText.center = GetTextCenterGUI(titleText, screenWidth, screenHeight);
-    titleText2.center = GetTextCenterGUI(titleText2, screenWidth, screenHeight);
+    titleText.center = GetTextCenterGUI(titleText, 1920, 1080);
+    titleText2.center = GetTextCenterGUI(titleText2, 1920, 1080);
+
+    playButton = resizeGuiBox(playButton, screenHeight / 1080.0f, true);
+    titleText = resizeGuiText(titleText, screenHeight / 1080.0f);
+    titleText2 = resizeGuiText(titleText2, screenHeight / 1080.0f);
 
     //pause game
     GuiBox pauseButton = assignGuiBox(newRec(1810,10,100,100), NULL, NULL, 0, WHITE, 5, BLACK);
 
     GuiText resumeText = assignGuiText(&montserrat, (Vector2){0,0}, (Vector2){0,0}, "Resume Game", 90, BLACK, 0);
-    resumeText.center = GetTextCenterGUI(resumeText, screenWidth, screenHeight);
+    resumeText.center = GetTextCenterGUI(resumeText, 1920, 1080);
 
     GuiText menuText = assignGuiText(&montserrat, (Vector2){0,0}, (Vector2){0,0}, "Back to menu", 90, BLACK, 0);
-    menuText.center = GetTextCenterGUI(menuText, screenWidth, screenHeight);
+    menuText.center = GetTextCenterGUI(menuText, 1920, 1080);
 
     GuiBox resumeGame = assignGuiBox(RECZERO, &resumeText, NULL, 1, WHITE, 5, BLACK);
     GuiBox menuButton = assignGuiBox(RECZERO, &menuText, NULL, 1, WHITE, 5, BLACK);
-    resumeGame = offsetGuiBox(resumeGame, (Vector2){0,-100}, (Vector2){575,150}, true, screenWidth, screenHeight);
-    menuButton = offsetGuiBox(menuButton, (Vector2){0,100}, (Vector2){575,150}, true, screenWidth, screenHeight);
+    resumeGame = offsetGuiBox(resumeGame, (Vector2){0,-100}, (Vector2){575,150}, true, 1920, 1080);
+    menuButton = offsetGuiBox(menuButton, (Vector2){0,100}, (Vector2){575,150}, true, 1920, 1080);
 
     resumeText = setGuiTextOrigin(resumeGame, resumeText, true);
     menuText = setGuiTextOrigin(menuButton, menuText, true);
+
+    pauseButton = resizeGuiBox(pauseButton, screenHeight / 1080.0f, false);
+    resumeGame = resizeGuiBox(resumeGame, screenHeight / 1080.0f, true);
+    menuButton = resizeGuiBox(menuButton, screenHeight / 1080.0f, true);
 
     if(customLevel == 1){
         gameState = STATE_ACTIVE;
