@@ -69,13 +69,13 @@ int main(int argc, char* argv[]){
                     Animation** doorList, SwitchAnimation** leverList, //bool** door_isClosedList,
                     int customLevel, 
                     //char* levelWallsImgPath, int* pathLength, 
-                    int wallNum, Texture2D wallImg[16], int wallTags[16]
+                    int wallNum, Texture2D wallImg[16], int wallTags[16], uint16_t* wallEnabled
                     //Texture* defaultDoor, Texture* leverOn, Texture* leverOff
                     );
 
     //load colliders and resize starting position and declare which level we start with
     int selectedLevel = 0;
-    const int maxLevel = 6; //default level count - 1 (because index 0)
+    const int maxLevel = 7; //default level count - 1 (because index 0)
 
     //player properties
     float velocity = 0.00f;
@@ -159,6 +159,7 @@ int main(int argc, char* argv[]){
     Texture2D level;
     Texture2D wallImg[16];
     int wallTags[16];
+    uint16_t wallEnabled = 0xFFFF;
     int wallNum = 0;
 
     //game related variables
@@ -327,7 +328,7 @@ int main(int argc, char* argv[]){
 
     if(customLevel == 1){
         gameState = STATE_ACTIVE;
-        prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags);
+        prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled);
     }
 
     //start sound
@@ -555,6 +556,22 @@ int main(int argc, char* argv[]){
                             didActivate = true;
                         }
                     }
+                    for(int i = 0; i < wallNum; i++){
+                        if(wallTags[i] == collision.inTrigger){
+                            printf("s:");
+                            for(int i = 0; i < 16; i++){
+                                printf("%d", (wallEnabled >> i) & 1);
+                            }
+                            printf("\n");
+                            wallEnabled = wallEnabled ^ (0b000000000000001 << i);
+                            for(int i = 0; i < 16; i++){
+                                printf("%d", (wallEnabled >> i) & 1);
+                            }
+                            printf("\n");
+                        }else{
+                            printf("%d, %d\n", wallTags[i], collision.inTrigger);
+                        }
+                    }
                     if(didActivate){
                         PlaySound(portalSound);
                     }
@@ -612,7 +629,7 @@ int main(int argc, char* argv[]){
                             CloseWindow();
                             return 0;
                         }
-                        prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags);
+                        prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled);
                     }
                 }else{
                     customLevel++;
@@ -624,7 +641,7 @@ int main(int argc, char* argv[]){
                         CloseWindow();
                         return 0;
                     }
-                    prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags);
+                    prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled);
                 }
             }
 
@@ -764,7 +781,10 @@ int main(int argc, char* argv[]){
                 //Level + Text
                 DrawTextureEx(level, bgPosition, 0, resolutionMultiplier, WHITE);
                 for(int i = 0; i < wallNum; i++){
+                    if(((wallEnabled >> i) & 0b1) == 1)
                     DrawTextureEx(wallImg[i], bgPosition, 0, resolutionMultiplier, WHITE);
+                    else
+                    DrawTextureEx(wallImg[i], bgPosition, 0, resolutionMultiplier, (Color){130, 130, 130, 130});
                 }
                 for(int i = 0; i < textNum; i++){
                     DrawText(levelText[i].text, levelText[i].x, levelText[i].y, levelText[i].size, levelText[i].colour);
@@ -957,7 +977,7 @@ int main(int argc, char* argv[]){
 
                 if(IsMouseButtonPressed(0) && isMouseInGuiBox(playButton)){
                     loadNew(selectedLevel, false, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum);
-                    prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags);
+                    prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled);
                     gameState = STATE_ACTIVE;
                 }
             }
@@ -994,10 +1014,11 @@ void prepareLevel(int resolutionMultiplier,
                     Animation** doorList, SwitchAnimation** leverList, //bool** door_isClosedList,
                     int customLevel, 
                     //char* levelWallsImgPath, int* pathLength, 
-                    int wallNum, Texture2D wallImg[16], int wallTags[16]
+                    int wallNum, Texture2D wallImg[16], int wallTags[16], uint16_t* wallEnabled
                     //Texture* defaultDoor, Texture* leverOn, Texture* leverOff
                     ){
     printf("prepareLevel: Preparing level...\n");
+    *wallEnabled = 0xFFFF;
     //load level image
     //char* tempString;
     //int processedChars = 0;
@@ -1006,7 +1027,7 @@ void prepareLevel(int resolutionMultiplier,
         printf("prepareLevel: Attemping to load image: %s\n", str);
         *level = LoadTexture(str);
         for(int i = 0; i < wallNum; i++){
-            wallImg[i] = LoadTexture(TextFormat("resources/%d_walls/%d.png", selectedLevel + 1, i));
+            wallImg[i] = LoadTexture(TextFormat("resources/levels/%d_walls/%d.png", selectedLevel + 1, i));
             //(*wallImg)[i] = LoadTexture(TextFormat("resources/%d_walls/%d.png", selectedLevel + 1, i));
         }
     }else{
@@ -1019,7 +1040,7 @@ void prepareLevel(int resolutionMultiplier,
             *level = LoadTexture(str);
         }
         for(int i = 0; i < wallNum; i++){
-            wallImg[i] = LoadTexture(TextFormat("resources/%d_walls/%d.png", selectedLevel + 1, i));
+            wallImg[i] = LoadTexture(TextFormat("custom_levels/%s_walls/%d.png", levelImagePath, i));
             //(*wallImg)[i] = LoadTexture(TextFormat("custom_levels/%s_walls/%d.png", levelImagePath, i));
         }
         /*for(int i = 0; i < wallNum; i++){

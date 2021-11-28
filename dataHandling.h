@@ -1318,8 +1318,8 @@ int readFileSF(char path[128],
                 physobjects[physObjID] = parsePhysicsObject(sendToParse, temp);
                 physObjID++;
             }
-        }else if(ch == '#'){
-            //wallTag  = #()
+        }else if(ch == '$'){
+            //wallTag  = $()
             printf("readFileSF: attempting to parseWallTag\n");
             charSelect++;
             ch = input[charSelect];

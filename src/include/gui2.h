@@ -142,9 +142,6 @@
     GuiBox resizeGuiBox(GuiBox guiBox, float resizeAmount, bool resizeTexts){
         GuiBox temp = guiBox;
         temp.rec = resizeRec(temp.rec, resizeAmount);
-        //temp.rec.width *= resizeAmount;
-        //temp.rec.height *= resizeAmount;
-        //temp = offsetGuiBox(temp, , , 0, )
         temp.borderWidth *= resizeAmount;
 
         printf("before resizeGuiBox: %f %f %f %f %d\n", guiBox.rec.x, guiBox.rec.y, guiBox.rec.width, guiBox.rec.height, guiBox.borderWidth);

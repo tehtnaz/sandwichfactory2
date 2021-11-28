@@ -16,12 +16,12 @@ Properties
     isMultiplayer    - bool     (enable player 2?)
     leverNum         - int      (must specify lever num if using levers)
     doorNum          - int      (must specify if using doors)
+    wallNum          - int      (must specify if using disappearing walls)
 
 Structs
     % = level collider   = %(x,  y,  sizeX,sizeY,isTrigger, enabled, tag)
                              int,int,int,  int,  bool,      bool,    int
     * = ladder collider  = same as levelCollider but with star   = *()
-    # = toggled wall col = same as levelCollider but with hastag = #()
 
     ^ = Physics object   = ^(position,sizeX,sizeY,trigger,enabled)
                              Vector2, int,  int,  bool,   bool
@@ -29,7 +29,7 @@ Structs
     & = textBox          = &(x, y,  size,text,  colour)
                             int,int,int, string,colour
 
-    # = wallTag          = #(wallID, tag)
+    $ = wallTag          = #(wallID, tag)
                              int,    int
 
 		  Notes: The string must be expressed without quotes. 
