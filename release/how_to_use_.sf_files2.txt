@@ -19,12 +19,12 @@ Properties
     wallNum          - int      (must specify if using disappearing walls)
 
 Structs
-    % = level collider   = %(x,  y,  sizeX,sizeY,isTrigger, enabled, tag)
-                             int,int,int,  int,  bool,      bool,    int
+    % = level collider   = %(x,  y,  sizeX,sizeY,trigger, enabled, tag)
+                             int,int,int,  int,  int,     bool,    int
     * = ladder collider  = same as levelCollider but with star   = *()
 
-    ^ = Physics object   = ^(position,sizeX,sizeY,trigger,enabled)
-                             Vector2, int,  int,  bool,   bool
+    ^ = Physics object   = ^(position,sizeX,sizeY,isTrigger,enabled)
+                             Vector2, int,  int,  bool,     bool
 
     & = textBox          = &(x, y,  size,text,  colour)
                             int,int,int, string,colour

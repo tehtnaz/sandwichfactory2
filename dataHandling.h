@@ -902,7 +902,7 @@ int readFileSF(char path[128],
             //bool* disableCam, 
             s_Camera* camera, 
             Vector2* startingPos, Vector2* startingPos2,
-            BoxCollider2D levelCol[25], BoxCollider2D ladders[5], TextBox texts[2], PhysicsObject physobjects[2], Triangle triCol[10],
+            BoxCollider2D levelCol[30], BoxCollider2D ladders[5], TextBox texts[2], PhysicsObject physobjects[2], Triangle triCol[10],
             int* levelTexts, int* levelColNum, int* ladderNum, int* physObjNum,
             int* isLever, int* isDoor, int* isMultiplayer, int* portalNum,
             int wallTags[16], int* wallNum
@@ -1443,7 +1443,7 @@ int readFileSF(char path[128],
     //printf("input - %s", input);
     printf("readFileSF: crate1: %f, %f, %d, %d, %d, %d\n", physobjects[0].position.x, physobjects[0].position.y, physobjects[0].sizeX, physobjects[0].sizeY, physobjects[0].trigger, physobjects[0].enabled);
     printf("readFileSF: crate2: %f, %f, %d, %d, %d, %d\n", physobjects[1].position.x, physobjects[1].position.y, physobjects[1].sizeX, physobjects[1].sizeY, physobjects[1].trigger, physobjects[1].enabled);
-    printf("readFileSF: levelColIDs = %d ; doorNum = %d ; leverNum = %d ; ladderNum = %d\n", levelColID, doorNum, leverNum, ladderID);
+    printf("readFileSF: levelColIDs = %d ; doorNum = %d ; leverNum = %d ; ladderNum = %d ; crateNum = %d\n", levelColID, doorNum, leverNum, ladderID, physObjID);
     printf("readFileSF: ladder1: %d, %d, %d, %d, %d, %d, %d\n", ladders[0].x, ladders[0].y, ladders[0].sizeX, ladders[0].sizeY, ladders[0].trigger, ladders[0].ladder, ladders[0].enabled);
     printf("readFileSF: portal1: %d, %d, %d, %d, %d, %d, %d\n", levelCol[levelColID + doorNum + leverNum].x, levelCol[levelColID + doorNum + leverNum].y, levelCol[levelColID + doorNum + leverNum].sizeX, levelCol[levelColID + doorNum + leverNum].sizeY, levelCol[levelColID + doorNum + leverNum].trigger, levelCol[levelColID + doorNum + leverNum].ladder, levelCol[levelColID + doorNum + leverNum].enabled);
     //printf("crate1(game): %f, %f, %d, %d, %d, %d\n", crate[0].position.x, crate[0].position.y, crate[0].sizeX, crate[0].sizeY, crate[0].trigger, crate[0].enabled);

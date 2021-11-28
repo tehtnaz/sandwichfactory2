@@ -62,7 +62,7 @@ int main(int argc, char* argv[]){
     void prepareLevel(int resolutionMultiplier, 
                     Vector2* playerPos, Vector2* playerPos2, Vector2 startingPos, Vector2 startingPos2, 
                     int selectedLevel, Texture2D* level, char str[40], 
-                    int colliderNum, int leverNum, int doorNum, int portalNum, BoxCollider2D Col[25], 
+                    int colliderNum, int leverNum, int doorNum, int portalNum, BoxCollider2D Col[30], 
                     TextBox levelText[2], int textNum, 
                     int crateNum, PhysicsObject crate[2], 
                     int ladderNum, BoxCollider2D ladderCol[5], char levelImagePath[64],
@@ -75,7 +75,7 @@ int main(int argc, char* argv[]){
 
     //load colliders and resize starting position and declare which level we start with
     int selectedLevel = 0;
-    const int maxLevel = 7; //default level count - 1 (because index 0)
+    const int maxLevel = 9; //default level count - 1 (because index 0)
 
     //player properties
     float velocity = 0.00f;
@@ -86,7 +86,7 @@ int main(int argc, char* argv[]){
     Vector2 playerPos2 = {0,0};
 
     //objects
-    BoxCollider2D Col[25];
+    BoxCollider2D Col[30];
     TextBox levelText[2];
     PhysicsObject crate[2];
     TriSlope triCol[10];
@@ -808,7 +808,7 @@ int main(int argc, char* argv[]){
                     }
                 }
                 for(int i = colliderNum + leverNum + doorNum; i < colliderNum + leverNum + doorNum + portalNum; i++){
-                    DrawAnimationPro(i % 2 == 0 ? &portal : &portal2, boxToVec2(Col[i]), resolutionMultiplier, WHITE, screenFPS, CYCLE_FORWARD);
+                    DrawAnimationPro((i % 2) == 0 ? &portal : &portal2, boxToVec2(Col[i]), resolutionMultiplier, WHITE, screenFPS, CYCLE_FORWARD);
                 }
 
                 //Ladders
@@ -1007,7 +1007,7 @@ int main(int argc, char* argv[]){
 void prepareLevel(int resolutionMultiplier, 
                     Vector2* playerPos, Vector2* playerPos2, Vector2 startingPos, Vector2 startingPos2, 
                     int selectedLevel, Texture2D* level, char str[40], 
-                    int colliderNum, int leverNum, int doorNum, int portalNum, BoxCollider2D Col[25], 
+                    int colliderNum, int leverNum, int doorNum, int portalNum, BoxCollider2D Col[30], 
                     TextBox levelText[2], int textNum, 
                     int crateNum, PhysicsObject crate[2], 
                     int ladderNum, BoxCollider2D ladderCol[5], char levelImagePath[64],
@@ -1075,7 +1075,8 @@ void prepareLevel(int resolutionMultiplier,
         printf("prepareLevel: hasn't crashed\n");
         (*doorList)[i] = assignProperties(0, 0, 60, false, 12, false);
 
-        (*doorList)[i] = getFromFolder((*doorList)[i], "resources/objects/door/", true);
+        (*doorList)[i] = getFromFolder((*doorList)[i], TextFormat("resources/objects/door%d/", (Col[i + colliderNum  + leverNum].tag - 1) % 6), true);
+        printf("loading: tag = %d, mod6 = %d, x = %d id = %d\n", Col[i + colliderNum  + leverNum].tag - 1, (Col[i + colliderNum + leverNum].tag - 1) % 6, Col[i + colliderNum  + leverNum].x, i + colliderNum  + leverNum);
         //(*doorList)[i].texture = *defaultDoor;
 
         //(*door_isClosedList)[i] = true;
@@ -1087,7 +1088,8 @@ void prepareLevel(int resolutionMultiplier,
     for(int i = 0; i < leverNum; i++){
         (*leverList)[i] = switchAssignProperties(0, 10, false);
 
-        (*leverList)[i] = switchGetFromFolder((*leverList)[i], "resources/objects/lever/");
+        (*leverList)[i] = switchGetFromFolder((*leverList)[i], TextFormat("resources/objects/lever%d/", (Col[i + colliderNum].trigger - 1) % 6));
+        printf("loading: trigger = %d, mod6 = %d, x = %d, id = %d\n", Col[i + colliderNum].trigger - 1, (Col[i + colliderNum].trigger - 1) % 6, Col[i + colliderNum].x, i + colliderNum);
         //(*leverList)[i].frames[0] = *leverOff;
         //(*leverList)[i].frames[1] = *leverOn;
     }

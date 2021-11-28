@@ -4,7 +4,7 @@
 int loadNew(int selectedLevel, bool choice, 
     char levelImagePath[64],
     Vector2* startingPos, Vector2* startingPos2,
-    BoxCollider2D Col[25], TextBox levelText[2], PhysicsObject crate[2], Triangle triCol[10], BoxCollider2D ladderCol[5],
+    BoxCollider2D Col[30], TextBox levelText[2], PhysicsObject crate[2], Triangle triCol[10], BoxCollider2D ladderCol[5],
     int* colliderNum, int* textNum, int* ladderNum, int* crateNum,
     int* leverNum, int* doorNum, int* isMultiplayer, int* portalNum, int wallTags[16], int* wallNum
 ){

@@ -244,7 +244,7 @@ int checkCollider(int box[4], Rectangle self, bool trigger, bool enabled, bool l
 */
 
 //outputs which sides of a rectangle have contacted any other collider
-CollisionInfo checkAllColliders(Rectangle self, bool checkObjects, int colliderNum, int ladderNum, int crateNum, int leverNum, int doorNum, int portalNum, BoxCollider2D Col[25], PhysicsObject crate[2], BoxCollider2D ladderCol[5]){
+CollisionInfo checkAllColliders(Rectangle self, bool checkObjects, int colliderNum, int ladderNum, int crateNum, int leverNum, int doorNum, int portalNum, BoxCollider2D Col[30], PhysicsObject crate[2], BoxCollider2D ladderCol[5]){
     CollisionInfo collision;
     int box[4];
     Rectangle f_box;
@@ -258,16 +258,16 @@ CollisionInfo checkAllColliders(Rectangle self, bool checkObjects, int colliderN
     collision.inLadder = false;
 
     int colsToCheck = colliderNum + leverNum + doorNum + ladderNum + portalNum;
-    if(checkObjects && crateNum > 0 ) colsToCheck += crateNum;
+    if(checkObjects) colsToCheck += crateNum;
 
     for(int i = 0; i < colsToCheck; i++){
         if(i > colliderNum - 1 + leverNum + doorNum + ladderNum + portalNum){
-            f_box.x = crate[i - colliderNum - leverNum - doorNum - portalNum].position.x;
-            f_box.y = crate[i - colliderNum - leverNum - doorNum - portalNum].position.y;
-            f_box.width = crate[i - colliderNum - leverNum - doorNum - portalNum].sizeX;
-            f_box.height = crate[i - colliderNum - leverNum - doorNum - portalNum].sizeY;
-            result = f_checkCollider(f_box, self, crate[i - colliderNum - leverNum - doorNum - portalNum].trigger, crate[i - colliderNum - leverNum - doorNum - portalNum].enabled);
-            //printf("checking obj: %d\n", i - colliderNum - leverNum - doorNum);
+            f_box.x = crate[i - colliderNum - leverNum - doorNum - portalNum - ladderNum].position.x;
+            f_box.y = crate[i - colliderNum - leverNum - doorNum - portalNum - ladderNum].position.y;
+            f_box.width = crate[i - colliderNum - leverNum - doorNum - portalNum - ladderNum].sizeX;
+            f_box.height = crate[i - colliderNum - leverNum - doorNum - portalNum - ladderNum].sizeY;
+            result = f_checkCollider(f_box, self, crate[i - colliderNum - leverNum - doorNum - portalNum - ladderNum].trigger, crate[i - colliderNum - leverNum - doorNum - portalNum - ladderNum].enabled);
+            //printf("checking obj: %d\n", i - colliderNum - leverNum - doorNum - portalNum - ladderNum);
         }else{
             if(i > colliderNum - 1 + leverNum + doorNum + portalNum){
                 box[0] = ladderCol[i - colliderNum - leverNum - doorNum - portalNum].x;
@@ -276,14 +276,14 @@ CollisionInfo checkAllColliders(Rectangle self, bool checkObjects, int colliderN
                 box[3] = ladderCol[i - colliderNum - leverNum - doorNum - portalNum].sizeY;
                 result = checkCollider(box, self, ladderCol[i - colliderNum - leverNum - doorNum - portalNum].trigger, ladderCol[i - colliderNum - leverNum - doorNum - portalNum].enabled, true);
                 //result = 6;
-                //printf("checking ladder: %d     ", i - colliderNum - leverNum - doorNum);
+                //printf("chck ladder: %d  ", i - colliderNum - leverNum - doorNum);
             }else{
                 box[0] = Col[i].x;
                 box[1] = Col[i].y;
                 box[2] = Col[i].sizeX;
                 box[3] = Col[i].sizeY;
                 result = checkCollider(box, self, Col[i].trigger, Col[i].enabled, Col[i].ladder);
-                //printf("checking col: %d      ", i);
+                //printf("chck col: %d  ", i);
             }
         }
         //printf("result: %d\n", result);
