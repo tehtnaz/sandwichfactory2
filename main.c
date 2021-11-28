@@ -1018,7 +1018,10 @@ void prepareLevel(int resolutionMultiplier,
                     //Texture* defaultDoor, Texture* leverOn, Texture* leverOff
                     ){
     printf("prepareLevel: Preparing level...\n");
-    *wallEnabled = 0xFFFF;
+    *wallEnabled = 0x0000;
+    for(int i = 0; i < wallNum; i++){
+        if(Col[colliderNum + i - wallNum].enabled) *wallEnabled = *wallEnabled | (0b1 << i);
+    }
     //load level image
     //char* tempString;
     //int processedChars = 0;
