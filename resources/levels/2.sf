@@ -23,3 +23,6 @@
 / Obligatory lever+door nums
     ~leverNum=1
     ~doorNum=1
+
+/ Goal
+    ~goal=%(241,0,100,135,0,t,0)

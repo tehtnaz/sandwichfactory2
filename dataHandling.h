@@ -8,10 +8,14 @@
 #pragma once
 
 
-// dataHandling v1.1
+// dataHandling v2
+
+//1.1
 // added sp2 property.
     // it checks for the second spawnpoint
 
+//2
+// i added enough that i dont remember
 
 
 //File Structure
@@ -38,6 +42,9 @@ int parseInt(char input[11], int arraySize){ // Sometimes while parsing garbage 
         ch = input[i];
 
         switch(ch){
+            //case '-':
+                //output = -output;
+                //break;
             case '0':
                 output = output * 10;
                 break;
@@ -892,6 +899,7 @@ int parseWallTag(char input[128], int inputSize, bool returnTag){
 // ~leverNum=
 // ~doorNum=
 // ~isMultiplayer=
+// ~goal=   (boxcollider2d)
 
 //Arrays?
 //%{13,31,3,13,34;1093,13,42,24,24}
@@ -905,7 +913,7 @@ int readFileSF(char path[128],
             BoxCollider2D levelCol[30], BoxCollider2D ladders[5], TextBox texts[2], PhysicsObject physobjects[2], Triangle triCol[10],
             int* levelTexts, int* levelColNum, int* ladderNum, int* physObjNum,
             int* isLever, int* isDoor, int* isMultiplayer, int* portalNum,
-            int wallTags[16], int* wallNum
+            int wallTags[16], int* wallNum, BoxCollider2D* goal
         ){
     
     
@@ -1125,6 +1133,27 @@ int readFileSF(char path[128],
                     *isMultiplayer = parseBool(ch);
                     charSelect++;
                     ch = input[charSelect];
+                }else if(strEquals(propertyName, "goal;")){
+                    if(ch == '%'){
+                        charSelect++;
+                        ch = input[charSelect];
+                        
+                        if(ch == '('){
+                            charSelect++;
+                            ch = input[charSelect];
+                        }
+                        temp = 0;
+                        while(ch != ')' && ch != '\n' && ch != '\0' && ch != EOF){
+                            sendToParse[temp] = ch;
+                            charSelect++;
+                            ch = input[charSelect];
+                            temp++;
+                        }
+                        sendToParse[temp] = ch;
+                        *goal = parseBoxCollider(sendToParse, temp, false);
+                    }else{
+                        printf("ERROR: parseProperty - Please provide a BoxCollider2D for the goal input\n");
+                    }
                 }else{
                     printf("ERROR: parseProperty - Invalid property name\n");
                     printf("Given name: %s\n", propertyName);
@@ -1429,6 +1458,8 @@ int readFileSF(char path[128],
             }
             isEnd = false;
             printf("    Getting new line\n");
+        }else{
+            printf("WARNING: readFileSF - Received unexpected character: %c\n", ch);
         }
     }
     levelColID -= (doorNum + leverNum + *portalNum);

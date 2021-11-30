@@ -6,7 +6,7 @@ int loadNew(int selectedLevel, bool choice,
     Vector2* startingPos, Vector2* startingPos2,
     BoxCollider2D Col[30], TextBox levelText[2], PhysicsObject crate[2], Triangle triCol[10], BoxCollider2D ladderCol[5],
     int* colliderNum, int* textNum, int* ladderNum, int* crateNum,
-    int* leverNum, int* doorNum, int* isMultiplayer, int* portalNum, int wallTags[16], int* wallNum
+    int* leverNum, int* doorNum, int* isMultiplayer, int* portalNum, int wallTags[16], int* wallNum, BoxCollider2D* goal
 ){
     char str[100];
     int temp = 1;
@@ -18,7 +18,7 @@ int loadNew(int selectedLevel, bool choice,
             char temp2[73];
             scanf("%s", temp2);
             sprintf(str, "custom_levels/%s", temp2);
-            temp = readFileSF(str, true, levelImagePath, nullCam, startingPos, startingPos2, Col, ladderCol, levelText, crate, triCol, textNum, colliderNum, ladderNum, crateNum, leverNum, doorNum, isMultiplayer, portalNum, wallTags, wallNum);
+            temp = readFileSF(str, true, levelImagePath, nullCam, startingPos, startingPos2, Col, ladderCol, levelText, crate, triCol, textNum, colliderNum, ladderNum, crateNum, leverNum, doorNum, isMultiplayer, portalNum, wallTags, wallNum, goal);
             if(temp == 1){
                 printf("File could not be opened. Try another file.\n");
             }
@@ -28,7 +28,7 @@ int loadNew(int selectedLevel, bool choice,
         *doorNum = false;
         levelImagePath[0] = '\0';
         sprintf(str, "resources/levels/%d.sf", selectedLevel + 1);
-        temp = readFileSF(str, false, levelImagePath, nullCam, startingPos, startingPos2, Col, ladderCol, levelText, crate, triCol, textNum, colliderNum, ladderNum, crateNum, leverNum, doorNum, isMultiplayer, portalNum, wallTags, wallNum);
+        temp = readFileSF(str, false, levelImagePath, nullCam, startingPos, startingPos2, Col, ladderCol, levelText, crate, triCol, textNum, colliderNum, ladderNum, crateNum, leverNum, doorNum, isMultiplayer, portalNum, wallTags, wallNum, goal);
         printf("loadNew: test: %d\n", levelImagePath[0]);
     }
     return temp;

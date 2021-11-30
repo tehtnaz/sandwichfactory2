@@ -18,6 +18,7 @@ typedef struct BoxCollider2D{
         // 1 = ladder
         // 2 = door
         // 3 = lever (unneeded since it'd just have a trigger anyway)
+        // 4 = level Win trigger
     bool enabled;
     int tag; // 0 = default (never changed), anything else can be activated
 }BoxCollider2D;
