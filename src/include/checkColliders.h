@@ -91,6 +91,6 @@ typedef struct BoxColInfo{
     bool inLadder;
 }BoxColInfo;
 
-CollisionInfo checkAllColliders(Rectangle self, bool checkObjects, int colliderNum, int ladderNum, int crateNum, int leverNum, int doorNum, int portalNum, BoxCollider2D Col[30], PhysicsObject crate[2], BoxCollider2D ladderCol[5]);
+CollisionInfo checkAllColliders(Rectangle self, bool checkObjects, int colliderNum, int ladderNum, int crateNum, int leverNum, int doorNum, int portalNum, BoxCollider2D Col[64], PhysicsObject crate[2], BoxCollider2D ladderCol[16]);
 
 CollisionInfo checkObjects(CollisionInfo collision, Rectangle self, int selfObjID, int crateNum, PhysicsObject crate[2]);

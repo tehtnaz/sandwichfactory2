@@ -17,6 +17,13 @@ Properties
     leverNum         - int      (must specify lever num if using levers)
     doorNum          - int      (must specify if using doors)
     wallNum          - int      (must specify if using disappearing walls)
+    scrollType       - int      (
+        0 = scrolling disabled
+        1 = scroll left-right only
+        2 = scroll up-down only
+        3 = scroll both
+        4 = scroll both (disable area limits)
+    )
 
 Structs
     % = level collider   = %(x,  y,  sizeX,sizeY,trigger, enabled, tag)

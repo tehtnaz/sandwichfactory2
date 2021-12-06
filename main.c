@@ -64,10 +64,10 @@ int main(int argc, char* argv[]){
     void prepareLevel(int resolutionMultiplier, 
                     Vector2* playerPos, Vector2* playerPos2, Vector2 startingPos, Vector2 startingPos2, 
                     int selectedLevel, Texture2D* level, char str[40], 
-                    int colliderNum, int leverNum, int doorNum, int portalNum, BoxCollider2D Col[30], 
+                    int colliderNum, int leverNum, int doorNum, int portalNum, BoxCollider2D Col[64], 
                     TextBox levelText[2], int textNum, 
                     int crateNum, PhysicsObject crate[2], 
-                    int ladderNum, BoxCollider2D ladderCol[5], char levelImagePath[64],
+                    int ladderNum, BoxCollider2D ladderCol[16], char levelImagePath[64],
                     Animation** doorList, SwitchAnimation** leverList, //bool** door_isClosedList,
                     int customLevel, 
                     //char* levelWallsImgPath, int* pathLength, 
@@ -77,7 +77,7 @@ int main(int argc, char* argv[]){
 
     //load colliders and resize starting position and declare which level we start with
     int selectedLevel = 0;
-    const int maxLevel = 9; //default level count - 1 (because index 0)
+    const int maxLevel = 10; //default level count - 1 (because index 0)
 
     //player properties
     float velocity = 0.00f;
@@ -88,12 +88,12 @@ int main(int argc, char* argv[]){
     Vector2 playerPos2 = {0,0};
 
     //objects
-    BoxCollider2D Col[30];
+    BoxCollider2D Col[64];
     TextBox levelText[2];
     PhysicsObject crate[2];
     TriSlope triCol[10];
     Triangle realTri[10];
-    BoxCollider2D ladderCol[5];
+    BoxCollider2D ladderCol[16];
 
     //# of objs
     int colliderNum = 0;
@@ -163,6 +163,11 @@ int main(int argc, char* argv[]){
     int wallTags[16];
     uint16_t wallEnabled = 0xFFFF;
     int wallNum = 0;
+    // 0 = None
+    // 1 = Scroll left-right
+    // 2 = Scroll top-down
+    // 3 = Scroll all round
+    int scrollType = 0;
 
     //game related variables
     const float characterSpeed = 96 / 2.25f * resolutionMultiplier;
@@ -175,6 +180,10 @@ int main(int argc, char* argv[]){
     BoxCollider2D goal = {0};
 
     const bool disablePlayerAnim = true;
+
+    Camera2D camera = {0};
+    camera.rotation = 0;
+    camera.zoom = 1.0f;
 
 
 
@@ -190,7 +199,7 @@ int main(int argc, char* argv[]){
 
     //ask which path then load it
     if(customLevel == 1){
-        loadNew(selectedLevel, true, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &goal);        
+        loadNew(selectedLevel, true, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &goal, &scrollType);        
     }
 
     //start raylib
@@ -606,7 +615,7 @@ int main(int argc, char* argv[]){
 
             //Reset
 
-            if(playerPos.y > screenHeight || IsKeyPressed(KEY_R)){
+            if(playerPos.y > level.height * resolutionMultiplier || IsKeyPressed(KEY_R)){
                 playerPos = startingPos;
             }
             if(playerMode == TWO_PLAYERS && (playerPos2.y > screenHeight || IsKeyPressed(KEY_R))){
@@ -625,7 +634,7 @@ int main(int argc, char* argv[]){
                         return 0;
                     }else{
                         printf("Attemping to load level %d because posX: %f > width: %d\n", selectedLevel, playerPos.x, screenWidth);
-                        if(loadNew(selectedLevel, false, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &goal) == 0){
+                        if(loadNew(selectedLevel, false, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &goal, &scrollType) == 0){
                             printf("Succesfully loaded\n");
                         }else{
                             printf("Failed loading level.\n");
@@ -637,7 +646,7 @@ int main(int argc, char* argv[]){
                 }else{
                     customLevel++;
                     printf("Attemping to load level %d because posX: %f > width: %d\n", selectedLevel, playerPos.x, screenWidth);
-                    if(loadNew(selectedLevel, false, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &goal) == 0){
+                    if(loadNew(selectedLevel, false, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &goal, &scrollType) == 0){
                         printf("Succesfully loaded\n");
                     }else{
                         printf("Failed loading level.\n");
@@ -710,12 +719,6 @@ int main(int argc, char* argv[]){
                 crate[1] = updateObject(crate[1], playerPos, playerPos2, playerSize, playerSize, inputVelocity, inputVelocity2, frictionCoefficient, bigFriction, screenFPS, gravity, 1, player_flipX, resolutionMultiplier, colliderNum, ladderNum, crateNum, leverNum, doorNum, portalNum, Col, crate, ladderCol);
             }
 
-            //Change camera position
-            /*Vector2 camInput = addNewVec2(negVec2(playerPos), screenWidth / 2.00f, screenHeight / 2.00f);
-            if(!disableCam && camera.smoothingEnabled){
-                camera = lerpCamera(camera, camInput.x, camInput.y);
-            }*/
-
 
             /*
             * Debug Section extra info
@@ -763,15 +766,87 @@ int main(int argc, char* argv[]){
                     ShowCollider++;
                 }
             }
+            if(IsKeyDown(KEY_F8)){
+                if(IsKeyPressed(KEY_UP)){
+                    scrollType++;
+                    if(scrollType > 4){
+                        scrollType = 0;
+                    }
+                }
+                if(IsKeyPressed(KEY_DOWN)){
+                    scrollType--;
+                    if(scrollType < 0){
+                        scrollType = 4;
+                    }
+                }
+            }
 
+            //Camera Controller
+            switch(scrollType){
+                case 0:
+                    camera.target = (Vector2){0,0};
+                    camera.offset = (Vector2){0,0};
+                    break;
+                case 1:
+                    camera.offset = (Vector2){0,0};
+                    if(playerPos.x - (screenWidth / 2) < 0){
+                        camera.target.x = 0;
+                    }else if (playerPos.x - (level.width * resolutionMultiplier - screenWidth / 2) > 0){
+                        camera.target.x = level.width * resolutionMultiplier - screenWidth;
+                    }else{
+                        camera.target.x = playerPos.x;
+                        camera.offset.x = screenWidth / 2;
+                    }
+                    camera.target.y = 0;
+                    break;
+                case 2:
+                    camera.offset = (Vector2){0,0};
+                    if(playerPos.y - (screenHeight / 2) < 0){
+                        camera.target.y = 0;
+                    }else if (playerPos.y - (level.height * resolutionMultiplier - screenHeight / 2) > 0){
+                        camera.target.y = level.height * resolutionMultiplier - screenHeight;
+                    }
+                    else{
+                        camera.target.y = playerPos.y;
+                        camera.offset.y = screenHeight / 2;
+                    }
+                    camera.target.x = 0;
+                    break;
+                case 3:
+                    camera.offset = (Vector2){0,0};
+                    if(playerPos.x - (screenWidth / 2) < 0){
+                        camera.target.x = 0;
+                    }else if (playerPos.x - (level.width * resolutionMultiplier - screenWidth / 2) > 0){
+                        camera.target.x = level.width * resolutionMultiplier - screenWidth;
+                    }else{
+                        camera.target.x = playerPos.x;
+                        camera.offset.x = screenWidth / 2;
+                    }
+
+                    if(playerPos.y - (screenHeight / 2) < 0){
+                        camera.target.y = 0;
+                    }else if (playerPos.y - (level.height * resolutionMultiplier - screenHeight / 2) > 0){
+                        camera.target.y = level.height * resolutionMultiplier - screenHeight;
+                    }
+                    else{
+                        camera.target.y = playerPos.y;
+                        camera.offset.y = screenHeight / 2;
+                    }
+                    break;
+                case 4:
+                    camera.target = playerPos;
+                    camera.offset = (Vector2){screenWidth / 2, screenHeight / 2};
+                    break;
+            }
         }
         
         BeginDrawing();
+        BeginMode2D(camera);
         ClearBackground(RAYWHITE);
 
             //Gameplay related textures
             if(gameState == STATE_ACTIVE || gameState == STATE_PAUSED){
-                
+                EndMode2D();
                 //Background
                 if(gameState == STATE_ACTIVE){
                     //active
@@ -780,6 +855,7 @@ int main(int argc, char* argv[]){
                     //paused
                     DrawAnimationPro(&background, bgPosition, backgroundResMultiplier, WHITE, screenFPS, CYCLE_NONE);
                 }
+                BeginMode2D(camera);
 
                 //Level + Text
                 DrawTextureEx(level, bgPosition, 0, resolutionMultiplier, WHITE);
@@ -797,14 +873,18 @@ int main(int argc, char* argv[]){
 
                 //drawTriSlope(triCol[0], RED);
 
-                //Objects in level
+                //Levers
                 for(int i = 0; i < leverNum; i++){
                     DrawTextureEx(leverList[i].frames[leverList[i].currentFrame], boxToVec2(Col[colliderNum + i]), 0, resolutionMultiplier, Col[colliderNum + i].enabled ? WHITE : GHOST);
                 }
+
+                //Doors
                 for(int i = 0; i < doorNum; i++){
                     //give pointer directly
                     DrawAnimationPro(doorList+i, boxToVec2(Col[colliderNum + leverNum + i]), resolutionMultiplier, WHITE, screenFPS, CYCLE_NONE);
                 }
+
+                //Crates
                 if(crateNum > 0){
                     for(int i = 0; i < crateNum; i++){
                         DrawTextureEx(crateImage, crate[i].position, 0, resolutionMultiplier, WHITE);
@@ -817,9 +897,10 @@ int main(int argc, char* argv[]){
                 //Ladders
                 for(int i = 0; i < ladderNum; i++){
                     for(int step = 0; step < (ladderCol[i].sizeY / 3) / resolutionMultiplier; step++){
-                        DrawTexturePro(ladder, (Rectangle){0,(step * 3) % 21,7,3}, (Rectangle){ladderCol[i].x, ladderCol[i].y + (step * 3 * resolutionMultiplier), 7 * resolutionMultiplier, 3 * resolutionMultiplier}, (Vector2){0,0}, 0, WHITE);
+                        DrawTexturePro(ladder, (Rectangle){0,(step * 3) % 21,7,3}, (Rectangle){ladderCol[i].x, ladderCol[i].y + (step * 3 * resolutionMultiplier), 7 * resolutionMultiplier, 3 * resolutionMultiplier}, (Vector2){0,0}, 0, ladderCol[i].enabled ? WHITE : GHOST);
                     }
-                    DrawTexturePro(ladder, (Rectangle){0,0,7,(ladderCol[i].sizeY % (3 * resolutionMultiplier)) / resolutionMultiplier}, (Rectangle){ladderCol[i].x, ladderCol[i].y + ladderCol[i].sizeY - (ladderCol[i].sizeY % (3 * resolutionMultiplier)), 7 * resolutionMultiplier, ladderCol[i].sizeY % (3 * resolutionMultiplier)}, (Vector2){0,0}, 0, WHITE);
+                    DrawTexturePro(ladder, (Rectangle){0,0,7,(ladderCol[i].sizeY % (3 * resolutionMultiplier)) / resolutionMultiplier}, (Rectangle){ladderCol[i].x, ladderCol[i].y + ladderCol[i].sizeY - (ladderCol[i].sizeY % (3 * resolutionMultiplier)), 7 * resolutionMultiplier, ladderCol[i].sizeY % (3 * resolutionMultiplier)}, (Vector2){0,0}, 0, ladderCol[i].enabled ? WHITE : GHOST);
+                
                 }
 
                 //Player
@@ -851,9 +932,14 @@ int main(int argc, char* argv[]){
                     }
                 }
             }
-
+        
+        EndMode2D();
+        
             //Debug info
             if(gameState == STATE_ACTIVE){
+                if(IsKeyDown(KEY_F8)){
+                    DrawText(TextFormat("scrollType: %d", scrollType), 10, 10, 20, BLUE);
+                }
                 if(IsKeyDown(KEY_F6)){
                     DrawText("Manual Ladder Enabled", 10, 10, 50, WHITE);
                 }
@@ -863,57 +949,59 @@ int main(int argc, char* argv[]){
                     }
                     printf("\n");
                 }
-                //Debug related - DOES NOT FOLLOW CAM!!
+                //Debug related 
                 if(ColliderDebugMode){
-                    if(!(IsKeyDown(KEY_A) && IsKeyDown(KEY_D)) && (IsKeyDown(KEY_A) || IsKeyDown(KEY_D)) && !disablePlayerAnim) DrawRectangle(playerPos.x, playerPos.y, playerSizeLarge.x, playerSizeLarge.y, PINK);
-                        else DrawRectangle(playerPos.x, playerPos.y, playerSize.x, playerSize.y, PINK);
+                    BeginMode2D(camera);
+                        if(!(IsKeyDown(KEY_A) && IsKeyDown(KEY_D)) && (IsKeyDown(KEY_A) || IsKeyDown(KEY_D)) && !disablePlayerAnim) DrawRectangle(playerPos.x, playerPos.y, playerSizeLarge.x, playerSizeLarge.y, PINK);
+                            else DrawRectangle(playerPos.x, playerPos.y, playerSize.x, playerSize.y, PINK);
 
-                    if(triCollision.botRight) DrawCircleV(addVec2(playerPos, playerSize), 3, PURPLE);
-                    if(triCollision.topLeft) DrawCircleV(playerPos, 3, PURPLE);
-                    if(triCollision.topRight) DrawCircle(playerPos.x + playerSize.x, playerPos.y, 3, PURPLE);
-                    if(triCollision.botLeft) DrawCircle(playerPos.x, playerPos.y + playerSize.y, 3, PURPLE);
-                    int colsToResize = colliderNum;
-                    if(leverNum) colsToResize++;
-                    if(doorNum) colsToResize++;
-                    for(int i = 0; i < colsToResize; i++){
-                        switch(collision.colsTouched[i]){
-                            case 0:
-                                DrawRectangle(Col[i].x, Col[i].y, Col[i].sizeX, Col[i].sizeY, WHITE);
-                                break;
-                            case 1:
-                                DrawRectangle(Col[i].x, Col[i].y, Col[i].sizeX, Col[i].sizeY, RED);
-                                break;
-                            case 2:
-                                DrawRectangle(Col[i].x, Col[i].y, Col[i].sizeX, Col[i].sizeY, GREEN);
-                                break;
-                            case 3:
-                                DrawRectangle(Col[i].x, Col[i].y, Col[i].sizeX, Col[i].sizeY, BLUE);
-                                break;
-                            case 4:
-                                DrawRectangle(Col[i].x, Col[i].y, Col[i].sizeX, Col[i].sizeY, YELLOW);
-                                break;
-                            case 5:
-                                DrawRectangle(Col[i].x, Col[i].y, Col[i].sizeX, Col[i].sizeY, BROWN);
-                                break;
-                            case 6:
-                                DrawRectangle(Col[i].x, Col[i].y, Col[i].sizeX, Col[i].sizeY, GRAY);
-                                break;
+                        if(triCollision.botRight) DrawCircleV(addVec2(playerPos, playerSize), 3, PURPLE);
+                        if(triCollision.topLeft) DrawCircleV(playerPos, 3, PURPLE);
+                        if(triCollision.topRight) DrawCircle(playerPos.x + playerSize.x, playerPos.y, 3, PURPLE);
+                        if(triCollision.botLeft) DrawCircle(playerPos.x, playerPos.y + playerSize.y, 3, PURPLE);
+                        int colsToResize = colliderNum;
+                        if(leverNum) colsToResize++;
+                        if(doorNum) colsToResize++;
+                        for(int i = 0; i < colsToResize; i++){
+                            switch(collision.colsTouched[i]){
+                                case 0:
+                                    DrawRectangle(Col[i].x, Col[i].y, Col[i].sizeX, Col[i].sizeY, WHITE);
+                                    break;
+                                case 1:
+                                    DrawRectangle(Col[i].x, Col[i].y, Col[i].sizeX, Col[i].sizeY, RED);
+                                    break;
+                                case 2:
+                                    DrawRectangle(Col[i].x, Col[i].y, Col[i].sizeX, Col[i].sizeY, GREEN);
+                                    break;
+                                case 3:
+                                    DrawRectangle(Col[i].x, Col[i].y, Col[i].sizeX, Col[i].sizeY, BLUE);
+                                    break;
+                                case 4:
+                                    DrawRectangle(Col[i].x, Col[i].y, Col[i].sizeX, Col[i].sizeY, YELLOW);
+                                    break;
+                                case 5:
+                                    DrawRectangle(Col[i].x, Col[i].y, Col[i].sizeX, Col[i].sizeY, BROWN);
+                                    break;
+                                case 6:
+                                    DrawRectangle(Col[i].x, Col[i].y, Col[i].sizeX, Col[i].sizeY, GRAY);
+                                    break;
+                            }
+                            DrawRectangleLines(Col[i].x, Col[i].y, Col[i].sizeX, Col[i].sizeY, BLACK);
                         }
-                        DrawRectangleLines(Col[i].x, Col[i].y, Col[i].sizeX, Col[i].sizeY, BLACK);
-                    }
-                    for(int i = 0; i < ladderNum; i++){
-                        if(collision.colsTouched[i+colsToResize] == 6){
-                            DrawRectangle(ladderCol[i].x, ladderCol[i].y, ladderCol[i].sizeX, ladderCol[i].sizeY, SKYBLUE);
-                        }else{
-                            DrawRectangle(ladderCol[i].x, ladderCol[i].y, ladderCol[i].sizeX, ladderCol[i].sizeY, LIGHTGRAY);
+                        for(int i = 0; i < ladderNum; i++){
+                            if(collision.colsTouched[i+colsToResize] == 6){
+                                DrawRectangle(ladderCol[i].x, ladderCol[i].y, ladderCol[i].sizeX, ladderCol[i].sizeY, SKYBLUE);
+                            }else{
+                                DrawRectangle(ladderCol[i].x, ladderCol[i].y, ladderCol[i].sizeX, ladderCol[i].sizeY, LIGHTGRAY);
+                            }
+                            DrawRectangleLines(ladderCol[i].x, ladderCol[i].y, ladderCol[i].sizeX, ladderCol[i].sizeY, BLACK);
                         }
-                        DrawRectangleLines(ladderCol[i].x, ladderCol[i].y, ladderCol[i].sizeX, ladderCol[i].sizeY, BLACK);
-                    }
-                    DrawCircle(playerPos.x + (playerSize.x / 2),triCollision.floor + playerSize.y, 3, PURPLE);
-                    DrawCircle(playerPos2.x + (playerSize.x / 2),triCollision2.floor + playerSize.y, 3, PURPLE);
-                    drawSlope(triCol[0].slope, triCol[0].init);
-                    DrawRectangle(goal.x, goal.y, goal.sizeX, goal.sizeY, DARKGREEN);
-                    DrawRectangleLines(goal.x, goal.y, goal.sizeX, goal.sizeY, BLACK);
+                        DrawCircle(playerPos.x + (playerSize.x / 2),triCollision.floor + playerSize.y, 3, PURPLE);
+                        DrawCircle(playerPos2.x + (playerSize.x / 2),triCollision2.floor + playerSize.y, 3, PURPLE);
+                        drawSlope(triCol[0].slope, triCol[0].init);
+                        DrawRectangle(goal.x, goal.y, goal.sizeX, goal.sizeY, DARKGREEN);
+                        DrawRectangleLines(goal.x, goal.y, goal.sizeX, goal.sizeY, BLACK);
+                    EndMode2D();
                 }
                 /*if(true){
                     if(objCollision.left){
@@ -981,7 +1069,7 @@ int main(int argc, char* argv[]){
 
 
                 if(IsMouseButtonPressed(0) && isMouseInGuiBox(playButton)){
-                    loadNew(selectedLevel, false, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &goal);
+                    loadNew(selectedLevel, false, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &goal, &scrollType);
                     prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal);
                     gameState = STATE_ACTIVE;
                 }
@@ -1012,10 +1100,10 @@ int main(int argc, char* argv[]){
 void prepareLevel(int resolutionMultiplier, 
                     Vector2* playerPos, Vector2* playerPos2, Vector2 startingPos, Vector2 startingPos2, 
                     int selectedLevel, Texture2D* level, char str[40], 
-                    int colliderNum, int leverNum, int doorNum, int portalNum, BoxCollider2D Col[30], 
+                    int colliderNum, int leverNum, int doorNum, int portalNum, BoxCollider2D Col[64], 
                     TextBox levelText[2], int textNum, 
                     int crateNum, PhysicsObject crate[2], 
-                    int ladderNum, BoxCollider2D ladderCol[5], char levelImagePath[64],
+                    int ladderNum, BoxCollider2D ladderCol[16], char levelImagePath[64],
                     Animation** doorList, SwitchAnimation** leverList, //bool** door_isClosedList,
                     int customLevel, 
                     //char* levelWallsImgPath, int* pathLength, 

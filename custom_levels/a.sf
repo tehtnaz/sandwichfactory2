@@ -75,4 +75,6 @@
 
 / Goal
     ~goal=%(0,0,1,135,0,t,0)
-    ~img=10.png
+    ~img=12.png
+
+    ~scrollType=1

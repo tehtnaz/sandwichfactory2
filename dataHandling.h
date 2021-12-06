@@ -910,10 +910,10 @@ int readFileSF(char path[128],
             //bool* disableCam, 
             s_Camera* camera, 
             Vector2* startingPos, Vector2* startingPos2,
-            BoxCollider2D levelCol[30], BoxCollider2D ladders[5], TextBox texts[2], PhysicsObject physobjects[2], Triangle triCol[10],
+            BoxCollider2D levelCol[64], BoxCollider2D ladders[16], TextBox texts[2], PhysicsObject physobjects[2], Triangle triCol[10],
             int* levelTexts, int* levelColNum, int* ladderNum, int* physObjNum,
             int* isLever, int* isDoor, int* isMultiplayer, int* portalNum,
-            int wallTags[16], int* wallNum, BoxCollider2D* goal
+            int wallTags[16], int* wallNum, BoxCollider2D* goal, int* scrollType
         ){
     
     
@@ -933,7 +933,7 @@ int readFileSF(char path[128],
     int ladderID = 0;
     int physObjID = 0;
     int textBoxID = 0;
-    int triColID = 0;
+    //int triColID = 0;
     bool isEnd = false; // do we end read?
     bool isVector = false;
     int temp = 0;
@@ -943,6 +943,8 @@ int readFileSF(char path[128],
     int leverNum = 0;
     int doorNum = 0;
     *isMultiplayer = 0; // default
+
+    bool getNewLine = false;
 
     //Note: This means only 1024 characters can be stored per line
     printf("FILE_READLINE_SF:");
@@ -970,6 +972,7 @@ int readFileSF(char path[128],
         }else{
             printf("%c` ", ch);
         }
+        
         if(ch == '!' || ch == '\0' || ch == EOF){
             isEnd = true;
         }else if(ch == '~'){
@@ -1154,6 +1157,16 @@ int readFileSF(char path[128],
                     }else{
                         printf("ERROR: parseProperty - Please provide a BoxCollider2D for the goal input\n");
                     }
+                }else if(strEquals(propertyName, "scrollType;")){
+                    temp = 0;
+                    while(ch != ';' && ch != '\n' && ch != '\0' && temp < 12 && ch != EOF){
+                        sendToParse[temp] = ch;
+                        charSelect++;
+                        ch = input[charSelect];
+                        temp++;
+                    }
+                    sendToParse[temp] = '\0';
+                    *scrollType = parseInt(sendToParse, temp);
                 }else{
                     printf("ERROR: parseProperty - Invalid property name\n");
                     printf("Given name: %s\n", propertyName);
@@ -1169,7 +1182,10 @@ int readFileSF(char path[128],
 
             
         }else if(ch == '#'){
-            s_Camera temp_cam;
+            printf("readFileSF: attempting to parseCamera\n");
+            printf("WARNING: readFileSF - Camera reading disabled for this release. Skipping line...");
+            getNewLine = true;
+            /*s_Camera temp_cam;
             charSelect++;
             ch = input[charSelect];
             if(ch == '('){
@@ -1224,7 +1240,7 @@ int readFileSF(char path[128],
                     charSelect++;
                     ch = input[charSelect];
                     printf("-%c-", ch);
-                    //*disableCam = false;
+                    /disableCam = false;
                 }else if(ch == ','){
                     s++;
                     charSelect++;
@@ -1257,7 +1273,7 @@ int readFileSF(char path[128],
                 ch = input[charSelect];
             }
             temp_cam.smoothing = parseFloat(sendToParse);
-            *camera = temp_cam;
+            *camera = temp_cam;*/
         }else if(ch == '%'){
             //level collider  = %{} or %()
             charSelect++;
@@ -1410,7 +1426,9 @@ int readFileSF(char path[128],
             //physics object  = ^{} or ^()
             //triangle
             printf("readFileSF: attempting to parseTriangle\n");
-            charSelect++;
+            printf("WARNING: readFileSF - Triangle reading disabled for this release. Skipping line...");
+            getNewLine = true;
+            /*charSelect++;
             ch = input[charSelect];
             if(ch == '{'){
                 //array
@@ -1440,8 +1458,14 @@ int readFileSF(char path[128],
                 sendToParse[temp] = ch;
                 triCol[triColID] = parseTriangle(sendToParse, temp);
                 triColID++;
-            }
+            }*/
         }else if(ch == '\n' || ch == '/'){
+            getNewLine = true;
+        }else{
+            printf("WARNING: readFileSF - Received unexpected character: %c\n", ch);
+        }
+
+        if(getNewLine){
             charSelect = 0;
             printf("FILE_READLINE_SF:");
             for(int i = 0; i < 1024 && !isEnd; i++){
@@ -1458,8 +1482,7 @@ int readFileSF(char path[128],
             }
             isEnd = false;
             printf("    Getting new line\n");
-        }else{
-            printf("WARNING: readFileSF - Received unexpected character: %c\n", ch);
+            getNewLine = false;
         }
     }
     levelColID -= (doorNum + leverNum + *portalNum);

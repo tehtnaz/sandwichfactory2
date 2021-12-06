@@ -19,6 +19,8 @@ F6 - Enables manual ladder mode. Makes it as if you were touching a ladder
 
 F7 - Prints result of each BoxCollider2D collision check with the player
 
+F8 + UP / DOWN - Increases / decreases scrollType
+
 
 SHIFT + Functions Keys (F1 - F12)
     * Activate tag according to number of function key

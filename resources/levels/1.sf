@@ -35,3 +35,6 @@
 
 / Goal
     ~goal=%(241,0,100,135,0,t,0)
+
+/ scrollType
+    ~scrollType=0
