@@ -84,3 +84,4 @@
 / scrollType + Spawnpoint
     ~sp=@(20,0)
     ~scrollType=2
+    ~img=11.png

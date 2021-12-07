@@ -6,17 +6,24 @@ There are many objects in the game and each have their own type and represeting 
 ; seperates each object (if on same line)
 ! = terminates the file immediately (cannot be done within a string, deprecated)
 
-Properties
+Properties (* required)
     ~ = property   =  ~propertyname=data;
 
+    ex. 
+        ~img=awesome.png
+        ~sp=@(4,80)
+        ~leverNum=5
+
     Property names
-    img              - string   (level Image)
+    *img             - string   (level Image)
+    *goal            - BoxCollider2D (area which triggers the move to the next level)
     sp               - Vector2  (starting point)
     sp2              - Vector2  (starting point - player 2)
     isMultiplayer    - bool     (enable player 2?)
     leverNum         - int      (must specify lever num if using levers)
     doorNum          - int      (must specify if using doors)
-    wallNum          - int      (must specify if using disappearing walls)
+    portalNum        - int      (must specify if using portals)
+    wallNum          - int      (number of wall colliders)
     scrollType       - int      (
         0 = scrolling disabled
         1 = scroll left-right only
@@ -36,22 +43,46 @@ Structs
     & = textBox          = &(x, y,  size,text,  colour)
                             int,int,int, string,colour
 
-    $ = wallTag          = #(wallID, tag)
-                             int,    int
-
-		  Notes: The string must be expressed without quotes. 
+		Notes: The string must be expressed without quotes. 
 		              Any attempts to add a comma in the text must be preceeded by a backslash ( \, ) This will display only the comma.
+
+    $ = wallTag          = $(wallID, tag, enabled)
+                             int,    int, bool
+        Notes: You need to use wallID 0 to the number of images you have
+            ex. you cannot do $(10,1,t) if you do not have 0-9 as images
+
+
     
     Note: Spaces are strongly disencouraged in structs since this breaks anything involving bool because of my lazy coding. Please don't add spaces inside a struct unless you're entering a string
 
 Types
     @ = vector 2 (int)   = @(x,y)
     @f= vector 2 (float) = @f(x,y) broken (do not use)
-        instead, input the numbers directly; 0,0 instead of @(0,0)
+        instead, input the numbers directly; 0,0 instead of @f(0,0)
     ? = colour     = ?(r,g,b,a)
+
+    bool - accepts: 0, 1, t, T, f, T
+    int - just put a number
 
 Examples can be found in the custom_levels/template folder.
 
 
 Extra notes:
 The file does not need to have the .sf extension since its just a text file (it's just cool to have .sf)
+
+
+You ABSOLUTELY MUST:
+    declare level colliders in this order
+        - walls (disappearing or not)
+        - lever
+        - door
+        - portal
+    declare how many levers/doors/portals there are unless there's none
+    declare a goal
+
+You CANNOT have:
+    more than 64 level colliders (doors, levers, portals, walls)
+    more than 16 ladders
+    more than 8 crates
+    more than 2 level texts
+    more than 16 different images representing disappearing walls

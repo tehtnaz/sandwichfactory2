@@ -813,7 +813,10 @@ TextBox parseTextBox(char input[128], int inputSize){
     return returnedTextBox;
 }
 
-int parseWallTag(char input[128], int inputSize, bool returnTag){
+//0=img value
+//1=tag
+//2=enabled
+int parseWallTag(char input[128], int inputSize, int returnValue){
     int inputSelect = 0;
     char sendToParse[11];
     int i = 0;
@@ -825,12 +828,8 @@ int parseWallTag(char input[128], int inputSize, bool returnTag){
     }
 
 
-    if(returnTag){
+    if(returnValue == 0){
         while(input[inputSelect] != ','){
-            inputSelect++;
-        }
-        inputSelect++;
-        while(input[inputSelect] != ')'){
             sendToParse[i] = input[inputSelect];
             i++;
             inputSelect++;
@@ -838,29 +837,47 @@ int parseWallTag(char input[128], int inputSize, bool returnTag){
         return parseInt(sendToParse, i);
     }else{
         while(input[inputSelect] != ','){
-            sendToParse[i] = input[inputSelect];
-            i++;
             inputSelect++;
         }
-        return parseInt(sendToParse, i);
+        inputSelect++;
+        if(returnValue == 1){
+            while(input[inputSelect] != ')'){
+                sendToParse[i] = input[inputSelect];
+                i++;
+                inputSelect++;
+            }
+            return parseInt(sendToParse, i);
+        }else if(returnValue == 2){
+            while(input[inputSelect] != ','){
+                inputSelect++;
+            }
+            inputSelect++;
+            i = parseBool(input[inputSelect]);
+            inputSelect++;
+            if(input[inputSelect] == ')'){
+                return i;
+            }else{
+                printf("WARNING: parseWallTag - Couldn't terminate property. Did you forget a closing bracket?\n");
+            }
+        }else{
+            printf("ERROR: parseWallTag - Received incorrect returnValue. (Programming error) Skipping...\n");
+            return 0;
+        }
     }
+    printf("ERROR: parseWallTag - Programming error. Why have we ended the function? Hacker Alert! Skipping...\n");
+    return 0;
 }
 
 //SandwichFactory Data structure
-//    path to level image is always first ie. levels/1/photo.png;~2323;~2343
-
-//    generic struct array = symbol{(struct1);(struct2)}
-//    generic struct       = symbol(property1,2,3,4,5,6)
-//        note: structs in arrays only include symbol at beginning
-//    bools are stored as 0 or 1
 //    ~ = property   = ~propertyname=data;
 //    ; seperates each object (if on same line)
 //    ! = terminates the file
 //
 //  Structs
-// @  % = level collider  = %{} or %() or %) <- this is not an array
-// @  * = ladder collider = *{} or *() or *)
-// @  ^ = Physics object  = ^{} or ^() or ^)
+//      symbol() or symbol{} or symbol) <- not an array
+// @  % = level collider  = %()
+// @  * = ladder collider = *()
+// @  ^ = Physics object  = ^()
 // *  < = triangle collider = <(p1x, p1y, p2x, p2y, aPx, aPy)
 //    # = camera     = #(@(pos),@(maxCam),@(minCam),smoothingEnabled, smoothing);
 //        note: can have either vec2 int or float
@@ -910,10 +927,11 @@ int readFileSF(char path[128],
             //bool* disableCam, 
             s_Camera* camera, 
             Vector2* startingPos, Vector2* startingPos2,
-            BoxCollider2D levelCol[64], BoxCollider2D ladders[16], TextBox texts[2], PhysicsObject physobjects[2], Triangle triCol[10],
+            BoxCollider2D levelCol[64], BoxCollider2D ladders[16], TextBox texts[2], PhysicsObject physobjects[8], Triangle triCol[10],
             int* levelTexts, int* levelColNum, int* ladderNum, int* physObjNum,
             int* isLever, int* isDoor, int* isMultiplayer, int* portalNum,
-            int wallTags[16], int* wallNum, BoxCollider2D* goal, int* scrollType
+            int wallTags[16], int* wallNum, uint16_t* wallEnabled,
+            BoxCollider2D* goal, int* scrollType
         ){
     
     
@@ -942,7 +960,10 @@ int readFileSF(char path[128],
     //*disableCam = true;
     int leverNum = 0;
     int doorNum = 0;
+    *portalNum = 0;
+    *wallNum = 0;
     *isMultiplayer = 0; // default
+    *wallEnabled = 0x0000;
 
     bool getNewLine = false;
 
@@ -1385,7 +1406,8 @@ int readFileSF(char path[128],
                 }
                 sendToParse[temp] = ch;
                 //(*wallTags)[parseWallTag(sendToParse, temp, false)] = parseWallTag(sendToParse, temp, true);
-                wallTags[parseWallTag(sendToParse, temp, false)] = parseWallTag(sendToParse, temp, true);
+                wallTags[parseWallTag(sendToParse, temp, 0)] = parseWallTag(sendToParse, temp, 1);
+                *wallEnabled = *wallEnabled | (parseWallTag(sendToParse, temp, 2) << parseWallTag(sendToParse, temp, 0));
             }
         }else if(ch == '&'){
             //textBox         = &{} or &()
@@ -1462,7 +1484,7 @@ int readFileSF(char path[128],
         }else if(ch == '\n' || ch == '/'){
             getNewLine = true;
         }else{
-            printf("WARNING: readFileSF - Received unexpected character: %c\n", ch);
+            if(ch != ' ') printf("WARNING: readFileSF - Received unexpected character: %c\n", ch);
         }
 
         if(getNewLine){

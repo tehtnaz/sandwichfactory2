@@ -257,7 +257,7 @@ int checkCollider(int box[4], Rectangle self, bool trigger, bool enabled, bool l
 */
 
 //outputs which sides of a rectangle have contacted any other collider
-CollisionInfo checkAllColliders(Rectangle self, bool checkObjects, int colliderNum, int ladderNum, int crateNum, int leverNum, int doorNum, int portalNum, BoxCollider2D Col[64], PhysicsObject crate[2], BoxCollider2D ladderCol[16]){
+CollisionInfo checkAllColliders(Rectangle self, bool checkObjects, int colliderNum, int ladderNum, int crateNum, int leverNum, int doorNum, int portalNum, BoxCollider2D Col[64], PhysicsObject crate[8], BoxCollider2D ladderCol[16]){
     CollisionInfo collision;
     int box[4];
     Rectangle f_box;
@@ -335,7 +335,7 @@ CollisionInfo checkAllColliders(Rectangle self, bool checkObjects, int colliderN
     return collision;
 }
 
-CollisionInfo checkObjects(CollisionInfo collision, Rectangle self, int selfObjID, int crateNum, PhysicsObject crate[2]){
+CollisionInfo checkObjects(CollisionInfo collision, Rectangle self, int selfObjID, int crateNum, PhysicsObject crate[8]){
 
     //This will cause the use of more memory
     Rectangle f_box;

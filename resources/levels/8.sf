@@ -15,7 +15,7 @@
 
 / Disappearing walls
     %(88,16,16,27,0,t,2)
-    $(0,2)
+    $(0,2,t)
     ~wallNum=1
 
 / Ladders

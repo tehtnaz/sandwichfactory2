@@ -4,9 +4,10 @@
 int loadNew(int selectedLevel, bool choice, 
     char levelImagePath[64],
     Vector2* startingPos, Vector2* startingPos2,
-    BoxCollider2D Col[64], TextBox levelText[2], PhysicsObject crate[2], Triangle triCol[10], BoxCollider2D ladderCol[16],
+    BoxCollider2D Col[64], TextBox levelText[2], PhysicsObject crate[8], Triangle triCol[10], BoxCollider2D ladderCol[16],
     int* colliderNum, int* textNum, int* ladderNum, int* crateNum,
-    int* leverNum, int* doorNum, int* isMultiplayer, int* portalNum, int wallTags[16], int* wallNum, BoxCollider2D* goal, int* scrollType
+    int* leverNum, int* doorNum, int* isMultiplayer, int* portalNum, int wallTags[16], int* wallNum, uint16_t* wallEnabled,
+    BoxCollider2D* goal, int* scrollType
 ){
     char str[100];
     int temp = 1;
@@ -18,7 +19,7 @@ int loadNew(int selectedLevel, bool choice,
             char temp2[73];
             scanf("%s", temp2);
             sprintf(str, "custom_levels/%s", temp2);
-            temp = readFileSF(str, true, levelImagePath, nullCam, startingPos, startingPos2, Col, ladderCol, levelText, crate, triCol, textNum, colliderNum, ladderNum, crateNum, leverNum, doorNum, isMultiplayer, portalNum, wallTags, wallNum, goal, scrollType);
+            temp = readFileSF(str, true, levelImagePath, nullCam, startingPos, startingPos2, Col, ladderCol, levelText, crate, triCol, textNum, colliderNum, ladderNum, crateNum, leverNum, doorNum, isMultiplayer, portalNum, wallTags, wallNum, wallEnabled, goal, scrollType);
             if(temp == 1){
                 printf("File could not be opened. Try another file.\n");
             }
@@ -28,7 +29,7 @@ int loadNew(int selectedLevel, bool choice,
         *doorNum = false;
         levelImagePath[0] = '\0';
         sprintf(str, "resources/levels/%d.sf", selectedLevel + 1);
-        temp = readFileSF(str, false, levelImagePath, nullCam, startingPos, startingPos2, Col, ladderCol, levelText, crate, triCol, textNum, colliderNum, ladderNum, crateNum, leverNum, doorNum, isMultiplayer, portalNum, wallTags, wallNum, goal, scrollType);
+        temp = readFileSF(str, false, levelImagePath, nullCam, startingPos, startingPos2, Col, ladderCol, levelText, crate, triCol, textNum, colliderNum, ladderNum, crateNum, leverNum, doorNum, isMultiplayer, portalNum, wallTags, wallNum, wallEnabled, goal, scrollType);
         printf("loadNew: test: %d\n", levelImagePath[0]);
     }
     return temp;
@@ -37,7 +38,7 @@ int loadNew(int selectedLevel, bool choice,
 /*int loadNewCustom(int selectedLevel,
     char levelImagePath[64],
     Vector2* startingPos, Vector2* startingPos2,
-    BoxCollider2D Col[15], TextBox levelText[2], PhysicsObject crate[2], Triangle triCol[10],
+    BoxCollider2D Col[15], TextBox levelText[2], PhysicsObject crate[8], Triangle triCol[10],
     int* colliderNum, int* textNum, int* ladderNum, int* crateNum,
     int* leverNum, int* doorNum, int* isMultiplayer,
     char levelPath[64]
