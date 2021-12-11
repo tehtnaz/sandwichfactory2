@@ -27,6 +27,9 @@
 
 ~sp=@(4,83)
 
+/ TextBoxes
+    &(49,18,10,Press "E" to go thourgh portals,?(255,255,255,255))
+
 / Ladders
     *(24,16,7,103,0,t,0)
 

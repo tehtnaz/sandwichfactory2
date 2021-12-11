@@ -87,7 +87,7 @@ int parseInt(char input[11], int arraySize){ // Sometimes while parsing garbage 
                 output = 0;
                 break;
             default:
-                printf("ERROR: parseInt - Received non-number as input. Ending function...\n");
+                printf("ERROR: parseInt - Received non-number as input (%c). Ending function...\n", ch);
                 isEnd = true;
                 output = 0;
                 break;
@@ -293,7 +293,7 @@ Vector2 readVector2Float(char input[20]){
 Color parseColor(char input[17], int inputSize){
     int select = 0;
     Color output;
-    char sendToParse[3];
+    char sendToParse[12];
     int i;
     int temp;
 
@@ -303,19 +303,20 @@ Color parseColor(char input[17], int inputSize){
 
     for(int s = 0; s < 4; s++){
         i = 0;
-        while(input[select] != ',' && i < 4 && input[select] != ')'){
+        while(input[select] != ',' && i < 12 && input[select] != ')' && input[select] != '\0'){
             //printf("select: %d, i: %d, char: %c\n", select, i, input[select]);
             sendToParse[i] = input[select];
             select++;
             i++;
         }
+        sendToParse[i] = '\0';
         select++;
-        if(i > 3){
-            printf("ERROR: parseColor - Value exceeds maximum (Overflowed. Missing comma or parenthesis)");
+        if(input[select] != ',' || input[select] != ')'){
+            printf("WARNING: parseColor - Missing comma or parenthesis on value %d\n", s);
         }
         temp = parseInt(sendToParse, i);
         if(temp > 255){
-            printf("ERROR: parseColor - Value exceeds maximum (Value larger than 255)");
+            printf("WARNING: parseColor - Value exceeds maximum (Value larger than 255)\n");
             temp = 255;
         }
         switch(s){
@@ -735,7 +736,7 @@ Triangle parseTriangle(char input[128], int inputSize){
 
 TextBox parseTextBox(char input[128], int inputSize){
     int select = 0;
-    char sendToParse[17];
+    char sendToParse[20];
     int temp;
     int i;
     TextBox returnedTextBox;
@@ -794,6 +795,9 @@ TextBox parseTextBox(char input[128], int inputSize){
     }else{
         returnedTextBox.text[i] = '\0'; // this is probably a very ghetto way of doing things;   
         //this is because while it may look like the string ends, there is still a bunch of junk data being thorwn around
+        
+        //update from december
+        //nope, this is completely normal. welcome to C programming land. get used to it. bitch
     }
 
     if(input[select] == '?'){
@@ -802,13 +806,10 @@ TextBox parseTextBox(char input[128], int inputSize){
             select++;
         }
         i = 0;
-        //printf("c: %c\n", input[select]);
         while(input[select] != ')' && i < 17){
-            //printf("c: %c\n", input[select]);
             sendToParse[i] = input[select];
             select++;
             i++;
-            
         }
         sendToParse[i] = ')';
         if(i == 17){
@@ -1448,37 +1449,40 @@ int readFileSF(char path[128],
             //textBox         = &{} or &()
             charSelect++;
             ch = input[charSelect];
-            if(ch == '{'){
-                //array
-            }else{
-                //single struct
-                if(ch == '('){
-                    charSelect++;
-                    ch = input[charSelect];
+            //single struct
+            if(ch == '('){
+                charSelect++;
+                ch = input[charSelect];
+            }
+            temp = 0;
+            isVector = false;
+            //printf("readFileSF: textbox: ");
+            while(ch != ')'){
+                if(ch == '?'){
+                    isVector = true;
+                    //printf("!");
                 }
-                temp = 0;
-                isVector = false;
-                while(ch != ')'){
-                    if(ch == '?'){
-                        isVector = true;
-                    }
+                printf("%c", ch);
+                sendToParse[temp] = ch;
+                charSelect++;
+                ch = input[charSelect];
+                temp++;
+                if(ch == ')' && isVector){
+                    //printf("`");
+                    isVector = false;
                     sendToParse[temp] = ch;
                     charSelect++;
                     ch = input[charSelect];
                     temp++;
-                    if(ch == ')' && isVector){
-                        isVector = false;
-                        charSelect++;
-                        ch = input[charSelect];
-                        temp++;
-                    }
                 }
-                sendToParse[temp] = ch;
-                texts[textBoxID] = parseTextBox(sendToParse, temp);
-                printf("readFileSF: TextBox - Given text: %s\n", texts[textBoxID].text);
-                //printf("hello3");
-                textBoxID++;
             }
+            printf("\n");
+            sendToParse[temp] = ch;
+            texts[textBoxID] = parseTextBox(sendToParse, temp);
+            printf("readFileSF: TextBox - Given text: %s\n", texts[textBoxID].text);
+            printf("readFileSF: TextBox - all: %s\n", sendToParse);
+            //printf("hello3");
+            textBoxID++;
         }else if(ch == '<'){
             //physics object  = ^{} or ^()
             //triangle
@@ -1561,6 +1565,7 @@ int readFileSF(char path[128],
         printf("%I64d", (*leverFlip << i) & 0b1);
     }
     printf("\n");
+    printf("readFileSF: textBox1: %d, %d, %d, %s, %d, %d, %d, %d\n", texts[0].x, texts[0].y, texts[0].size, texts[0].text, texts[0].colour.r, texts[0].colour.g, texts[0].colour.b, texts[0].colour.a);
     /*printf("**** ERROR ****\nreadFileSF recevied \n");
     if(levelColID + doorNum + leverNum + *portalNum > 64){
         printf("%d levelColliders (more than 64)\n", levelColID + doorNum + leverNum + *portalNum);
