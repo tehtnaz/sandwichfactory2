@@ -201,3 +201,37 @@ void DrawAnimationPro(Animation* input, Vector2 position, float scale, Color tin
             break;
     }
 }
+
+
+
+Animation flipAnimationHorizontal(Animation input){
+    Animation temp = input;
+    Image animTexture = LoadImageFromTexture(temp.texture);
+    Image tempImg = GenImageColor(temp.spriteSize, temp.texture.height, WHITE);
+    for(int i = 0; i < temp.frameCount; i++){
+        ImageDraw(&tempImg, animTexture, (Rectangle){temp.frameCount * temp.spriteSize, 0, temp.spriteSize, temp.texture.height}, (Rectangle){0,0,temp.spriteSize, temp.texture.height}, WHITE);
+        ImageFlipHorizontal(&tempImg);
+        ImageDraw(&animTexture, tempImg, (Rectangle){0,0,temp.spriteSize, temp.texture.height}, (Rectangle){temp.frameCount * temp.spriteSize, 0, temp.spriteSize, temp.texture.height}, WHITE);
+    }
+    UnloadTexture(temp.texture);
+    temp.texture = LoadTextureFromImage(tempImg);
+    UnloadImage(tempImg);
+    return temp;
+}
+
+SwitchAnimation flipSwitchAnimationHorizontal(SwitchAnimation input){
+    SwitchAnimation temp = input;
+    Image tempImg0 = LoadImageFromTexture(temp.frames[0]);
+    Image tempImg1 = LoadImageFromTexture(temp.frames[1]);
+    UnloadTexture(temp.frames[0]);
+    UnloadTexture(temp.frames[1]);
+
+    ImageFlipHorizontal(&tempImg0);
+    ImageFlipHorizontal(&tempImg1);
+
+    temp.frames[0] = LoadTextureFromImage(tempImg0);
+    temp.frames[1] = LoadTextureFromImage(tempImg1);
+    UnloadImage(tempImg0);
+    UnloadImage(tempImg1);
+    return temp;
+}

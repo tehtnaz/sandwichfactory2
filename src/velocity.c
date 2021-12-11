@@ -3,6 +3,7 @@
 #include "checkColliders_Float.h"
 #include "velocity.h"
 #include "recpp.h"
+#include <stdio.h>
 
 /*
 * 0 = None
@@ -47,9 +48,11 @@ PhysicsObject updateObject(
 
     //Check against level colliders
     Rectangle self = combineVec2(input.position, (Vector2){input.sizeX, input.sizeY});
+    //printf("debug0\n");
     CollisionInfo objCollision = checkAllColliders(self, false, colliderNum, ladderNum, crateNum, leverNum, doorNum, portalNum, Col, crate, ladderCol);
+    //printf("debug0.5\n");
     objCollision = checkObjects(objCollision, self, crateID, crateNum, crate);
-
+    //printf("debug1\n");
     //Check against given player
     Rectangle box = combineVec2(playerPosition, playerSize);
     int result = f_checkCollider(box, self, false, true);
@@ -138,5 +141,6 @@ PhysicsObject updateObject(
     //Update Velocity
     temp.position.x += temp.velocity.x / screenFPS;
     temp.position.y += temp.velocity.y / screenFPS;
+    //printf("debug2\n");
     return temp;
 }

@@ -21,6 +21,7 @@
         Texture2D img;
         Vector2 center;
         Vector2 offset;
+        float scale;
     }GuiImg;
 
     typedef struct GuiBox{
@@ -47,11 +48,12 @@
         return temp;
     }
 
-    GuiImg assignGuiImg(Texture2D img, Vector2 center, Vector2 offset){
+    GuiImg assignGuiImg(Texture2D img, Vector2 center, Vector2 offset, float scale){
         GuiImg temp;
         temp.img = img;
         temp.center = center;
         temp.offset = offset;
+        temp.scale = scale;
         return temp;
     }
 
@@ -74,6 +76,10 @@
         temp.color = color;
         temp.spacing = spacing;
         return temp;
+    }
+
+    void renderGuiImg(GuiImg input, Color tint){
+        DrawTextureEx(input.img, addVec2(input.center, input.offset), 0, input.scale, tint);
     }
 
     void renderGuiText(GuiText input){
@@ -153,6 +159,15 @@
                 *(temp.texts[i]) = resizeGuiText(*(temp.texts[i]), resizeAmount);
             }
         }
+        return temp;
+    }
+    GuiImg resizeGuiImg(GuiImg guiImg, float resizeAmount){
+        GuiImg temp = guiImg;
+        temp.scale *= resizeAmount;
+        temp.offset.x *= resizeAmount;
+        temp.offset.y *= resizeAmount;
+        temp.center.x *= resizeAmount;
+        temp.center.y *= resizeAmount;
         return temp;
     }
 

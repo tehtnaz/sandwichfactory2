@@ -65,7 +65,7 @@ typedef struct CollisionInfo{
     bool up;
     bool down;
 
-    int colsTouched[32];
+    int colsTouched[64];
     //bool sidesTouched[4];
     int floor;
 
@@ -81,7 +81,7 @@ typedef struct BoxColInfo{
     bool bottomLeft;
     bool bottomRight;
 
-    int colsTouched[14];
+    int colsTouched[64];
     //bool sidesTouched[4];
     int floor;
 

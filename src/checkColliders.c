@@ -345,7 +345,7 @@ CollisionInfo checkObjects(CollisionInfo collision, Rectangle self, int selfObjI
     //printf("%d\n", colsToCheck);
 
     for(int i = 0; i < colsToCheck; i++){
-
+        //printf("checking next...\n");
         f_box.x = crate[i].position.x;
         f_box.y = crate[i].position.y;
         f_box.width = crate[i].sizeX;
@@ -360,23 +360,36 @@ CollisionInfo checkObjects(CollisionInfo collision, Rectangle self, int selfObjI
         if(result != 0){
             collision.colsTouched[i] = result;
         }
-        if(result == 1){
-            collision.left = true;
-            //crate[i].velocity.x = crate[selfObjID].velocity.x;
-        }
-        if(result == 2){
-            collision.right = true;
-            //crate[i].velocity.x = crate[selfObjID].velocity.x;
-        }
-        if(result == 3){
-            collision.up = true;
-        }
-        if(result == 4){
-            collision.down = true;
-            collision.floor = i;
-        }
-        if(result == 5){
-            collision.inTrigger = true;
+        switch(result){
+            case 1:
+                collision.left = true;
+                break;
+            case 2:
+                collision.right = true;
+                break;
+            case 3:
+                collision.up = true;
+                break;
+            case 4:
+                collision.down = true;
+                collision.floor = i;
+                break;
+            case 5:
+                /*if(i > colliderNum - 1 + leverNum + doorNum + ladderNum + portalNum){
+                    collision.inTrigger = crate[i - colliderNum - leverNum - doorNum - portalNum].trigger;
+                }else{
+                    if(i > colliderNum - 1 + leverNum + doorNum + portalNum){
+                        collision.inTrigger = ladderCol[i - colliderNum - leverNum - doorNum - portalNum].trigger;
+                    }else{
+                        collision.inTrigger = Col[i].trigger;
+                    }
+                }*/
+                collision.inTrigger = true;
+                collision.triggerObjID = i;
+                break;
+            case 6:
+                collision.inLadder = true;
+                break;
         }
     }
     return collision;

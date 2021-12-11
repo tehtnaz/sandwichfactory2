@@ -4,7 +4,7 @@ There are many objects in the game and each have their own type and represeting 
 
 / acts as a single line comment (aka: you can write anything on the same line and it will be skipped by the file reader)
 ; seperates each object (if on same line)
-! = terminates the file immediately (cannot be done within a string, deprecated)
+! = terminates the file immediately (cannot be done within a string, deprecated, however still functions)
 
 Properties (* required)
     ~ = property   =  ~propertyname=data;
@@ -13,10 +13,13 @@ Properties (* required)
         ~img=awesome.png
         ~sp=@(4,80)
         ~leverNum=5
+        ~leverFlip12=f
+        ~leverFlip=[1]t
+        ~leverFlip=f,f,f,f,f
 
     Property names
-    *img             - string   (level Image)
-    *goal            - BoxCollider2D (area which triggers the move to the next level)
+    img            * - string   (level Image)
+    goal           * - BoxCollider2D (area which triggers the move to the next level)
     sp               - Vector2  (starting point)
     sp2              - Vector2  (starting point - player 2)
     isMultiplayer    - bool     (enable player 2?)
@@ -30,7 +33,9 @@ Properties (* required)
         2 = scroll up-down only
         3 = scroll both
         4 = scroll both (disable area limits)
-    )
+    )   
+    leverFlip        - array item
+    leverFlip        - array (max size 64)
 
 Structs
     % = level collider   = %(x,  y,  sizeX,sizeY,trigger, enabled, tag)
@@ -61,8 +66,10 @@ Types
         instead, input the numbers directly; 0,0 instead of @f(0,0)
     ? = colour     = ?(r,g,b,a)
 
-    bool - accepts: 0, 1, t, T, f, T
-    int - just put a number
+    bool  - accepts: 0, 1, t, T, f, T
+    int   - just put a number
+    array - types seperated by commas
+    array select - [id]value   ex. [15]f
 
 Examples can be found in the custom_levels/template folder.
 

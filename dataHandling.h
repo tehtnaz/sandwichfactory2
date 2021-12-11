@@ -3,7 +3,7 @@
 #include <math.h>
 #include "levelStructs.h"
 #include "compareString.h"
-#include "camera.h"
+//#include "camera.h"
 #include "triangles.h"
 #pragma once
 
@@ -338,7 +338,7 @@ Color parseColor(char input[17], int inputSize){
 
 }
 
-void readIntArray(char input[128], int output[16]){
+/*void readIntArray(char input[128], int output[16]){
     char ch;
     int inputSelect = 0;
     char sendToParse[11];
@@ -375,9 +375,9 @@ void readIntArray(char input[128], int output[16]){
         objectSelect++;
     }
     printf("readIntArray finished - given string: %s\n", input);
-}
+}*/
 
-int readBoolArray(char input[16], bool output[8]){
+/*int readBoolArray(char input[128], bool output[64]){
     char ch;
     int inputSelect = 0;
     int objectSelect = 0;
@@ -390,7 +390,7 @@ int readBoolArray(char input[16], bool output[8]){
     }
 
     while(ch != ')'){
-        if(objectSelect > 8){
+        if(objectSelect > 64){
             printf("ERROR: readBoolArray - Too much bools given or array could not be terminated");
             return 1;
         }
@@ -422,7 +422,7 @@ int readBoolArray(char input[16], bool output[8]){
         objectSelect++;
     }
     return 0;
-}
+}*/
 
 bool parseBool(char ch){
     if(ch == '0' || ch == 'f' || ch == 'F'){
@@ -436,6 +436,16 @@ bool parseBool(char ch){
         return false;
     }
 }
+
+uint64_t readBoolArray64(char input[64]){
+    uint64_t temp = 0x0000000000000000;
+    for(int i = 0; i < 64 && input[i] != '\0'; i++){
+        temp |= parseBool(input[i]) << i;
+    }
+    return temp;
+}
+
+
 
 //Note: Does not read ladder property
 //You MUST either give the script a inputSize or terminating character ( chars = ';' and ')' )
@@ -780,7 +790,7 @@ TextBox parseTextBox(char input[128], int inputSize){
     }
     select++;
     if(i == 40){
-        printf("ERROR: parseTextBox - String was too long. Continuing with shortned string...");
+        printf("ERROR: parseTextBox - String was too long. Continuing with shortned string...\n");
     }else{
         returnedTextBox.text[i] = '\0'; // this is probably a very ghetto way of doing things;   
         //this is because while it may look like the string ends, there is still a bunch of junk data being thorwn around
@@ -802,12 +812,12 @@ TextBox parseTextBox(char input[128], int inputSize){
         }
         sendToParse[i] = ')';
         if(i == 17){
-            printf("ERROR: parseTextBox - Color input was too long. Is input a valid color?");
+            printf("ERROR: parseTextBox - Color input was too long. Is input a valid color?\n");
         }
         printf("parseTextBox: cs: %s\n", sendToParse);
         returnedTextBox.colour = parseColor(sendToParse, i);
     }else{
-        printf("ERROR: parseTextBox - Please input an item of type color");
+        printf("ERROR: parseTextBox - Please input an item of type color\n");
     }
 
     return returnedTextBox;
@@ -871,7 +881,7 @@ int parseWallTag(char input[128], int inputSize, int returnValue){
 //SandwichFactory Data structure
 //    ~ = property   = ~propertyname=data;
 //    ; seperates each object (if on same line)
-//    ! = terminates the file
+//    ! = terminates the file immediately
 //
 //  Structs
 //      symbol() or symbol{} or symbol) <- not an array
@@ -879,7 +889,6 @@ int parseWallTag(char input[128], int inputSize, int returnValue){
 // @  * = ladder collider = *()
 // @  ^ = Physics object  = ^()
 // *  < = triangle collider = <(p1x, p1y, p2x, p2y, aPx, aPy)
-//    # = camera     = #(@(pos),@(maxCam),@(minCam),smoothingEnabled, smoothing);
 //        note: can have either vec2 int or float
 // @  & = textBox       = &{(text1,x,y,colour,size);(text2,x,y,colour,size);etc..}; or&()
 //
@@ -890,10 +899,6 @@ int parseWallTag(char input[128], int inputSize, int returnValue){
 // *  " = string     = "(text) or "text) or "text"
 
 // * = Not finished
-// @ = Arrays not implemented
-
-//    example: ~10;~224!
-//    example: ~193;~1093;%{(13,31,3,13,34);(1093,13,42,24,24)};*{}
 
 // Structs could be written without inital bracket:   #109,10193,1334,221) instead of #(13013,13,13,345,6,6)
 // Vector2 is the same, @219,138) instead of @(1983,13)
@@ -925,13 +930,13 @@ int parseWallTag(char input[128], int inputSize, int returnValue){
 int readFileSF(char path[128], 
             bool readLevelImagePath, char levelImagePath[64], 
             //bool* disableCam, 
-            s_Camera* camera, 
+            //s_Camera* camera, 
             Vector2* startingPos, Vector2* startingPos2,
             BoxCollider2D levelCol[64], BoxCollider2D ladders[16], TextBox texts[2], PhysicsObject physobjects[8], Triangle triCol[10],
             int* levelTexts, int* levelColNum, int* ladderNum, int* physObjNum,
             int* isLever, int* isDoor, int* isMultiplayer, int* portalNum,
             int wallTags[16], int* wallNum, uint16_t* wallEnabled,
-            BoxCollider2D* goal, int* scrollType
+            BoxCollider2D* goal, int* scrollType, uint64_t* leverFlip
         ){
     
     
@@ -945,7 +950,7 @@ int readFileSF(char path[128],
     
     char input[1024]; // Defines how much text is stored (ie. how big a level can be)
     char sendToParse[128];
-    char propertyName[8];
+    char propertyName[32];
     char ch; // character selected
     int levelColID = 0;
     int ladderID = 0;
@@ -964,6 +969,7 @@ int readFileSF(char path[128],
     *wallNum = 0;
     *isMultiplayer = 0; // default
     *wallEnabled = 0x0000;
+    *leverFlip = 0x0000000000000000;
 
     bool getNewLine = false;
 
@@ -1188,6 +1194,34 @@ int readFileSF(char path[128],
                     }
                     sendToParse[temp] = '\0';
                     *scrollType = parseInt(sendToParse, temp);
+                }else if(strEquals(propertyName, "leverFlip;")){
+                    temp = 0;
+                    if(ch == '['){
+                        //single item
+                        while(ch != ']'){
+                            sendToParse[temp] = ch;
+                            charSelect++;
+                            ch = input[charSelect];
+                            temp++;
+                        }
+                        sendToParse[temp] = '\0';
+                        temp = parseInt(sendToParse, temp);
+                        charSelect++;
+                        ch = input[charSelect];
+                        *leverFlip |= parseBool(ch) << temp;
+                    }else{
+                        //array
+                        while(ch != ';' && ch != '\n' && ch != '\0' && temp < 12 && ch != EOF){
+                            if(ch != ','){
+                                sendToParse[temp] = ch;
+                            }
+                            charSelect++;
+                            ch = input[charSelect];
+                            temp++;
+                        }
+                        sendToParse[temp] = '\0';
+                        *leverFlip = readBoolArray64(sendToParse);
+                    }
                 }else{
                     printf("ERROR: parseProperty - Invalid property name\n");
                     printf("Given name: %s\n", propertyName);
@@ -1204,7 +1238,7 @@ int readFileSF(char path[128],
             
         }else if(ch == '#'){
             printf("readFileSF: attempting to parseCamera\n");
-            printf("WARNING: readFileSF - Camera reading disabled for this release. Skipping line...");
+            printf("WARNING: readFileSF - Camera version 1 removed. Please refer to how_to_use_.sf_files for further info on how to set the camera. Skipping line...\n");
             getNewLine = true;
             /*s_Camera temp_cam;
             charSelect++;
@@ -1381,6 +1415,7 @@ int readFileSF(char path[128],
                     }
                 }
                 sendToParse[temp] = ch;
+                printf("parsePhysicsObject (crate): currentLadderId = %d\n", physObjID);
                 physobjects[physObjID] = parsePhysicsObject(sendToParse, temp);
                 physObjID++;
             }
@@ -1448,7 +1483,7 @@ int readFileSF(char path[128],
             //physics object  = ^{} or ^()
             //triangle
             printf("readFileSF: attempting to parseTriangle\n");
-            printf("WARNING: readFileSF - Triangle reading disabled for this release. Skipping line...");
+            printf("WARNING: readFileSF - Triangle reading disabled for this release. Skipping line...\n");
             getNewLine = true;
             /*charSelect++;
             ch = input[charSelect];
@@ -1515,18 +1550,23 @@ int readFileSF(char path[128],
     *levelTexts = textBoxID;
     *ladderNum = ladderID;
     *physObjNum = physObjID;
-
-    //printf("input - %s", input);
+    
     printf("readFileSF: crate1: %f, %f, %d, %d, %d, %d\n", physobjects[0].position.x, physobjects[0].position.y, physobjects[0].sizeX, physobjects[0].sizeY, physobjects[0].trigger, physobjects[0].enabled);
     printf("readFileSF: crate2: %f, %f, %d, %d, %d, %d\n", physobjects[1].position.x, physobjects[1].position.y, physobjects[1].sizeX, physobjects[1].sizeY, physobjects[1].trigger, physobjects[1].enabled);
     printf("readFileSF: levelColIDs = %d ; doorNum = %d ; leverNum = %d ; ladderNum = %d ; crateNum = %d\n", levelColID, doorNum, leverNum, ladderID, physObjID);
     printf("readFileSF: ladder1: %d, %d, %d, %d, %d, %d, %d\n", ladders[0].x, ladders[0].y, ladders[0].sizeX, ladders[0].sizeY, ladders[0].trigger, ladders[0].ladder, ladders[0].enabled);
     printf("readFileSF: portal1: %d, %d, %d, %d, %d, %d, %d\n", levelCol[levelColID + doorNum + leverNum].x, levelCol[levelColID + doorNum + leverNum].y, levelCol[levelColID + doorNum + leverNum].sizeX, levelCol[levelColID + doorNum + leverNum].sizeY, levelCol[levelColID + doorNum + leverNum].trigger, levelCol[levelColID + doorNum + leverNum].ladder, levelCol[levelColID + doorNum + leverNum].enabled);
-    //printf("crate1(game): %f, %f, %d, %d, %d, %d\n", crate[0].position.x, crate[0].position.y, crate[0].sizeX, crate[0].sizeY, crate[0].trigger, crate[0].enabled);
-    //printf("crate2(game): %f, %f, %d, %d, %d, %d\n", crate[1].position.x, crate[1].position.y, crate[1].sizeX, crate[1].sizeY, crate[1].trigger, crate[1].enabled);
-    
+    printf("readFileSF: leverFlip: ");
+    for(int i = 0; i < 64; i++){
+        printf("%I64d", (*leverFlip << i) & 0b1);
+    }
+    printf("\n");
+    /*printf("**** ERROR ****\nreadFileSF recevied \n");
+    if(levelColID + doorNum + leverNum + *portalNum > 64){
+        printf("%d levelColliders (more than 64)\n", levelColID + doorNum + leverNum + *portalNum);
+    }*/
+
     fclose(fp);
-    //printf("hello5\n");
     return 0;
 }
 

@@ -67,4 +67,7 @@ Animation shakeCycleAnimation(Animation input, float screenFPS); //ignores isAni
 
 void DrawAnimationPro(Animation* input, Vector2 position, float scale, Color tint, float screenFPS, CycleType cycleAnim);
 
+Animation flipAnimationHorizontal(Animation input);
+SwitchAnimation flipSwitchAnimationHorizontal(SwitchAnimation input);
+
 #endif //animation_h_2

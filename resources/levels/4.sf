@@ -14,10 +14,12 @@
     %(128,46,64,9,0,t,0)
     %(144,37,48,9,0,t,0)
 
-/ Lever + Door
-    %(208,101,16,16,1,t,0)
-    %(233,16,7,21,0,t,1)
+/ Lever
+    %(210,101,16,16,1,t,0)
     ~leverNum=1
+    ~leverFlip=[0]t
+/ Door
+    %(233,16,7,21,0,t,1)
     ~doorNum=1
 
 / PhysObjs ^(posX,posY,sX,sY,trigger,enabled)

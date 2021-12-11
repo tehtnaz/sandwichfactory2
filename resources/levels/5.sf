@@ -17,10 +17,11 @@
     %(16,38,132,3,0,t,0)
     %(16,35,128,3,0,t,0)
 
-/ Lever + Door
+/ Lever
     %(14,17,16,16,1,t,0)
-    %(233,16,7,21,0,t,1)
     ~leverNum=1
+/ Door
+    %(233,16,7,21,0,t,1)
     ~doorNum=1
 
 / PhysObjs ^(posX,posY,sX,sY,trigger,enabled)

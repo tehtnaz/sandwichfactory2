@@ -10,6 +10,7 @@
         "stdio.h": "c",
         "boxpp.h": "c",
         "loadnew.h": "c",
-        "datahandling.h": "c"
+        "datahandling.h": "c",
+        "camera.h": "c"
     }
 }
