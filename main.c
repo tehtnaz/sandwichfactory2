@@ -34,7 +34,7 @@ typedef enum GameState{
     STATE_MENU, //everything relating to gameplay is not rendered or processed; menuGui Enabled; level is not loaded
     STATE_ACTIVE,  // all things turned on; gui off
     STATE_PAUSED, // everything relating to gameplay except rendering disabled; pauseGui Enabled
-    STATE_END
+    STATE_END // render endscreen and thats it
 }GameState;
 
 typedef enum PlayerMode{
@@ -280,8 +280,8 @@ int main(int argc, char* argv[]){
     Vector2 inputVelocity = {0,0};
     Vector2 inputVelocity2 = {0,0};
 
-    CollisionInfo collision = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    CollisionInfo collision2 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    CollisionInfo collision = {0};
+    CollisionInfo collision2 = {0};
 
 
     //prepare level (if custom, unneeded at this point if not custom)
@@ -300,50 +300,83 @@ int main(int argc, char* argv[]){
 
     //GUI Variables + assignment
 
-    //fonts
-    Font montserrat = LoadFontEx("resources/fonts/Montserrat-Regular.ttf", 100, 0, 0);
-    SetTextureFilter(montserrat.texture, TEXTURE_FILTER_BILINEAR);
-    Font bade = LoadFontEx("resources/fonts/bade2.ttf", 100, 0, 0);
-    SetTextureFilter(bade.texture, TEXTURE_FILTER_BILINEAR);
+        //fonts
+        Font montserrat = LoadFontEx("resources/fonts/Montserrat-Regular.ttf", 100, 0, 0);
+        SetTextureFilter(montserrat.texture, TEXTURE_FILTER_BILINEAR);
+        Font bade = LoadFontEx("resources/fonts/bade2.ttf", 100, 0, 0);
+        SetTextureFilter(bade.texture, TEXTURE_FILTER_BILINEAR);
 
-    //main menu GUI
-    GuiText playText = assignGuiText(&montserrat, (Vector2){0,0}, (Vector2){0,0}, "Play", 100, BLACK, 0);
-    GuiBox playButton = (GuiBox){RECZERO, &playText, NULL, 1, WHITE, 4, BLACK};
-    playButton = offsetGuiBox(playButton, (Vector2){0,125}, (Vector2){250,125}, true, 1920, 1080);
+        //main menu GUI
+        // 0 = none
+        // 1 = page 1
+        // 2 = page 2
+        int levelSelectVisibilityMode = 0;
+        GuiText playText = assignGuiText(&montserrat, (Vector2){0,0}, (Vector2){0,0}, "Play", 100, BLACK, 0);
+        GuiBox playButton = (GuiBox){RECZERO, &playText, NULL, 1, WHITE, 4, BLACK};
+        playButton = offsetGuiBox(playButton, (Vector2){-150,125}, (Vector2){250,125}, true, 1920, 1080);
+        playButton = resizeGuiBox(playButton, screenHeight / 1080.0f, true);
 
-    GuiText titleText = assignGuiText(&bade, (Vector2){0,0}, (Vector2){0,-350}, "SANDWICH", 175, WHITE, 0);
-    GuiText titleText2 = assignGuiText(&bade, (Vector2){0,0}, (Vector2){0,-150}, "FACTORY", 175, WHITE, 0);
-    
-    titleText.center = GetTextCenterGUI(titleText, 1920, 1080);
-    titleText2.center = GetTextCenterGUI(titleText2, 1920, 1080);
+        GuiText selectText = assignGuiText(&montserrat, (Vector2){0,0}, (Vector2){0,-30}, "Level", 75, BLACK, 0);
+        GuiText selectText2 = assignGuiText(&montserrat, (Vector2){0,0}, (Vector2){0,30}, "Select", 75, BLACK, 0);
+        GuiBox selectButton = (GuiBox){RECZERO, &selectText, &selectText2, 2, WHITE, 4, BLACK};
+        selectButton = offsetGuiBox(selectButton, (Vector2){150,125}, (Vector2){250,125}, true, 1920, 1080);
+        selectButton = resizeGuiBox(selectButton, screenHeight / 1080.0f, true);
 
-    playButton = resizeGuiBox(playButton, screenHeight / 1080.0f, true);
-    titleText = resizeGuiText(titleText, screenHeight / 1080.0f);
-    titleText2 = resizeGuiText(titleText2, screenHeight / 1080.0f);
+        GuiBox levelSelect[12];
+        GuiText levelSelectText[12];
+        for(int i = 0; i < 12; i++){
+            levelSelectText[i] = assignGuiText(&montserrat, (Vector2){0,0}, (Vector2){0,0}, TextFormat("Level %d", i + 1), 75, BLACK, 0);
+            levelSelect[i] = (GuiBox){RECZERO, &(levelSelectText[i]), NULL, 1, WHITE, 4, BLACK};
+            levelSelect[i] = offsetGuiBox(levelSelect[i], (Vector2){-150 + (300 * (i % 3)),100 + (175 * ((i / 3) % 2))}, (Vector2){250,125}, true, 1920, 1080);
+            levelSelect[i] = resizeGuiBox(levelSelect[i], screenHeight / 1080.0f, true);
+        }
 
-    //pause game
-    GuiImg pauseIcon = assignGuiImg(LoadTexture("resources/boring_PauseButton.png"), (Vector2){0,0}, (Vector2){1812,12}, 6);
-    //GuiImg playIcon = assignGuiImg(LoadTexture("resources/playButton.png"), (Vector2){0,0}, )
-    GuiBox pauseButton = assignGuiBox(newRec(1810,10,100,100), NULL, NULL, 0, WHITE, 5, BLACK);
+        GuiText backText = assignGuiText(&montserrat, (Vector2){0,0}, (Vector2){0,0}, "Back", 100, BLACK, 0);
+        GuiBox backButton = (GuiBox){RECZERO, &backText, NULL, 1, WHITE, 4, BLACK};
+        backButton = offsetGuiBox(backButton, (Vector2){-475,100}, (Vector2){250,125}, true, 1920, 1080);
+        backButton = resizeGuiBox(backButton, screenHeight / 1080.0f, true);
 
-    GuiText resumeText = assignGuiText(&montserrat, (Vector2){0,0}, (Vector2){0,0}, "Resume Game", 90, BLACK, 0);
-    resumeText.center = GetTextCenterGUI(resumeText, 1920, 1080);
+        GuiText nextText = assignGuiText(&montserrat, (Vector2){0,0}, (Vector2){0,0}, "Next", 100, BLACK, 0);
+        GuiBox nextButton = (GuiBox){RECZERO, &nextText, NULL, 1, WHITE, 4, BLACK};
+        nextButton = offsetGuiBox(nextButton, (Vector2){-475,275}, (Vector2){250,125}, true, 1920, 1080);
+        nextButton = resizeGuiBox(nextButton, screenHeight / 1080.0f, true);
 
-    GuiText menuText = assignGuiText(&montserrat, (Vector2){0,0}, (Vector2){0,0}, "Back to menu", 90, BLACK, 0);
-    menuText.center = GetTextCenterGUI(menuText, 1920, 1080);
 
-    GuiBox resumeGame = assignGuiBox(RECZERO, &resumeText, NULL, 1, WHITE, 5, BLACK);
-    GuiBox menuButton = assignGuiBox(RECZERO, &menuText, NULL, 1, WHITE, 5, BLACK);
-    resumeGame = offsetGuiBox(resumeGame, (Vector2){0,-100}, (Vector2){575,150}, true, 1920, 1080);
-    menuButton = offsetGuiBox(menuButton, (Vector2){0,100}, (Vector2){575,150}, true, 1920, 1080);
+        GuiText titleText = assignGuiText(&bade, (Vector2){0,0}, (Vector2){0,-350}, "SANDWICH", 175, WHITE, 0);
+        GuiText titleText2 = assignGuiText(&bade, (Vector2){0,0}, (Vector2){0,-150}, "FACTORY", 175, WHITE, 0);
+        
+        titleText.center = GetTextCenterGUI(titleText, 1920, 1080);
+        titleText2.center = GetTextCenterGUI(titleText2, 1920, 1080);
+        
+        titleText = resizeGuiText(titleText, screenHeight / 1080.0f);
+        titleText2 = resizeGuiText(titleText2, screenHeight / 1080.0f);
 
-    resumeText = setGuiTextOrigin(resumeGame, resumeText, true);
-    menuText = setGuiTextOrigin(menuButton, menuText, true);
 
-    pauseButton = resizeGuiBox(pauseButton, screenHeight / 1080.0f, false);
-    resumeGame = resizeGuiBox(resumeGame, screenHeight / 1080.0f, true);
-    menuButton = resizeGuiBox(menuButton, screenHeight / 1080.0f, true);
-    pauseIcon = resizeGuiImg(pauseIcon, screenHeight / 1080.0f);
+
+        //pause game
+        GuiImg pauseIcon = assignGuiImg(LoadTexture("resources/boring_PauseButton.png"), (Vector2){0,0}, (Vector2){1812,12}, 6);
+        //GuiImg playIcon = assignGuiImg(LoadTexture("resources/playButton.png"), (Vector2){0,0}, )
+        GuiBox pauseButton = assignGuiBox(newRec(1810,10,100,100), NULL, NULL, 0, WHITE, 5, BLACK);
+
+        GuiText resumeText = assignGuiText(&montserrat, (Vector2){0,0}, (Vector2){0,0}, "Resume Game", 90, BLACK, 0);
+        resumeText.center = GetTextCenterGUI(resumeText, 1920, 1080);
+
+        GuiText menuText = assignGuiText(&montserrat, (Vector2){0,0}, (Vector2){0,0}, "Back to menu", 90, BLACK, 0);
+        menuText.center = GetTextCenterGUI(menuText, 1920, 1080);
+
+        GuiBox resumeGame = assignGuiBox(RECZERO, &resumeText, NULL, 1, WHITE, 5, BLACK);
+        GuiBox menuButton = assignGuiBox(RECZERO, &menuText, NULL, 1, WHITE, 5, BLACK);
+        resumeGame = offsetGuiBox(resumeGame, (Vector2){0,-100}, (Vector2){575,150}, true, 1920, 1080);
+        menuButton = offsetGuiBox(menuButton, (Vector2){0,100}, (Vector2){575,150}, true, 1920, 1080);
+
+        resumeText = setGuiTextOrigin(resumeGame, resumeText, true);
+        menuText = setGuiTextOrigin(menuButton, menuText, true);
+
+        pauseButton = resizeGuiBox(pauseButton, screenHeight / 1080.0f, false);
+        resumeGame = resizeGuiBox(resumeGame, screenHeight / 1080.0f, true);
+        menuButton = resizeGuiBox(menuButton, screenHeight / 1080.0f, true);
+        pauseIcon = resizeGuiImg(pauseIcon, screenHeight / 1080.0f);
+
 
     if(customLevel == 1){
         gameState = STATE_ACTIVE;
@@ -457,6 +490,7 @@ int main(int argc, char* argv[]){
 
             if(IsKeyDown(KEY_F6)){
                 collision.inLadder = true;
+                collision2.inLadder = true;
             }
 
             //Movement
@@ -490,24 +524,28 @@ int main(int argc, char* argv[]){
                 }
             }
 
-
-            //p2 not updated
-            //NOTE(UPDATE): p2 cannot use ladders
             if(playerMode == TWO_PLAYERS){
-                if(IsKeyDown(KEY_UP) && ((collision2.up == false && collision2.down == true) || (playerTriColInfo2.botLeft || playerTriColInfo2.botRight))){
-                    velocity2 += jumpHeight;
-                    //jump
+                if(IsKeyDown(KEY_UP)){
+                    if(collision2.inLadder == false && ((collision2.up == false && collision2.down == true) || (playerTriColInfo2.botLeft || playerTriColInfo2.botRight))){
+                        // does it make a difference if it's = and not +=? 
+                        //it's more messy this way but i feel like it changes the movement and therefore im not messing with it.
+                        velocity2 += jumpHeight; 
+                        
+                        //jump
+                    }else if(collision2.inLadder && !collision2.up){
+                        velocity2 = climbSpeed;
+                    }
                 }
                 if(IsKeyDown(KEY_LEFT)){
                     player2_flipX = true;
                     if(collision2.left == false){
-                        playerPos2.x -= characterSpeed * (1.0f/(float)screenFPS);
+                        playerPos2.x -= characterSpeed / (float)screenFPS;
                     }
                 }
                 if(IsKeyDown(KEY_RIGHT)){
                     player2_flipX = false;
                     if(collision2.right == false){
-                        playerPos2.x += characterSpeed * (1.0f/(float)screenFPS);
+                        playerPos2.x += characterSpeed / (float)screenFPS;
                     }
                 }
             }
@@ -543,17 +581,15 @@ int main(int argc, char* argv[]){
                     for(int i = colliderNum + leverNum; i < colliderNum + leverNum + doorNum; i++){
                         if(Col[i].tag == collision.inTrigger){
                             doorList[i - colliderNum - leverNum].isAnimating = true;
-                            if(Col[i].enabled){ // DOBULE CHECK!#!!
+                            if(Col[i].enabled){
                                 PlaySound(door_open);
-                                //door_isClosedList[i - colliderNum - leverNum] = false;
                                 Col[i].enabled = false;
                             }else{
                                 PlaySound(door_close);
-                                //door_isClosedList[i - colliderNum - leverNum] = true;
                                 Col[i].enabled = true;
                             }
                         }
-                        printf("t[%d]=%d\n", i, Col[i].tag);
+                        printf("p1:t[%d]=%d\n", i, Col[i].tag);
 
                     }
                     //doorList[collision.triggerObjID - colliderNum].isAnimating = true;
@@ -576,7 +612,7 @@ int main(int argc, char* argv[]){
                     }
                     for(int i = 0; i < wallNum; i++){
                         if(wallTags[i] == collision.inTrigger){
-                            printf("s:");
+                            printf("p1s:");
                             for(int i = 0; i < 16; i++){
                                 printf("%d", (wallEnabled >> i) & 1);
                             }
@@ -599,24 +635,68 @@ int main(int argc, char* argv[]){
             }
 
             //Player 2 Interact NOTE(UPDATE): not updated for door tags
-            if(playerMode == TWO_PLAYERS && IsKeyPressed(KEY_RIGHT_CONTROL) && collision2.inTrigger){
-                //interact with lever
-                if(leverList[collision2.triggerObjID - colliderNum].currentFrame == 0){
-                    leverList[collision2.triggerObjID - colliderNum].currentFrame = 1;
+            if(playerMode == TWO_PLAYERS && IsKeyPressed(KEY_RIGHT_CONTROL) && collision2.inTrigger > 0){
+                if(collision2.triggerObjID - colliderNum - leverNum < 0){
+                    //interact with lever
+                    if(leverList[collision2.triggerObjID - colliderNum].currentFrame == 0){
+                        leverList[collision2.triggerObjID - colliderNum].currentFrame = 1;
+                    }else{
+                        leverList[collision2.triggerObjID - colliderNum].currentFrame = 0;
+                    }
+                    printf("lever tag = %d\n", collision2.inTrigger);
+                    for(int i = colliderNum + leverNum; i < colliderNum + leverNum + doorNum; i++){
+                        if(Col[i].tag == collision2.inTrigger){
+                            doorList[i - colliderNum - leverNum].isAnimating = true;
+                            if(Col[i].enabled){
+                                PlaySound(door_open);
+                                Col[i].enabled = false;
+                            }else{
+                                PlaySound(door_close);
+                                Col[i].enabled = true;
+                            }
+                        }
+                        printf("p2:t[%d]=%d\n", i, Col[i].tag);
+
+                    }
+                    //doorList[collision2.triggerObjID - colliderNum].isAnimating = true;
+                    //printf("door should be animating %d\n", door_isClosedList[collision2.triggerObjID - colliderNum]);
                 }else{
-                    leverList[collision2.triggerObjID - colliderNum].currentFrame = 0;
+                    printf("portal tag = %d\n", collision2.inTrigger);
+                    //interact with portal
+                    bool didActivate = false;
+                    for(int i = 0; i < colliderNum + leverNum + doorNum + portalNum; i++){
+                        if(Col[i].tag == collision2.inTrigger){
+                            Col[i].enabled = !Col[i].enabled;
+                            didActivate = true;
+                        }
+                    }
+                    for(int i = 0; i < ladderNum; i++){
+                        if(ladderCol[i].tag == collision2.inTrigger){
+                            ladderCol[i].enabled = !ladderCol[i].enabled;
+                            didActivate = true;
+                        }
+                    }
+                    for(int i = 0; i < wallNum; i++){
+                        if(wallTags[i] == collision2.inTrigger){
+                            printf("p2s:");
+                            for(int i = 0; i < 16; i++){
+                                printf("%d", (wallEnabled >> i) & 1);
+                            }
+                            printf("\n");
+                            wallEnabled = wallEnabled ^ (0b000000000000001 << i);
+                            for(int i = 0; i < 16; i++){
+                                printf("%d", (wallEnabled >> i) & 1);
+                            }
+                            printf("\n");
+                        }else{
+                            printf("%d, %d\n", wallTags[i], collision2.inTrigger);
+                        }
+                    }
+                    if(didActivate){
+                        PlaySound(portalSound);
+                    }
                 }
-                doorList[collision2.triggerObjID - colliderNum].isAnimating = true;
-                //printf("door should be animating %d\n", door_isClosedList[collision2.triggerObjID - colliderNum]);
-                if(Col[collision2.triggerObjID].enabled){
-                    PlaySound(door_open);
-                    Col[collision2.triggerObjID].enabled = false;
-                    Col[collision2.triggerObjID + leverNum].enabled = false;
-                }else{
-                    PlaySound(door_close);
-                    Col[collision2.triggerObjID].enabled = true;
-                    Col[collision2.triggerObjID + leverNum].enabled = true;
-                }
+                
             }
 
             //Reset
@@ -624,7 +704,7 @@ int main(int argc, char* argv[]){
             if(playerPos.y > level.height * resolutionMultiplier || IsKeyPressed(KEY_R)){
                 playerPos = startingPos;
             }
-            if(playerMode == TWO_PLAYERS && (playerPos2.y > screenHeight || IsKeyPressed(KEY_R))){
+            if(playerMode == TWO_PLAYERS && (playerPos2.y > level.height * resolutionMultiplier || IsKeyPressed(KEY_R))){
                 playerPos2 = startingPos2;
             }
 
@@ -643,7 +723,11 @@ int main(int argc, char* argv[]){
             }
 
             if(playerMode == TWO_PLAYERS && ((velocity2 <= 0 && collision2.down == false) || velocity2 > 0)){
-                velocity2 += gravity * (60.00f/(float)screenFPS);
+                if(collision2.inLadder){
+                    velocity2 += ladderGravity * 60.00f / screenFPS;
+                }else{
+                    velocity2 += gravity * 60.00f / (float)screenFPS;
+                }
                 if(!(velocity2 > 0 && collision2.up == true)){
                     playerPos2.y -= velocity2 / (float)screenFPS;
                 }else{
@@ -691,7 +775,7 @@ int main(int argc, char* argv[]){
             }
 
 
-            //Check if passed level ending
+            //Check if passed level ending (player 2 is not checked)
             if(f_checkCollider(combineVec2(playerPos, playerSize), boxToRec(goal), true, true) || (IsKeyPressed(KEY_LEFT_SHIFT) && IsKeyPressed(KEY_TAB))){
                 for(int i = 0; i < doorNum; i++){
                     printf("Attempting to unload door texture; %d\n", i);
@@ -910,7 +994,7 @@ int main(int argc, char* argv[]){
                     }
                 }
                 for(int i = colliderNum + leverNum + doorNum; i < colliderNum + leverNum + doorNum + portalNum; i++){
-                    DrawAnimationPro((i % 2) == 0 ? &portal : &portal2, boxToVec2(Col[i]), resolutionMultiplier, WHITE, screenFPS, CYCLE_FORWARD);
+                    DrawAnimationPro((i % 2) == 0 ? &portal : &portal2, boxToVec2(Col[i]), resolutionMultiplier, WHITE, screenFPS, gameState == STATE_ACTIVE ? CYCLE_FORWARD : CYCLE_NONE);
                 }
 
                 //Ladders
@@ -1077,20 +1161,63 @@ int main(int argc, char* argv[]){
                 //background
                 DrawTextureEx(main_menu, bgPosition, 0, resolutionMultiplier, WHITE);
 
-                //buttons
-                playText = setGuiTextOrigin(playButton, playText, true);
-                renderGuiBox(playButton, true);
-
-
                 //title
                 renderGuiText(titleText);
                 renderGuiText(titleText2);
 
 
-                if(IsMouseButtonPressed(0) && isMouseInGuiBox(playButton)){
-                    loadNew(selectedLevel, false, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip);
-                    prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip);
-                    gameState = STATE_ACTIVE;
+                if(levelSelectVisibilityMode != 0){
+                    backText = setGuiTextOrigin(backButton, backText, true);
+                    renderGuiBox(backButton, true);
+
+                    if(IsMouseButtonPressed(0) && isMouseInGuiBox(nextButton)){
+                        levelSelectVisibilityMode = levelSelectVisibilityMode == 1 ? 2 : 1;
+                        nextButton.color = LIGHTGRAY;
+                    }else if(!IsMouseButtonDown(0) || !isMouseInGuiBox(nextButton)){
+                        nextButton.color = WHITE;
+                    }
+
+                    nextText = setGuiTextOrigin(nextButton, nextText, true);
+                    renderGuiBox(nextButton, true);
+
+                    if(IsMouseButtonPressed(0) && isMouseInGuiBox(backButton)){
+                        levelSelectVisibilityMode = 0;
+                    }
+
+                    for(int i = (levelSelectVisibilityMode == 1 ? 0 : 6); i < (levelSelectVisibilityMode == 1 ? 6 : 12); i++){
+                        //printf("lSVM: %d   i: %d\n", levelSelectVisibilityMode, i);
+                        levelSelectText[i] = setGuiTextOrigin(levelSelect[i], levelSelectText[i], true);
+                        renderGuiBox(levelSelect[i], true);
+
+                        if(IsMouseButtonPressed(0) && isMouseInGuiBox(levelSelect[i])){
+                            selectedLevel = i;
+                            loadNew(selectedLevel, false, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip);
+                            prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip);
+                            gameState = STATE_ACTIVE;
+                            levelSelectVisibilityMode = 0;
+                            break;
+                        }
+                    }
+                }
+
+                if(levelSelectVisibilityMode == 0 && gameState == STATE_MENU){
+                    playText = setGuiTextOrigin(playButton, playText, true);
+                    renderGuiBox(playButton, true);
+
+                    selectText = setGuiTextOrigin(selectButton, selectText, true);
+                    selectText2 = setGuiTextOrigin(selectButton, selectText2, true);
+                    renderGuiBox(selectButton, true);
+
+                    if(IsMouseButtonPressed(0) && isMouseInGuiBox(playButton)){
+                        loadNew(selectedLevel, false, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip);
+                        prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip);
+                        gameState = STATE_ACTIVE;
+                        levelSelectVisibilityMode = 0;
+                    }
+
+                    if(IsMouseButtonPressed(0) && isMouseInGuiBox(selectButton)){
+                        levelSelectVisibilityMode = 1;
+                    }
                 }
             }
             

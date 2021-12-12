@@ -85,7 +85,7 @@ typedef struct BoxColInfo{
     //bool sidesTouched[4];
     int floor;
 
-    bool inTrigger;
+    int inTrigger;
     int triggerID;
 
     bool inLadder;
