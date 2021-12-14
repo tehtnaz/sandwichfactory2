@@ -94,3 +94,18 @@ You CANNOT have:
     more than 8 crates
     more than 2 level texts
     more than 16 different images representing disappearing walls
+
+
+
+HOW TO USE WORLDS (aka level directories)
+Load a custom directory by ending the argument with a slash
+
+Levels must have their walls in a folder with the same name as the .sf folder
+    ex. bruh2.sf must have its walls placed in a folder named bruh2_walls
+Each disappearing wall image must be numbered from 0 - however many there are
+    ex. bruh2_walls/0.png, bruh2_walls/1.png
+When loading a custom level folder, the levels must be named 1 - however many there are
+    ex. 1.sf, 2.sf, 3.sf
+    Note: The previous rules apply, 1.png, 2.png, 3.png, 1_walls, 2_walls, 3_walls
+
+
