@@ -72,7 +72,7 @@ int main(int argc, char* argv[]){
                     Animation** doorList, SwitchAnimation** leverList, //bool** door_isClosedList,
                     int customLevel, 
                     //char* levelWallsImgPath, int* pathLength, 
-                    int wallNum, Texture2D wallImg[16], int wallTags[16], uint16_t* wallEnabled, BoxCollider2D* goal, uint64_t leverFlip
+                    int wallNum, Texture2D wallImg[16], int wallTags[16], uint16_t* wallEnabled, BoxCollider2D* goal, uint64_t leverFlip, char levelPath[128]
                     //Texture* defaultDoor, Texture* leverOn, Texture* leverOff
                     );
 
@@ -108,6 +108,7 @@ int main(int argc, char* argv[]){
     int portalNum = 0;
     Vector2 startingPos = {0,0};
     Vector2 startingPos2 = {0,0};
+    char levelPath[128];
 
     //debug variables
     bool ColliderDebugMode = false;
@@ -201,7 +202,7 @@ int main(int argc, char* argv[]){
 
     //ask which path then load it
     if(customLevel == 1){
-        loadNew(selectedLevel, true, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip);        
+        loadNew(customLevel, true, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip, levelPath);        
     }
 
     //start raylib
@@ -380,7 +381,7 @@ int main(int argc, char* argv[]){
 
     if(customLevel == 1){
         gameState = STATE_ACTIVE;
-        prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip);
+        prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip, levelPath);
     }
 
     //start sound
@@ -798,26 +799,26 @@ int main(int argc, char* argv[]){
                         gameState = STATE_END;
                     }else{
                         printf("Attemping to load level %d because posX: %f > width: %d\n", selectedLevel, playerPos.x, screenWidth);
-                        if(loadNew(selectedLevel, false, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip) == 0){
+                        if(loadNew(selectedLevel, false, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip, levelPath) == 0){
                             printf("Succesfully loaded\n");
                         }else{
                             printf("Failed loading level.\n");
                             CloseWindow();
                             return 0;
                         }
-                        prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip);
+                        prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip, levelPath);
                     }
                 }else{
                     customLevel++;
-                    printf("Attemping to load level %d because posX: %f > width: %d\n", selectedLevel, playerPos.x, screenWidth);
-                    if(loadNew(selectedLevel, false, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip) == 0){
+                    printf("main: CUSTOM - Attemping to load level %d because posX: %f > width: %d\n", customLevel, playerPos.x, screenWidth);
+                    if(loadNew(customLevel, true, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip, levelPath) == 0){
                         printf("Succesfully loaded\n");
                     }else{
                         printf("Failed loading level.\n");
                         CloseWindow();
                         return 0;
                     }
-                    prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip);
+                    prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip, levelPath);
                 }
             }
 
@@ -1191,8 +1192,9 @@ int main(int argc, char* argv[]){
 
                         if(IsMouseButtonPressed(0) && isMouseInGuiBox(levelSelect[i])){
                             selectedLevel = i;
-                            loadNew(selectedLevel, false, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip);
-                            prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip);
+                            customLevel = 0;
+                            loadNew(selectedLevel, false, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip, levelPath);
+                            prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip, levelPath);
                             gameState = STATE_ACTIVE;
                             levelSelectVisibilityMode = 0;
                             break;
@@ -1209,10 +1211,12 @@ int main(int argc, char* argv[]){
                     renderGuiBox(selectButton, true);
 
                     if(IsMouseButtonPressed(0) && isMouseInGuiBox(playButton)){
-                        loadNew(selectedLevel, false, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip);
-                        prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip);
+                        customLevel = 0;
+                        loadNew(selectedLevel, false, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip, levelPath);
+                        prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip, levelPath);
                         gameState = STATE_ACTIVE;
                         levelSelectVisibilityMode = 0;
+                        
                     }
 
                     if(IsMouseButtonPressed(0) && isMouseInGuiBox(selectButton)){
@@ -1257,14 +1261,10 @@ void prepareLevel(int resolutionMultiplier,
                     Animation** doorList, SwitchAnimation** leverList, //bool** door_isClosedList,
                     int customLevel, 
                     //char* levelWallsImgPath, int* pathLength, 
-                    int wallNum, Texture2D wallImg[16], int wallTags[16], uint16_t* wallEnabled, BoxCollider2D* goal, uint64_t leverFlip
+                    int wallNum, Texture2D wallImg[16], int wallTags[16], uint16_t* wallEnabled, BoxCollider2D* goal, uint64_t leverFlip, char levelPath[128]
                     //Texture* defaultDoor, Texture* leverOn, Texture* leverOff
                     ){
     printf("prepareLevel: Preparing level...\n");
-    /*wallEnabled = 0x0000;
-    for(int i = 0; i < wallNum; i++){
-        if(Col[colliderNum + i - wallNum].enabled) *wallEnabled = *wallEnabled | (0b1 << i);
-    }*/
     //load level image
     //char* tempString;
     //int processedChars = 0;
@@ -1274,21 +1274,23 @@ void prepareLevel(int resolutionMultiplier,
         *level = LoadTexture(str);
         for(int i = 0; i < wallNum; i++){
             wallImg[i] = LoadTexture(TextFormat("resources/levels/%d_walls/%d.png", selectedLevel + 1, i));
-            //(*wallImg)[i] = LoadTexture(TextFormat("resources/%d_walls/%d.png", selectedLevel + 1, i));
         }
     }else{
         printf("prepareLevel: customLevel enabled. Attemping to load image from levelImagePath. If the program crashes and no other messages pop up, make sure you've specified the img property\n");
-        if(levelImagePath[TextLength(levelImagePath) - 1] == '/'){
-            sprintf(str, "custom_levels/%s%d.png", levelImagePath, customLevel - 1);
+        if(levelPath[TextLength(levelPath) - 1] == '/'){
+            sprintf(str, "custom_levels/%s%d.png", levelPath, customLevel);
+            for(int i = 0; i < wallNum; i++){
+                wallImg[i] = LoadTexture(TextFormat("custom_levels/%s%d_walls/%d.png", levelPath, customLevel, i));
+            }
         }else{
             sprintf(str, "custom_levels/%s", levelImagePath);
-            printf("prepareLevel: Attemping to load custom image: %s\n", str);
-            *level = LoadTexture(str);
+            for(int i = 0; i < wallNum; i++){
+                wallImg[i] = LoadTexture(TextFormat("custom_levels/%s_walls/%d.png", levelPath, i));
+            }
         }
-        for(int i = 0; i < wallNum; i++){
-            wallImg[i] = LoadTexture(TextFormat("custom_levels/%s_walls/%d.png", levelImagePath, i));
-            //(*wallImg)[i] = LoadTexture(TextFormat("custom_levels/%s_walls/%d.png", levelImagePath, i));
-        }
+        printf("prepareLevel: Attemping to load custom image: %s\n", str);
+        *level = LoadTexture(str);
+        
         /*for(int i = 0; i < wallNum; i++){
             tempString = malloc(sizeof(int) * (pathLength[i] + 1));
             for(int s = 0; s < pathLength[i]; s++){
@@ -1393,17 +1395,6 @@ void prepareLevel(int resolutionMultiplier,
         crate[i].velocity.x = 0;
         crate[i].velocity.y = 0;
     }
-
-    /*camera.position.x = 0;
-    camera.position.y = 0;
-
-    if(disableCam){
-        camera.maxCamera.x = 0;
-        camera.maxCamera.y = 0;
-        camera.minCamera.x = 0;
-        camera.minCamera.y = 0;
-        camera.smoothingEnabled = false;
-    }*/
     printf("Level prepared succesfully. Starting level...\n");
 }
     

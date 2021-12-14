@@ -1,0 +1,27 @@
+/ Colliders
+    %(0,0,240,71,0,t,0)
+    %(0,95,16,40,0,t,0)
+    %(16,119,224,16,0,t,0)
+    %(121,104,119,15,0,t,0)
+    %(224,71,16,12,0,t,0)
+
+/ Lever
+    %(14,99,16,16,1,t,0)
+    ~leverNum=1
+/ Door
+    %(226,83,7,21,0,t,1)
+    ~doorNum=1
+
+/ TextBoxes
+    &(45,22,11,Press E to toggle switches.,?(255,255,255,255))
+    &(60,34,11,Switches open doors.,?(255,255,255,255))
+/ Spawn positions
+    ~sp=@(4,72)
+    ~sp2=@(8,74)
+
+
+/ Goal
+    ~goal=%(241,0,100,135,0,t,0)
+
+/ scrollType
+    ~scrollType=0

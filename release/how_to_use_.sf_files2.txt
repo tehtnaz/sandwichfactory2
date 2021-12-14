@@ -86,6 +86,7 @@ You ABSOLUTELY MUST:
         - portal
     declare how many levers/doors/portals there are unless there's none
     declare a goal
+    declare a level image (if you're making custom levels and not editing the ones already in the game)
 
 You CANNOT have:
     more than 64 level colliders (doors, levers, portals, walls)

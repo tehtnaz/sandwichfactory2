@@ -8,16 +8,18 @@
     %(16,119,224,16,0,t,0)
     %(224,98,16,21,0,t,0)
 / Disappearing walls
-    %(31,46,209,21,0,f,1)
+    %(31,46,209,21,0,t,2)
+    $(0,2,t)
+    ~wallNum=1
 
 
 
 / Levers
-    %(16,17,16,16,2,t,0)
+    %(14,17,16,16,1,t,0)
 / Door
-    %(38,98,7,21,0,t,2)
+    %(38,98,7,21,0,t,1)
 / Portal
-    %(215,98,9,21,1,t,0)
+    %(215,98,9,21,2,t,0)
 
 ~leverNum=1
 ~doorNum=1
@@ -25,12 +27,14 @@
 
 ~sp=@(4,83)
 
-~sp2=@(4,83)
+/ TextBoxes
+    &(49,18,10,Press "E" to go thourgh portals,?(255,255,255,255))
 
 / Ladders
     *(24,16,7,103,0,t,0)
-~img=7.png
-~wallNum=1
-$(0,1)
 
-~isMultiplayer=t
+/ Goal
+    ~goal=%(241,0,100,135,0,t,0)
+
+/ scrollType
+    ~scrollType=0
