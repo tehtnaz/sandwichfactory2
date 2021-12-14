@@ -28,6 +28,7 @@ int parseInt(char input[11], int arraySize){ // Sometimes while parsing garbage 
     int i = 0;
 
     bool isEnd = false;
+    bool isNegative = false;
 
     if(arraySize == 0){
         printf("Warning: parseInt - tried to parse 0 characters");
@@ -42,9 +43,9 @@ int parseInt(char input[11], int arraySize){ // Sometimes while parsing garbage 
         ch = input[i];
 
         switch(ch){
-            //case '-':
-                //output = -output;
-                //break;
+            case '-':
+                isNegative = !isNegative;
+                break;
             case '0':
                 output = output * 10;
                 break;
@@ -101,8 +102,13 @@ int parseInt(char input[11], int arraySize){ // Sometimes while parsing garbage 
         
     }
     printf("parseInt: Given string: %s", input);
-    printf(" - Output: %d\n", output);
-    return output;
+    if(isNegative){
+        printf(" - Output: %d\n", -output);
+        return -output;
+    }else{
+        printf(" - Output: %d\n", output);
+        return output;
+    }
 }
 
 float parseFloat(char input[12]){
@@ -627,7 +633,7 @@ PhysicsObject parsePhysicsObject(char input[128], int inputSize){
     return returnedObj;
 }
 
-Triangle parseTriangle(char input[128], int inputSize){
+/*Triangle parseTriangle(char input[128], int inputSize){
     printf("parseTriangle: input: %s\n", input);
     int select = 0;
     char sendToParse[20];
@@ -732,7 +738,7 @@ Triangle parseTriangle(char input[128], int inputSize){
     printf("parseTriangle: input: %s\n", input);
     printf("parseTriangle: output: %f, %f, %f, %f, %f, %f\n", returnedTri.p1.x, returnedTri.p1.y, returnedTri.p2.x, returnedTri.p2.y, returnedTri.anglePoint.x, returnedTri.anglePoint.y);
     return returnedTri;
-}
+}*/
 
 TextBox parseTextBox(char input[128], int inputSize){
     int select = 0;
@@ -886,12 +892,12 @@ int parseWallTag(char input[128], int inputSize, int returnValue){
 //
 //  Structs
 //      symbol() or symbol{} or symbol) <- not an array
-// @  % = level collider  = %()
-// @  * = ladder collider = *()
-// @  ^ = Physics object  = ^()
+//    % = level collider  = %()
+//    * = ladder collider = *()
+//    ^ = Physics object  = ^()
+//    & = textBox         = &()
 // *  < = triangle collider = <(p1x, p1y, p2x, p2y, aPx, aPy)
 //        note: can have either vec2 int or float
-// @  & = textBox       = &{(text1,x,y,colour,size);(text2,x,y,colour,size);etc..}; or&()
 //
 //  Types
 //    @ = vector 2 (int)   = @(x,y);  or @2091,133)
@@ -909,9 +915,6 @@ int parseWallTag(char input[128], int inputSize, int returnValue){
 // Note: Structs must be strictly written keeping their structure in mind, however an object can be written at any point
 
 //Reads generic sandwichfactory file type. Returns error code if neededs
-//
-//int levelTexts, int levelCol, int ladderNum, int objectCol, bool disableCam, Vector2 startingPos
-//add these values as you add more features
 
 // ; TERMINATE CURRENT LOOP IF REACHED. DO NOT MAKE THE SEMICOLON MOVE THE OBJECT AS THE LOOP SHOULD BE DOING IT
 
@@ -923,9 +926,6 @@ int parseWallTag(char input[128], int inputSize, int returnValue){
 // ~doorNum=
 // ~isMultiplayer=
 // ~goal=   (boxcollider2d)
-
-//Arrays?
-//%{13,31,3,13,34;1093,13,42,24,24}
 
 
 int readFileSF(char path[128], 
@@ -1241,210 +1241,99 @@ int readFileSF(char path[128],
             printf("readFileSF: attempting to parseCamera\n");
             printf("WARNING: readFileSF - Camera version 1 removed. Please refer to how_to_use_.sf_files for further info on how to set the camera. Skipping line...\n");
             getNewLine = true;
-            /*s_Camera temp_cam;
+        }else if(ch == '%'){
+            //level collider  = %{} or %()
+            charSelect++;
+            ch = input[charSelect];
+            //single struct
+            if(ch == '('){
+                charSelect++;
+                ch = input[charSelect];
+            }
+            temp = 0;
+            while(ch != ')'){
+                sendToParse[temp] = ch;
+                charSelect++;
+                ch = input[charSelect];
+                temp++;
+            }
+            sendToParse[temp] = ch;
+            levelCol[levelColID] = parseBoxCollider(sendToParse, temp, false);
+            //printf("uhh this worked");
+            printf("parseBoxCollider (main): currentId = %d\n", levelColID);
+            levelColID++;
+        }else if(ch == '*'){
+            //ladder collider = *{} or *()
+            charSelect++;
+            ch = input[charSelect];
+            //single struct
+            if(ch == '('){
+                charSelect++;
+                ch = input[charSelect];
+            }
+            temp = 0;
+            while(ch != ')'){
+                sendToParse[temp] = ch;
+                charSelect++;
+                ch = input[charSelect];
+                temp++;
+            }
+            sendToParse[temp] = ch;
+            ladders[ladderID] = parseBoxCollider(sendToParse, temp, false); // fix this to be based on input
+            ladders[ladderID].ladder = true;
+            printf("parseBoxCollider (main - ladder): currentLadderId = %d\n", ladderID);
+            ladderID++;
+        }else if(ch == '^'){
+            //physics object  = ^()
+            printf("readFileSF: attempting to parsePhysObj\n");
+            charSelect++;
+            ch = input[charSelect];
+            //single struct
+            if(ch == '('){
+                charSelect++;
+                ch = input[charSelect];
+            }
+            temp = 0;
+            isVector = false;
+            while(ch != ')'){
+                if(ch == '@'){
+                    isVector = true;
+                }
+                sendToParse[temp] = ch;
+                charSelect++;
+                ch = input[charSelect];
+                temp++;
+                if(ch == ')' && isVector){
+                    isVector = false;
+                    charSelect++;
+                    ch = input[charSelect];
+                    temp++;
+                }
+            }
+            sendToParse[temp] = ch;
+            printf("parsePhysicsObject (crate): currentLadderId = %d\n", physObjID);
+            physobjects[physObjID] = parsePhysicsObject(sendToParse, temp);
+            physObjID++;
+        }else if(ch == '$'){
+            //wallTag  = $()
+            printf("readFileSF: attempting to parseWallTag\n");
             charSelect++;
             ch = input[charSelect];
             if(ch == '('){
                 charSelect++;
                 ch = input[charSelect];
             }
-            
-            for(int s = 0; s < 3; ){
-                if(ch == '@'){
-                    charSelect++;
-                    ch = input[charSelect];
-                    if(ch == 'f'){
-                        temp = 1;
-                        charSelect++;
-                        ch = input[charSelect];
-                    }else{
-                        temp = 0;   
-                    }
-                    for(int i = 0; ch != ')'; i++){
-                        sendToParse[i] = ch;
-                        charSelect++;
-                        ch = input[charSelect];
-                        if(ch == ')'){
-                            sendToParse[i + 1] = ch;
-                        }
-                    }
-                    if(temp == 1){
-                        switch(s){
-                            case 0:
-                                temp_cam.position = readVector2Float(sendToParse);
-                                break;
-                            case 1:
-                                temp_cam.maxCamera = readVector2Float(sendToParse);
-                                break;
-                            case 2:
-                                temp_cam.minCamera = readVector2Float(sendToParse);
-                                break;
-                        }
-                    }else{
-                        switch(s){
-                            case 0:
-                                temp_cam.position = readVector2(sendToParse);
-                                break;
-                            case 1:
-                                temp_cam.maxCamera = readVector2(sendToParse);
-                                break;
-                            case 2:
-                                temp_cam.minCamera = readVector2(sendToParse);
-                                break;
-                        }
-                    }
-                    charSelect++;
-                    ch = input[charSelect];
-                    printf("-%c-", ch);
-                    /disableCam = false;
-                }else if(ch == ','){
-                    s++;
-                    charSelect++;
-                    ch = input[charSelect];
-                }else {
-                    printf("ERROR: readFileSF - Vector2 - I'm too lazy to do the x/y method please use vector2 import\n");
-                }
-            }
-
-            if(ch == ','){
-                temp_cam.smoothingEnabled = false;
+            temp = 0;
+            while(ch != ')'){
+                sendToParse[temp] = ch;
                 charSelect++;
                 ch = input[charSelect];
-            }else{
-                temp_cam.smoothingEnabled = parseBool(ch);
-                charSelect++;
-                ch = input[charSelect];
+                temp++;
             }
-
-            if(ch == ','){
-                charSelect++;
-                ch = input[charSelect];
-            }else{
-                printf("ERROR: readFileSF - Camera - Value given for smoothingEnabled is not bool");
-            }
-
-            for(int i = 0; ch != ')' && ch != ';'; i++){
-                sendToParse[i] = ch;
-                charSelect++;
-                ch = input[charSelect];
-            }
-            temp_cam.smoothing = parseFloat(sendToParse);
-            *camera = temp_cam;*/
-        }else if(ch == '%'){
-            //level collider  = %{} or %()
-            charSelect++;
-            ch = input[charSelect];
-            if(ch == '{'){
-                //array
-                while(ch != '}'){
-                    charSelect++;
-                    ch = input[charSelect];
-                }
-                
-            }else{
-                //single struct
-                if(ch == '('){
-                    charSelect++;
-                    ch = input[charSelect];
-                }
-                temp = 0;
-                while(ch != ')'){
-                    sendToParse[temp] = ch;
-                    charSelect++;
-                    ch = input[charSelect];
-                    temp++;
-                }
-                sendToParse[temp] = ch;
-                levelCol[levelColID] = parseBoxCollider(sendToParse, temp, false);
-                //printf("uhh this worked");
-                printf("parseBoxCollider (main): currentId = %d\n", levelColID);
-                levelColID++;
-            }
-        }else if(ch == '*'){
-            //ladder collider = *{} or *()
-            charSelect++;
-            ch = input[charSelect];
-            if(ch == '{'){
-                //array
-            }else{
-                //single struct
-                if(ch == '('){
-                    charSelect++;
-                    ch = input[charSelect];
-                }
-                temp = 0;
-                while(ch != ')'){
-                    sendToParse[temp] = ch;
-                    charSelect++;
-                    ch = input[charSelect];
-                    temp++;
-                }
-                sendToParse[temp] = ch;
-                ladders[ladderID] = parseBoxCollider(sendToParse, temp, false); // fix this to be based on input
-                ladders[ladderID].ladder = true;
-                printf("parseBoxCollider (main - ladder): currentLadderId = %d\n", ladderID);
-                ladderID++;
-            }
-        }else if(ch == '^'){
-            //physics object  = ^{} or ^()
-            printf("readFileSF: attempting to parsePhysObj\n");
-            charSelect++;
-            ch = input[charSelect];
-            if(ch == '{'){
-                //array
-            }else{
-                //single struct
-                if(ch == '('){
-                    charSelect++;
-                    ch = input[charSelect];
-                }
-                temp = 0;
-                isVector = false;
-                while(ch != ')'){
-                    if(ch == '@'){
-                        isVector = true;
-                    }
-                    sendToParse[temp] = ch;
-                    charSelect++;
-                    ch = input[charSelect];
-                    temp++;
-                    if(ch == ')' && isVector){
-                        isVector = false;
-                        charSelect++;
-                        ch = input[charSelect];
-                        temp++;
-                    }
-                }
-                sendToParse[temp] = ch;
-                printf("parsePhysicsObject (crate): currentLadderId = %d\n", physObjID);
-                physobjects[physObjID] = parsePhysicsObject(sendToParse, temp);
-                physObjID++;
-            }
-        }else if(ch == '$'){
-            //wallTag  = $()
-            printf("readFileSF: attempting to parseWallTag\n");
-            charSelect++;
-            ch = input[charSelect];
-            if(ch == '{'){
-                //array
-            }else{
-                //single struct
-                if(ch == '('){
-                    charSelect++;
-                    ch = input[charSelect];
-                }
-                temp = 0;
-                while(ch != ')'){
-                    sendToParse[temp] = ch;
-                    charSelect++;
-                    ch = input[charSelect];
-                    temp++;
-                }
-                sendToParse[temp] = ch;
-                //(*wallTags)[parseWallTag(sendToParse, temp, false)] = parseWallTag(sendToParse, temp, true);
-                wallTags[parseWallTag(sendToParse, temp, 0)] = parseWallTag(sendToParse, temp, 1);
-                *wallEnabled = *wallEnabled | (parseWallTag(sendToParse, temp, 2) << parseWallTag(sendToParse, temp, 0));
-            }
+            sendToParse[temp] = ch;
+            //(*wallTags)[parseWallTag(sendToParse, temp, false)] = parseWallTag(sendToParse, temp, true);
+            wallTags[parseWallTag(sendToParse, temp, 0)] = parseWallTag(sendToParse, temp, 1);
+            *wallEnabled = *wallEnabled | (parseWallTag(sendToParse, temp, 2) << parseWallTag(sendToParse, temp, 0));
         }else if(ch == '&'){
             //textBox         = &{} or &()
             charSelect++;
@@ -1566,10 +1455,12 @@ int readFileSF(char path[128],
     }
     printf("\n");
     printf("readFileSF: textBox1: %d, %d, %d, %s, %d, %d, %d, %d\n", texts[0].x, texts[0].y, texts[0].size, texts[0].text, texts[0].colour.r, texts[0].colour.g, texts[0].colour.b, texts[0].colour.a);
-    /*printf("**** ERROR ****\nreadFileSF recevied \n");
+    //bool hasError = false;
     if(levelColID + doorNum + leverNum + *portalNum > 64){
-        printf("%d levelColliders (more than 64)\n", levelColID + doorNum + leverNum + *portalNum);
-    }*/
+        printf("**** ERROR ****\nreadFileSF received: \n");
+        printf("    %d levelColliders (more than 64)\n", levelColID + doorNum + leverNum + *portalNum);
+        
+    }
 
     fclose(fp);
     return 0;
@@ -1581,7 +1472,7 @@ int readFileSF(char path[128],
 
 // Reads generic int data 
 //   int;int;int!
-void readFileInt(char path[40], int inputArray[256], int arraySize, int* outputSize){
+void readFileInt(char path[40], int* inputArray, int arraySize, int* outputSize){
     FILE* fp;
     fp = fopen(path, "r");
     if(fp == NULL){
@@ -1601,7 +1492,8 @@ void readFileInt(char path[40], int inputArray[256], int arraySize, int* outputS
         ch = input[i];
 
         switch(ch){
-            case '!':
+            case '\0':
+            case EOF:
                 isEnd = true;
                 break;
             case '0':
@@ -1663,6 +1555,5 @@ void writeFileInt(char path[40], int inputArray[256], int arraySize){
         fputs(str, fp);
         fputc(';', fp);
     }
-    fputc('!', fp);
     fclose(fp);
 }

@@ -6,7 +6,7 @@
 //vector2pp Version 1.1
 
 #define VECTOR2PP_H
-#define V2ZERO (Vector2){0,0}
+#define VEC2ZERO (Vector2){0,0}
 
 Vector2 addVec2(Vector2 input, Vector2 input2);
 Vector2 subVec2(Vector2 input, Vector2 input2);

@@ -75,7 +75,7 @@
 / tag 8 = normal lever  1
 
 / Goal
-    ~goal=%(0,0,1,135,0,t,0)
+    ~goal=%(-5,0,1,135,0,t,0)
 
 / scrollType
     ~scrollType=0
