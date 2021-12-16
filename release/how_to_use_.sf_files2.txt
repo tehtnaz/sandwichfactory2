@@ -1,111 +1,124 @@
-Documentation - How to use the .sf file
-
-There are many objects in the game and each have their own type and represeting character
-
-/ acts as a single line comment (aka: you can write anything on the same line and it will be skipped by the file reader)
-; seperates each object (if on same line)
-! = terminates the file immediately (cannot be done within a string, deprecated, however still functions)
-
-Properties (* required)
-    ~ = property   =  ~propertyname=data;
-
-    ex. 
-        ~img=awesome.png
-        ~sp=@(4,80)
-        ~leverNum=5
-        ~leverFlip12=f
-        ~leverFlip=[1]t
-        ~leverFlip=f,f,f,f,f
-
-    Property names
-    img            * - string   (level Image)
-    goal           * - BoxCollider2D (area which triggers the move to the next level)
-    sp               - Vector2  (starting point)
-    sp2              - Vector2  (starting point - player 2)
-    isMultiplayer    - bool     (enable player 2?)
-    leverNum         - int      (must specify lever num if using levers)
-    doorNum          - int      (must specify if using doors)
-    portalNum        - int      (must specify if using portals)
-    wallNum          - int      (number of wall colliders)
-    scrollType       - int      (
-        0 = scrolling disabled
-        1 = scroll left-right only
-        2 = scroll up-down only
-        3 = scroll both
-        4 = scroll both (disable area limits)
-    )   
-    leverFlip        - array item
-    leverFlip        - array (max size 64)
-
-Structs
-    % = level collider   = %(x,  y,  sizeX,sizeY,trigger, enabled, tag)
-                             int,int,int,  int,  int,     bool,    int
-    * = ladder collider  = same as levelCollider but with star   = *()
-
-    ^ = Physics object   = ^(position,sizeX,sizeY,isTrigger,enabled)
-                             Vector2, int,  int,  bool,     bool
-
-    & = textBox          = &(x, y,  size,text,  colour)
-                            int,int,int, string,colour
-
-		Notes: The string must be expressed without quotes. 
-		              Any attempts to add a comma in the text must be preceeded by a backslash ( \, ) This will display only the comma.
-
-    $ = wallTag          = $(wallID, tag, enabled)
-                             int,    int, bool
-        Notes: You need to use wallID 0 to the number of images you have
-            ex. you cannot do $(10,1,t) if you do not have 0-9 as images
+Documentation - How to use the .sf file (creating and loading)
 
 
-    
-    Note: Spaces are strongly disencouraged in structs since this breaks anything involving bool because of my lazy coding. Please don't add spaces inside a struct unless you're entering a string
+FILE STRUCTURE and how to add objects
+----------------------------------------------------------------
+    There are many objects in the game and each have their own type and represeting character
 
-Types
-    @ = vector 2 (int)   = @(x,y)
-    @f= vector 2 (float) = @f(x,y) broken (do not use)
-        instead, input the numbers directly; 0,0 instead of @f(0,0)
-    ? = colour     = ?(r,g,b,a)
-
-    bool  - accepts: 0, 1, t, T, f, T
-    int   - just put a number
-    array - types seperated by commas
-    array select - [id]value   ex. [15]f
-
-Examples can be found in the custom_levels/template folder.
+    / acts as a single line comment (aka: you can write anything on the same line and it will be skipped by the file reader)
+    ; seperates each object (if on same line)
+    ! = terminates the file immediately (cannot be done within a string, deprecated, however still functions)
 
 
-Extra notes:
-The file does not need to have the .sf extension since its just a text file (it's just cool to have .sf)
+    Anything you write (if not cancelled by a comment) will be treated as an object
+    To declare an object (struct), just write the symbol then surround the next required value in parentheses
+
+    Properties (* required)
+        ~ = property   =  ~propertyname=data;
+
+        ex. 
+            ~img=awesome.png
+            ~sp=@(4,80)
+            ~leverNum=5
+            ~leverFlip12=f
+            ~leverFlip=[1]t
+            ~leverFlip=f,f,f,f,f
+
+        Property names
+        img            * - string   (level Image)
+        goal           * - BoxCollider2D (area which triggers the move to the next level)
+        sp               - Vector2  (starting point)
+        sp2              - Vector2  (starting point - player 2)
+        isMultiplayer    - bool     (enable player 2?)
+        leverNum         - int      (must specify lever num if using levers)
+        doorNum          - int      (must specify if using doors)
+        portalNum        - int      (must specify if using portals)
+        wallNum          - int      (number of wall colliders)
+        scrollType       - int      (
+            0 = scrolling disabled (default)
+            1 = scroll left-right only
+            2 = scroll up-down only
+            3 = scroll both
+            4 = scroll both (disable area limits)
+        )   
+        leverFlip        - array item
+        leverFlip        - array (max size 64)
+
+    Structs
+        % = level collider   = %(x,  y,  sizeX,sizeY,trigger, enabled, tag)
+                                int,int,int,  int,  int,     bool,    int
+        * = ladder collider  = same as levelCollider but with star   = *()
+
+        ^ = Physics object   = ^(position,sizeX,sizeY,isTrigger,enabled)
+                                Vector2, int,  int,  bool,     bool
+
+        & = textBox          = &(x, y,  size,text,  colour)
+                                int,int,int, string,colour
+
+            Notes: The string must be expressed without quotes. 
+                        Any attempts to add a comma in the text must be preceeded by a backslash ( \, ) This will display only the comma.
+
+        $ = wallTag          = $(wallID, tag, enabled)
+                                int,    int, bool
+            Notes: You need to use wallID 0 to the number of images you have
+                ex. you cannot do $(10,1,t) if you do not have 0-9 as images    
+
+        Note: Spaces are strongly disencouraged in structs since this breaks anything involving bool because of my lazy coding. Please don't add spaces inside a struct unless you're entering a string
+
+    Types
+        @ = vector 2 (int)   = @(x,y)
+        @f= vector 2 (float) = @f(x,y) broken (do not use)
+            instead, input the numbers directly; 0,0 instead of @f(0,0)
+        ? = colour     = ?(r,g,b,a)
+
+        bool  - accepts: 0, 1, t, T, f, T
+        int   - just put a number
+        array - types seperated by commas
+        array select - [id]value   ex. [15]f
+
+    Examples can be found in the custom_levels/template folder.
 
 
-You ABSOLUTELY MUST:
-    declare level colliders in this order
-        - walls (disappearing or not)
-        - lever
-        - door
-        - portal
-    declare how many levers/doors/portals there are unless there's none
-    declare a goal
-    declare a level image (if you're making custom levels and not editing the ones already in the game)
+    Extra notes:
+    The file does not need to have the .sf extension since its just a text file (it's just cool to have .sf)
 
-You CANNOT have:
-    more than 64 level colliders (doors, levers, portals, walls)
-    more than 16 ladders
-    more than 8 crates
-    more than 2 level texts
-    more than 16 different images representing disappearing walls
+
+
+
+REQUIREMENTS
+----------------------------------------------------------------
+    You ABSOLUTELY MUST:
+        declare level colliders in this order
+            - walls (disappearing or not)
+            - lever
+            - door
+            - portal
+        declare how many levers/doors/portals there are unless there's none
+        declare a goal
+        declare a level image (if you're making custom levels and not editing the ones already in the game)
+
+    You CANNOT have:
+        more than 64 level colliders (doors, levers, portals, walls)
+        more than 16 ladders
+        more than 8 crates
+        more than 2 level texts
+        more than 16 different images representing disappearing walls
+        a file with a period in the name
+
+    Not Recommended:
+        files with spaces (just use underscores)
+
 
 
 
 HOW TO USE WORLDS (aka level directories)
-Load a custom directory by ending the argument with a slash
+----------------------------------------------------------------
+    Load a custom directory by ending the argument with a slash
 
-Levels must have their walls in a folder with the same name as the .sf folder
-    ex. bruh2.sf must have its walls placed in a folder named bruh2_walls
-Each disappearing wall image must be numbered from 0 - however many there are
-    ex. bruh2_walls/0.png, bruh2_walls/1.png
-When loading a custom level folder, the levels must be named 1 - however many there are
-    ex. 1.sf, 2.sf, 3.sf
-    Note: The previous rules apply, 1.png, 2.png, 3.png, 1_walls, 2_walls, 3_walls
-
-
+    Levels must have their walls in a folder with the same name as the .sf folder
+        ex. bruh2.sf must have its walls placed in a folder named bruh2_walls
+    Each disappearing wall image must be numbered from 0 - however many there are
+        ex. bruh2_walls/0.png, bruh2_walls/1.png
+    When loading a custom level folder, the levels must be named 1 - however many there are
+        ex. 1.sf, 2.sf, 3.sf
+        Note: The previous rules apply, 1.png, 2.png, 3.png, 1_walls, 2_walls, 3_walls

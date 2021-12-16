@@ -34,7 +34,8 @@ typedef enum GameState{
     STATE_MENU, //everything relating to gameplay is not rendered or processed; menuGui Enabled; level is not loaded
     STATE_ACTIVE,  // all things turned on; gui off
     STATE_PAUSED, // everything relating to gameplay except rendering disabled; pauseGui Enabled
-    STATE_END // render endscreen and thats it
+    STATE_END, // render endscreen and thats it
+    STATE_CUTSCENE
 }GameState;
 
 typedef enum PlayerMode{
@@ -56,6 +57,7 @@ int main(int argc, char* argv[]){
 
     //misc.
     char levelImagePath[64];
+    char backgroundPath[64];
     levelImagePath[0] = '\0';
 
     //initialize variables
@@ -63,7 +65,7 @@ int main(int argc, char* argv[]){
 
     //declare prepareLevel
     void prepareLevel(int resolutionMultiplier, 
-                    Vector2* playerPos, Vector2* playerPos2, Vector2 startingPos, Vector2 startingPos2, 
+                    Vector2* playerPos, Vector2* playerPos2, Vector2* startingPos, Vector2* startingPos2, 
                     int selectedLevel, Texture2D* level, char str[40], 
                     int colliderNum, int leverNum, int doorNum, int portalNum, BoxCollider2D Col[64], 
                     TextBox levelText[2], int textNum, 
@@ -92,7 +94,7 @@ int main(int argc, char* argv[]){
     BoxCollider2D Col[64];
     TextBox levelText[2];
     PhysicsObject crate[8];
-    TriSlope triCol[10];
+    //TriSlope triCol[10];
     Triangle realTri[10];
     BoxCollider2D ladderCol[16];
 
@@ -202,7 +204,7 @@ int main(int argc, char* argv[]){
 
     //ask which path then load it
     if(customLevel == 1){
-        loadNew(customLevel, true, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip, levelPath);        
+        loadNew(customLevel, true, levelImagePath, backgroundPath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip, levelPath);        
     }
 
     //start raylib
@@ -294,7 +296,7 @@ int main(int argc, char* argv[]){
     TriColInfo playerTriColInfo = {0,0,0,0};
     TriColInfo playerTriColInfo2 = {0,0,0,0};
     
-    triCol[0] = triToTriSlope((Triangle){{100 * 8,100 * 8},{0,119 * 8},{100 * 8,119 * 8}});
+    //triCol[0] = triToTriSlope((Triangle){{100 * 8,100 * 8},{0,119 * 8},{100 * 8,119 * 8}});
 
     TriColInfo triCollision;
     TriColInfo triCollision2;
@@ -381,11 +383,17 @@ int main(int argc, char* argv[]){
 
     if(customLevel == 1){
         gameState = STATE_ACTIVE;
-        prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip, levelPath);
+        prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, &startingPos, &startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip, levelPath);
     }
 
     //start sound
     PlayMusicStream(menu_soundtrack);
+
+    //cutscene graphics
+
+    float timer = 0;
+    Animation cutscene = assignProperties(0, 0, 0, true, 13, false);
+    cutscene = getFromFolder(cutscene, "resources/cutscene/", true);
 
     while(!WindowShouldClose()){
         if(IsKeyPressed(KEY_F11)){
@@ -396,7 +404,7 @@ int main(int argc, char* argv[]){
 
         UpdateMusicStream(menu_soundtrack);
         UpdateMusicStream(game_soundtrack);
-        if(gameState == STATE_MENU || gameState == STATE_END){
+        if(gameState == STATE_MENU || gameState == STATE_END || gameState == STATE_CUTSCENE){
             if(IsMusicStreamPlaying(game_soundtrack)){
                 StopMusicStream(game_soundtrack);
             }
@@ -635,7 +643,6 @@ int main(int argc, char* argv[]){
 
             }
 
-            //Player 2 Interact NOTE(UPDATE): not updated for door tags
             if(playerMode == TWO_PLAYERS && IsKeyPressed(KEY_RIGHT_CONTROL) && collision2.inTrigger > 0){
                 if(collision2.triggerObjID - colliderNum - leverNum < 0){
                     //interact with lever
@@ -799,26 +806,26 @@ int main(int argc, char* argv[]){
                         gameState = STATE_END;
                     }else{
                         printf("Attemping to load level %d because posX: %f > width: %d\n", selectedLevel, playerPos.x, screenWidth);
-                        if(loadNew(selectedLevel, false, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip, levelPath) == 0){
+                        if(loadNew(selectedLevel, false, levelImagePath, backgroundPath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip, levelPath) == 0){
                             printf("Succesfully loaded\n");
                         }else{
                             printf("Failed loading level.\n");
                             CloseWindow();
                             return 0;
                         }
-                        prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip, levelPath);
+                        prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, &startingPos, &startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip, levelPath);
                     }
                 }else{
                     customLevel++;
                     printf("main: CUSTOM - Attemping to load level %d because posX: %f > width: %d\n", customLevel, playerPos.x, screenWidth);
-                    if(loadNew(customLevel, true, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip, levelPath) == 0){
+                    if(loadNew(customLevel, true, levelImagePath, backgroundPath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip, levelPath) == 0){
                         printf("Succesfully loaded\n");
                     }else{
                         printf("Failed loading level.\n");
                         CloseWindow();
                         return 0;
                     }
-                    prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip, levelPath);
+                    prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, &startingPos, &startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip, levelPath);
                 }
             }
 
@@ -1053,12 +1060,18 @@ int main(int argc, char* argv[]){
                     }
                     printf("\n");
                 }
-                //Debug related 
-                if(ColliderDebugMode){
-                    BeginMode2D(camera);
+                BeginMode2D(camera);
+                    //Debug related 
+                    if(ColliderDebugMode){
+                        if(IsKeyDown(KEY_E)){
+                            DrawRectangleRec((Rectangle){
+                            playerPos.x - (resolutionMultiplier * 2),
+                            playerPos.y + resolutionMultiplier,
+                            playerSize.x + (resolutionMultiplier * 4),
+                            playerSize.y - (resolutionMultiplier * 2)}, MAGENTA);
+                        }
                         if(!(IsKeyDown(KEY_A) && IsKeyDown(KEY_D)) && (IsKeyDown(KEY_A) || IsKeyDown(KEY_D)) && !disablePlayerAnim) DrawRectangle(playerPos.x, playerPos.y, playerSizeLarge.x, playerSizeLarge.y, PINK);
                             else DrawRectangle(playerPos.x, playerPos.y, playerSize.x, playerSize.y, PINK);
-
                         if(triCollision.botRight) DrawCircleV(addVec2(playerPos, playerSize), 3, PURPLE);
                         if(triCollision.topLeft) DrawCircleV(playerPos, 3, PURPLE);
                         if(triCollision.topRight) DrawCircle(playerPos.x + playerSize.x, playerPos.y, 3, PURPLE);
@@ -1098,13 +1111,28 @@ int main(int argc, char* argv[]){
                             }
                             DrawRectangleLines(ladderCol[i].x, ladderCol[i].y, ladderCol[i].sizeX, ladderCol[i].sizeY, BLACK);
                         }
-                        DrawCircle(playerPos.x + (playerSize.x / 2),triCollision.floor + playerSize.y, 3, PURPLE);
-                        DrawCircle(playerPos2.x + (playerSize.x / 2),triCollision2.floor + playerSize.y, 3, PURPLE);
-                        drawSlope(triCol[0].slope, triCol[0].init);
+                        for(int i = 0; i < crateNum; i++){
+                            DrawRectangle(crate[i].position.x, crate[i].position.y, crate[i].sizeX, crate[i].sizeY, MAROON);
+                        }
+                        //DrawCircle(playerPos.x + (playerSize.x / 2),triCollision.floor + playerSize.y, 3, PURPLE);
+                        //DrawCircle(playerPos2.x + (playerSize.x / 2),triCollision2.floor + playerSize.y, 3, PURPLE);
+                        //drawSlope(triCol[0].slope, triCol[0].init);
                         DrawRectangle(goal.x, goal.y, goal.sizeX, goal.sizeY, DARKGREEN);
                         DrawRectangleLines(goal.x, goal.y, goal.sizeX, goal.sizeY, BLACK);
-                    EndMode2D();
-                }
+                    }
+                    if(ShowCollider > 0){
+                        DrawRectangle(Col[ShowCollider - 1].x, Col[ShowCollider - 1].y, Col[ShowCollider - 1].sizeX, Col[ShowCollider - 1].sizeY, GREEN);
+                    }
+                EndMode2D();
+                    if(ShowCollider > 0){
+                        sprintf(str, "%f", playerPos.y + playerSize.y);
+                        DrawText(str, 0, 0, 100, GREEN);
+                        sprintf(str, "%d", Col[ShowCollider - 1].y);
+                        DrawText(str, 0, 100, 100, GREEN);
+                        sprintf(str, "%d", Col[ShowCollider - 1].y + Col[ShowCollider - 1].sizeY);
+                        DrawText(str, 0, 200, 100, GREEN);
+                    }
+
                 /*if(true){
                     if(objCollision.left){
                         DrawRectangle(playerPos.x, playerPos.y, 4, playerSize.y, PURPLE);
@@ -1122,15 +1150,6 @@ int main(int argc, char* argv[]){
                 if(showVelocity){
                     sprintf(str, "%f", velocity);
                     DrawText(str, 0, 50, 100, WHITE);
-                }
-                if(ShowCollider > 0){
-                    DrawRectangle(Col[ShowCollider - 1].x, Col[ShowCollider - 1].y, Col[ShowCollider - 1].sizeX, Col[ShowCollider - 1].sizeY, GREEN);
-                    sprintf(str, "%f", playerPos.y + playerSize.y);
-                    DrawText(str, 0, 0, 100, GREEN);
-                    sprintf(str, "%d", Col[ShowCollider - 1].y);
-                    DrawText(str, 0, 100, 100, GREEN);
-                    sprintf(str, "%d", Col[ShowCollider - 1].y + Col[ShowCollider - 1].sizeY);
-                    DrawText(str, 0, 200, 100, GREEN);
                 }
                 if(CrateDebugMode){
                     sprintf(str, "%f", crate[0].velocity.x);
@@ -1193,8 +1212,8 @@ int main(int argc, char* argv[]){
                         if(IsMouseButtonPressed(0) && isMouseInGuiBox(levelSelect[i])){
                             selectedLevel = i;
                             customLevel = 0;
-                            loadNew(selectedLevel, false, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip, levelPath);
-                            prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip, levelPath);
+                            loadNew(selectedLevel, false, levelImagePath, backgroundPath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip, levelPath);
+                            prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, &startingPos, &startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip, levelPath);
                             gameState = STATE_ACTIVE;
                             levelSelectVisibilityMode = 0;
                             break;
@@ -1211,10 +1230,8 @@ int main(int argc, char* argv[]){
                     renderGuiBox(selectButton, true);
 
                     if(IsMouseButtonPressed(0) && isMouseInGuiBox(playButton)){
-                        customLevel = 0;
-                        loadNew(selectedLevel, false, levelImagePath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip, levelPath);
-                        prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, startingPos, startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip, levelPath);
-                        gameState = STATE_ACTIVE;
+                        gameState = STATE_CUTSCENE;
+                        timer = 3.0f; // timer before cutscene changes frames
                         levelSelectVisibilityMode = 0;
                         
                     }
@@ -1245,6 +1262,31 @@ int main(int argc, char* argv[]){
                 DrawAnimationPro(&background, bgPosition, backgroundResMultiplier, WHITE, screenFPS, CYCLE_NONE);
                 DrawTextureEx(end_screen, (Vector2){0,0}, 0, resolutionMultiplier, WHITE);
             }
+
+            if(gameState == STATE_CUTSCENE){
+                //background
+                //DrawTextureEx(main_menu, bgPosition, 0, resolutionMultiplier, WHITE);
+                ClearBackground(BLACK);
+                timer -= GetFrameTime();
+                if(timer < 0.0f){
+                    DrawAnimationPro(&cutscene, VEC2ZERO, resolutionMultiplier, GRAY, screenFPS, CYCLE_NONE);
+                    cutscene.currentFrame++;
+                    if(cutscene.currentFrame > cutscene.frameCount - 1){
+                        cutscene.isAnimating = false;
+                    }
+                    timer = 1.5f;
+                }else if(timer < 1.0f){
+                    DrawAnimationPro(&cutscene, VEC2ZERO, resolutionMultiplier, GRAY, screenFPS, CYCLE_NONE);
+                }
+                printf("time: %f\n", timer);
+                if(!cutscene.isAnimating){
+                    gameState = STATE_ACTIVE;
+                    customLevel = 0;
+                    selectedLevel = 0;
+                    loadNew(selectedLevel, false, levelImagePath, backgroundPath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip, levelPath);
+                    prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, &startingPos, &startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip, levelPath);
+                }
+            }
         EndDrawing();
     }
     CloseWindow();
@@ -1252,7 +1294,7 @@ int main(int argc, char* argv[]){
 }
 
 void prepareLevel(int resolutionMultiplier, 
-                    Vector2* playerPos, Vector2* playerPos2, Vector2 startingPos, Vector2 startingPos2, 
+                    Vector2* playerPos, Vector2* playerPos2, Vector2* startingPos, Vector2* startingPos2, 
                     int selectedLevel, Texture2D* level, char str[40], 
                     int colliderNum, int leverNum, int doorNum, int portalNum, BoxCollider2D Col[64], 
                     TextBox levelText[2], int textNum, 
@@ -1377,15 +1419,15 @@ void prepareLevel(int resolutionMultiplier,
         levelText[i].y *= resolutionMultiplier;
         levelText[i].size *= resolutionMultiplier;
     }
-    Vector2 tempPos = startingPos;
-    tempPos.x *= resolutionMultiplier;
-    tempPos.y *= resolutionMultiplier;
-    *playerPos = tempPos;
+    startingPos->x *= resolutionMultiplier;
+    startingPos->y *= resolutionMultiplier;
+    playerPos->x = startingPos->x;
+    playerPos->y = startingPos->y;
 
-    tempPos = startingPos2;
-    tempPos.x *= resolutionMultiplier;
-    tempPos.y *= resolutionMultiplier;
-    *playerPos2 = tempPos;
+    startingPos2->x *= resolutionMultiplier;
+    startingPos2->y *= resolutionMultiplier;
+    playerPos2->x = startingPos2->x;
+    playerPos2->y = startingPos2->y;
 
     for(int i = 0; i < crateNum; i++){
         crate[i].position.x *= resolutionMultiplier;

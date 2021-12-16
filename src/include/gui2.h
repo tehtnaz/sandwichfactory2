@@ -66,7 +66,7 @@
         return temp;
     }
 
-    GuiText assignGuiText(Font* font, Vector2 center, Vector2 offset, char text[50], int size, Color color, float spacing){
+    GuiText assignGuiText(Font* font, Vector2 center, Vector2 offset, const char text[50], int size, Color color, float spacing){
         GuiText temp;
         temp.font = font;
         temp.center = center;
@@ -117,7 +117,7 @@
         return temp;
     }
 
-    Vector2 GetTextCenter(Font font, char text[64], float fontSize, float spacing, int screenWidth, int screenHeight){
+    Vector2 GetTextCenter(Font font, const char text[64], float fontSize, float spacing, int screenWidth, int screenHeight){
         Vector2 textSize = MeasureTextEx(font, text, fontSize, spacing);
         return (Vector2){screenWidth / 2 - textSize.x / 2, screenHeight / 2 - textSize.y / 2};
     }

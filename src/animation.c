@@ -142,9 +142,6 @@ Animation cycleAnimationBackwards(Animation input, float screenFPS){
 
 //ignores isAnimating property and only works while allowSnap property is disabled
 
-//BROKEN: DOES NOT GO BACKWARD PROPERLY
-//PLAYERANIM IS BROKEN BECAUSE OF NEGATIVE FPS
-
 Animation shakeCycleAnimation(Animation input, float screenFPS){
     if(input.allowSnap){
         printf("allowSnap is enabled for this object. Did you mean to cycle it and not shake it? Skipping...\n");
@@ -216,6 +213,7 @@ Animation flipAnimationHorizontal(Animation input){
     UnloadTexture(temp.texture);
     temp.texture = LoadTextureFromImage(tempImg);
     UnloadImage(tempImg);
+    UnloadImage(animTexture);
     return temp;
 }
 

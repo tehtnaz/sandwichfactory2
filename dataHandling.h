@@ -929,9 +929,7 @@ int parseWallTag(char input[128], int inputSize, int returnValue){
 
 
 int readFileSF(char path[128], 
-            bool readLevelImagePath, char levelImagePath[64], 
-            //bool* disableCam, 
-            //s_Camera* camera, 
+            char levelImagePath[64], char backgroundPath[64],
             Vector2* startingPos, Vector2* startingPos2,
             BoxCollider2D levelCol[64], BoxCollider2D ladders[16], TextBox texts[2], PhysicsObject physobjects[8], Triangle triCol[10],
             int* levelTexts, int* levelColNum, int* ladderNum, int* physObjNum,
@@ -953,6 +951,8 @@ int readFileSF(char path[128],
     char sendToParse[128];
     char propertyName[32];
     char ch; // character selected
+
+
     int levelColID = 0;
     int ladderID = 0;
     int physObjID = 0;
@@ -962,8 +962,6 @@ int readFileSF(char path[128],
     bool isVector = false;
     int temp = 0;
     bool subFor = false;
-
-    //*disableCam = true;
     int leverNum = 0;
     int doorNum = 0;
     *portalNum = 0;
@@ -971,6 +969,7 @@ int readFileSF(char path[128],
     *isMultiplayer = 0; // default
     *wallEnabled = 0x0000;
     *leverFlip = 0x0000000000000000;
+    backgroundPath = "@";
 
     bool getNewLine = false;
 
@@ -1111,8 +1110,7 @@ int readFileSF(char path[128],
                         temp++;
                     }
                     if(temp == 64){
-                        //printf("ERROR: Overflowed allow path size (64 charcters). File missing, forgot to terminate or try renaming the file.\n");
-                        printf("ERROR: parseProperty - Overflowed allowed path size (64 charcters). Forgot to terminate or try renaming the file.\n");
+                        printf("ERROR: parseProperty (img) - Overflowed allowed path size (64 charcters). Forgot to terminate or try renaming the file.\n");
                     }else{
                         levelImagePath[temp] = '\0';
                         printf("parseProperty: Level Image set to %s\n", levelImagePath);
@@ -1223,6 +1221,23 @@ int readFileSF(char path[128],
                         sendToParse[temp] = '\0';
                         *leverFlip = readBoolArray64(sendToParse);
                     }
+                }else if(strEquals(propertyName, "bgImg")){
+                    temp = 0;
+                    //Note(BUG): if we read the EOF, the property doesnt terminate properly resulting in garbage data
+                    while(ch != ';' && ch != '\n' && ch != '\0' && temp < 64 && ch != EOF){
+                        backgroundPath[temp] = ch;
+                        charSelect++;
+                        ch = input[charSelect];
+                        temp++;
+                    }
+                    if(temp == 64){
+                        //printf("ERROR: Overflowed allow path size (64 charcters). File missing, forgot to terminate or try renaming the file.\n");
+                        printf("ERROR: parseProperty (bgImg) - Overflowed allowed path size (64 charcters). Forgot to terminate or try renaming the file.\n");
+                    }else{
+                        backgroundPath[temp] = '\0';
+                        printf("parseProperty: Level Background set to %s\n", backgroundPath);
+                    }
+                    charSelect--;
                 }else{
                     printf("ERROR: parseProperty - Invalid property name\n");
                     printf("Given name: %s\n", propertyName);
@@ -1331,7 +1346,6 @@ int readFileSF(char path[128],
                 temp++;
             }
             sendToParse[temp] = ch;
-            //(*wallTags)[parseWallTag(sendToParse, temp, false)] = parseWallTag(sendToParse, temp, true);
             wallTags[parseWallTag(sendToParse, temp, 0)] = parseWallTag(sendToParse, temp, 1);
             *wallEnabled = *wallEnabled | (parseWallTag(sendToParse, temp, 2) << parseWallTag(sendToParse, temp, 0));
         }else if(ch == '&'){
@@ -1370,7 +1384,6 @@ int readFileSF(char path[128],
             texts[textBoxID] = parseTextBox(sendToParse, temp);
             printf("readFileSF: TextBox - Given text: %s\n", texts[textBoxID].text);
             printf("readFileSF: TextBox - all: %s\n", sendToParse);
-            //printf("hello3");
             textBoxID++;
         }else if(ch == '<'){
             //physics object  = ^{} or ^()

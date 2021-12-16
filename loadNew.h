@@ -15,7 +15,7 @@ void EndAtExtension(char* input){
 }
 
 int loadNew(int selectedLevel, bool custom, 
-    char levelImagePath[64],
+    char levelImagePath[64], char backgroundPath[64],
     Vector2* startingPos, Vector2* startingPos2,
     BoxCollider2D Col[64], TextBox levelText[2], PhysicsObject crate[8], Triangle triCol[10], BoxCollider2D ladderCol[16],
     int* colliderNum, int* textNum, int* ladderNum, int* crateNum,
@@ -35,7 +35,7 @@ int loadNew(int selectedLevel, bool custom,
                 if(temp2[TextLength(temp2) - 1] == '/') sprintf(str, "custom_levels/%s1.sf", temp2);
                 else sprintf(str, "custom_levels/%s", temp2);
                 printf("%s\n",temp2);
-                temp = readFileSF(str, true, levelImagePath, startingPos, startingPos2, Col, ladderCol, levelText, crate, triCol, textNum, colliderNum, ladderNum, crateNum, leverNum, doorNum, isMultiplayer, portalNum, wallTags, wallNum, wallEnabled, goal, scrollType, leverFlip);
+                temp = readFileSF(str, levelImagePath, backgroundPath, startingPos, startingPos2, Col, ladderCol, levelText, crate, triCol, textNum, colliderNum, ladderNum, crateNum, leverNum, doorNum, isMultiplayer, portalNum, wallTags, wallNum, wallEnabled, goal, scrollType, leverFlip);
                 if(temp == 1){
                     printf("File could not be opened. Try another file.\n");
                 }else{
@@ -46,7 +46,7 @@ int loadNew(int selectedLevel, bool custom,
             }
         }else{
             sprintf(str, "custom_levels/%s%d.sf", path, selectedLevel);
-            temp = readFileSF(str, true, levelImagePath, startingPos, startingPos2, Col, ladderCol, levelText, crate, triCol, textNum, colliderNum, ladderNum, crateNum, leverNum, doorNum, isMultiplayer, portalNum, wallTags, wallNum, wallEnabled, goal, scrollType, leverFlip);
+            temp = readFileSF(str, levelImagePath, backgroundPath, startingPos, startingPos2, Col, ladderCol, levelText, crate, triCol, textNum, colliderNum, ladderNum, crateNum, leverNum, doorNum, isMultiplayer, portalNum, wallTags, wallNum, wallEnabled, goal, scrollType, leverFlip);
             if(temp == 1){
                 printf("ERROR: loadNew - Error detected in readFileSF. Ending function.\n");
                 return 1;
@@ -57,7 +57,7 @@ int loadNew(int selectedLevel, bool custom,
         *doorNum = false;
         levelImagePath[0] = '\0';
         sprintf(str, "resources/levels/%d.sf", selectedLevel + 1);
-        temp = readFileSF(str, false, levelImagePath, startingPos, startingPos2, Col, ladderCol, levelText, crate, triCol, textNum, colliderNum, ladderNum, crateNum, leverNum, doorNum, isMultiplayer, portalNum, wallTags, wallNum, wallEnabled, goal, scrollType, leverFlip);
+        temp = readFileSF(str, levelImagePath, backgroundPath, startingPos, startingPos2, Col, ladderCol, levelText, crate, triCol, textNum, colliderNum, ladderNum, crateNum, leverNum, doorNum, isMultiplayer, portalNum, wallTags, wallNum, wallEnabled, goal, scrollType, leverFlip);
         printf("loadNew: test: %d\n", levelImagePath[0]);
     }
     return temp;
