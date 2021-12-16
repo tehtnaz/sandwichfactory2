@@ -392,8 +392,14 @@ int main(int argc, char* argv[]){
     //cutscene graphics
 
     float timer = 0;
+    bool anyButtonPrompt = false;
     Animation cutscene = assignProperties(0, 0, 0, true, 13, false);
     cutscene = getFromFolder(cutscene, "resources/cutscene/", true);
+
+    Font defaultFont = GetFontDefault();
+    GuiText promptText = assignGuiText(&defaultFont, (Vector2){0,0}, (Vector2){0,500}, "Press Space to skip", 20, WHITE, 0);
+    promptText.center = GetTextCenterGUI(promptText, 1920, 1080);
+    promptText = resizeGuiText(promptText, screenHeight / 1080.0f);
 
     while(!WindowShouldClose()){
         if(IsKeyPressed(KEY_F11)){
@@ -1278,6 +1284,18 @@ int main(int argc, char* argv[]){
                 }else if(timer < 1.0f){
                     DrawAnimationPro(&cutscene, VEC2ZERO, resolutionMultiplier, GRAY, screenFPS, CYCLE_NONE);
                 }
+                
+                if(anyButtonPrompt){
+                    renderGuiText(promptText);
+                    if(IsKeyPressed(KEY_SPACE)){
+                        cutscene.isAnimating = false;
+                    }
+                }else{
+                    if(GetKeyPressed() != 0){
+                        anyButtonPrompt = true;
+                    }
+                }
+
                 printf("time: %f\n", timer);
                 if(!cutscene.isAnimating){
                     gameState = STATE_ACTIVE;

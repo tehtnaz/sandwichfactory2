@@ -109,6 +109,9 @@ int parseInt(char input[11], int arraySize){ // Sometimes while parsing garbage 
         printf(" - Output: %d\n", output);
         return output;
     }
+
+    //ouput *= -isNegative * 2 + 1
+
 }
 
 float parseFloat(char input[12]){
