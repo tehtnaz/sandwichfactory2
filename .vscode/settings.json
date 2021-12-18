@@ -11,6 +11,8 @@
         "boxpp.h": "c",
         "loadnew.h": "c",
         "datahandling.h": "c",
-        "camera.h": "c"
+        "camera.h": "c",
+        "comparestring.h": "c",
+        "triangles.h": "c"
     }
 }

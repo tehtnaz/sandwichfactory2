@@ -8,6 +8,7 @@
 #include "rlgl.h"
 #include "recpp.h"
 #include "gui2.h"
+#include "triangles.h"
 
 
 #define GHOST (Color){130, 130, 130, 130}
@@ -1323,6 +1324,7 @@ void prepareLevel(int resolutionMultiplier,
                     //char* levelWallsImgPath, int* pathLength, 
                     int wallNum, Texture2D wallImg[16], int wallTags[16], uint16_t* wallEnabled, BoxCollider2D* goal, uint64_t leverFlip, char levelPath[128]
                     //Texture* defaultDoor, Texture* leverOn, Texture* leverOff
+                    //Animation* background, char backgroundPath[128]
                     ){
     printf("prepareLevel: Preparing level...\n");
     //load level image
@@ -1335,6 +1337,7 @@ void prepareLevel(int resolutionMultiplier,
         for(int i = 0; i < wallNum; i++){
             wallImg[i] = LoadTexture(TextFormat("resources/levels/%d_walls/%d.png", selectedLevel + 1, i));
         }
+        //if(!TextIsEqual("@", backgroundPath)) background->texture = LoadTexture(TextFormat("resources/levels/%s", backgroundPath));
     }else{
         printf("prepareLevel: customLevel enabled. Attemping to load image from levelImagePath. If the program crashes and no other messages pop up, make sure you've specified the img property\n");
         if(levelPath[TextLength(levelPath) - 1] == '/'){
@@ -1350,6 +1353,7 @@ void prepareLevel(int resolutionMultiplier,
         }
         printf("prepareLevel: Attemping to load custom image: %s\n", str);
         *level = LoadTexture(str);
+        //if(!TextIsEqual("@", backgroundPath)) background->texture = LoadTexture(TextFormat("custom_levels/%s", backgroundPath));
         
         /*for(int i = 0; i < wallNum; i++){
             tempString = malloc(sizeof(int) * (pathLength[i] + 1));

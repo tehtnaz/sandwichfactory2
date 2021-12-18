@@ -17,7 +17,8 @@ void EndAtExtension(char* input){
 int loadNew(int selectedLevel, bool custom, 
     char levelImagePath[64], char backgroundPath[64],
     Vector2* startingPos, Vector2* startingPos2,
-    BoxCollider2D Col[64], TextBox levelText[2], PhysicsObject crate[8], Triangle triCol[10], BoxCollider2D ladderCol[16],
+    BoxCollider2D Col[64], TextBox levelText[2], PhysicsObject crate[8], Triangle triCol[10], 
+    BoxCollider2D ladderCol[16],
     int* colliderNum, int* textNum, int* ladderNum, int* crateNum,
     int* leverNum, int* doorNum, int* isMultiplayer, int* portalNum, int wallTags[16], int* wallNum, uint16_t* wallEnabled,
     BoxCollider2D* goal, int* scrollType, uint64_t* leverFlip, char path[128]

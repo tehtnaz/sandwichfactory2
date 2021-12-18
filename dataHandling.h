@@ -884,9 +884,10 @@ int parseWallTag(char input[128], int inputSize, int returnValue){
             return 0;
         }
     }
-    printf("ERROR: parseWallTag - Programming error. Why have we ended the function? Hacker Alert! Skipping...\n");
+    printf("ERROR: parseWallTag - Programming error...or... Why have we ended the function? Hacker Alert! Skipping...\n");
     return 0;
 }
+
 
 //SandwichFactory Data structure
 //    ~ = property   = ~propertyname=data;
@@ -927,8 +928,15 @@ int parseWallTag(char input[128], int inputSize, int returnValue){
 // ~img= (levelImage)
 // ~leverNum=
 // ~doorNum=
+// ~wallNum=
+// ~portalNum=
+// ~playerImg=
 // ~isMultiplayer=
 // ~goal=   (boxcollider2d)
+// ~scrollType
+// ~leverFlip
+// ~bgNum  = 
+// ~bgPath = 
 
 
 int readFileSF(char path[128], 
@@ -1002,7 +1010,7 @@ int readFileSF(char path[128],
         }else{
             printf("%c` ", ch);
         }
-        
+
         if(ch == '!' || ch == '\0' || ch == EOF){
             isEnd = true;
         }else if(ch == '~'){
@@ -1259,6 +1267,7 @@ int readFileSF(char path[128],
             printf("readFileSF: attempting to parseCamera\n");
             printf("WARNING: readFileSF - Camera version 1 removed. Please refer to how_to_use_.sf_files for further info on how to set the camera. Skipping line...\n");
             getNewLine = true;
+
         }else if(ch == '%'){
             //level collider  = %{} or %()
             charSelect++;
@@ -1488,65 +1497,36 @@ int readFileSF(char path[128],
 
 // Reads generic int data 
 //   int;int;int!
-void readFileInt(char path[40], int* inputArray, int arraySize, int* outputSize){
+/*void readFileInt(char path[40], int* inputArray, int arraySize, int* outputSize){
     FILE* fp;
     fp = fopen(path, "r");
     if(fp == NULL){
         printf("ERROR: ERROR opening");
         return;
     }
-
-    char input[512];
     char ch;
-    int inputSelect = 0;
-
-    fgets(input, 512, fp);
 
     bool isEnd = false;
+    int tempInt = 0;
+    int inputSelect = 0;
 
-    for(int i = 0; i < 511 && !isEnd && inputSelect < arraySize; i++){
-        ch = input[i];
+    while(inputSelect < arraySize){
+        for(int i = 0; i < 4 && !isEnd; i++){
+            ch = fgetc(fp);
 
-        switch(ch){
-            case '\0':
-            case EOF:
-                isEnd = true;
-                break;
-            case '0':
-                inputArray[inputSelect] = inputArray[inputSelect] * 10;
-                break;
-            case '1':
-                inputArray[inputSelect] = (inputArray[inputSelect] * 10) + 1;
-                break;
-            case '2':
-                inputArray[inputSelect] = (inputArray[inputSelect] * 10) + 2;
-                break;
-            case '3':
-                inputArray[inputSelect] = (inputArray[inputSelect] * 10) + 3;
-                break;
-            case '4':
-                inputArray[inputSelect] = (inputArray[inputSelect] * 10) + 4;
-                break;
-            case '5':
-                inputArray[inputSelect] = (inputArray[inputSelect] * 10) + 5;
-                break;
-            case '6':
-                inputArray[inputSelect] = (inputArray[inputSelect] * 10) + 6;
-                break;
-            case '7':
-                inputArray[inputSelect] = (inputArray[inputSelect] * 10) + 7;
-                break;
-            case '8':
-                inputArray[inputSelect] = (inputArray[inputSelect] * 10) + 8;
-                break;
-            case '9':
-                inputArray[inputSelect] = (inputArray[inputSelect] * 10) + 9;
-                break;
-            case ';':
-                inputSelect++;
-                break;
+            switch(ch){
+                case EOF:
+                    isEnd = true;
+                    break;
+                default:
+                    tempInt |= (int)ch << i;
+                    break;
+            }
         }
+        inputArray[inputSelect] = tempInt;
+        inputSelect++;
     }
+
     fclose(fp);
     if(!isEnd){
         printf("ERROR: Reached end of file before file termination");
@@ -1572,4 +1552,4 @@ void writeFileInt(char path[40], int inputArray[256], int arraySize){
         fputc(';', fp);
     }
     fclose(fp);
-}
+}*/
