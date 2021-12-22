@@ -8,22 +8,18 @@
 #include "rlgl.h"
 #include "recpp.h"
 #include "gui2.h"
-#include "triangles.h"
+//#include "triangles.h"
 
 
 #define GHOST (Color){130, 130, 130, 130}
+
+
 /* Backlog (stuff i dont want to do) (Top to bottom)
 
 * change collisionInfo so that floor is returned as the position and not a collider selection
-
 * VECTOR 2 READING FROM PHYSICS OBJECTS IS BROKEN!!!
-
-* Ladders (just need to draw)
 * Allow for crates to give velocity to one another
-* Disappearing walls / portals
-* Multiple portal instance ppossibility
-* Side scrolling - Only if you want to do the original scrolling
-* Assign lever to specific door
+
 */
 
 /* BUGS
@@ -96,7 +92,7 @@ int main(int argc, char* argv[]){
     TextBox levelText[2];
     PhysicsObject crate[8];
     //TriSlope triCol[10];
-    Triangle realTri[10];
+    //Triangle realTri[10];
     BoxCollider2D ladderCol[16];
 
     //# of objs
@@ -205,7 +201,7 @@ int main(int argc, char* argv[]){
 
     //ask which path then load it
     if(customLevel == 1){
-        loadNew(customLevel, true, levelImagePath, backgroundPath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip, levelPath);        
+        loadNew(customLevel, true, levelImagePath, backgroundPath, &startingPos, &startingPos2, Col, levelText, crate, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip, levelPath);        
     }
 
     //start raylib
@@ -294,13 +290,13 @@ int main(int argc, char* argv[]){
 
     //Variables for testing purposes
     
-    TriColInfo playerTriColInfo = {0,0,0,0};
-    TriColInfo playerTriColInfo2 = {0,0,0,0};
+    //TriColInfo playerTriColInfo = {0,0,0,0};
+    //TriColInfo playerTriColInfo2 = {0,0,0,0};
     
     //triCol[0] = triToTriSlope((Triangle){{100 * 8,100 * 8},{0,119 * 8},{100 * 8,119 * 8}});
 
-    TriColInfo triCollision;
-    TriColInfo triCollision2;
+    //TriColInfo triCollision;
+    //TriColInfo triCollision2;
 
     //GUI Variables + assignment
 
@@ -466,14 +462,16 @@ int main(int argc, char* argv[]){
             }
             collision = checkAllColliders(self, true, colliderNum, ladderNum, crateNum, leverNum, doorNum, portalNum, Col, crate, ladderCol);
 
-            triCollision = (TriColInfo){0,0,0,0,-1}; //= isRecInTri(combineVec2(playerPos, playerSize), triCol[0]);
+            //triCollision = (TriColInfo){0,0,0,0,-1}; //= isRecInTri(combineVec2(playerPos, playerSize), triCol[0]);
             //playerPos = moveGetPlayerInput(combineVec2(playerPos, playerSize), triCol[0], characterSpeed, &velocity, &triCollision, IsKeyDown(KEY_A), IsKeyDown(KEY_D), &collision);
 
-            if(collision.down == true || triCollision.floor != -1){
+            //if(collision.down == true || triCollision.floor != -1){
+            if(collision.down == true){
                 velocity = 0;
-                if(triCollision.floor != -1){
+                /*if(triCollision.floor != -1){
                     playerPos.y = triCollision.floor;
-                }else if(collision.floor <= colliderNum - 1){
+                }else */
+                if(collision.floor <= colliderNum - 1){
                     playerPos.y = Col[collision.floor].y - playerSize.y + 0.1f;
                 }
             }
@@ -483,14 +481,16 @@ int main(int argc, char* argv[]){
 
                 collision2 = checkAllColliders(self, true, colliderNum, ladderNum, crateNum, leverNum, doorNum, portalNum, Col, crate, ladderCol);
 
-                triCollision2 = (TriColInfo){0,0,0,0,-1}; //= isRecInTri(combineVec2(playerPos2, playerSize), triCol[0]);
+                //triCollision2 = (TriColInfo){0,0,0,0,-1}; //= isRecInTri(combineVec2(playerPos2, playerSize), triCol[0]);
                 //playerPos2 = moveGetPlayerInput(combineVec2(playerPos2, playerSize), triCol[0], characterSpeed, &velocity2, &triCollision2, IsKeyDown(KEY_LEFT), IsKeyDown(KEY_RIGHT), &collision2);
 
-                if(collision2.down == true || triCollision.floor != -1){
+                //if(collision2.down == true || triCollision2.floor != -1){
+                if(collision2.down == true){
                     velocity2 = 0;
-                    if(triCollision2.floor != -1){
+                    /*if(triCollision2.floor != -1){
                         playerPos2.y = triCollision2.floor;
-                    }else if(collision2.floor <= colliderNum - 1){
+                    }else */
+                    if(collision2.floor <= colliderNum - 1){
                         playerPos2.y = Col[collision2.floor].y - playerSize.y + 0.1f;
                     }
                 }
@@ -514,7 +514,8 @@ int main(int argc, char* argv[]){
             // Arrows = P2
 
             if(IsKeyDown(KEY_W)){
-                if(collision.inLadder == false && ((collision.up == false && collision.down == true) || (playerTriColInfo.botLeft || playerTriColInfo.botRight))){
+                //if(collision.inLadder == false && ((collision.up == false && collision.down == true) || (playerTriColInfo.botLeft || playerTriColInfo.botRight))){
+                if(collision.inLadder == false && collision.up == false && collision.down == true){
                     // does it make a difference if it's = and not +=? 
                     //it's more messy this way but i feel like it changes the movement and therefore im not messing with it.
                     velocity += jumpHeight; 
@@ -542,7 +543,8 @@ int main(int argc, char* argv[]){
 
             if(playerMode == TWO_PLAYERS){
                 if(IsKeyDown(KEY_UP)){
-                    if(collision2.inLadder == false && ((collision2.up == false && collision2.down == true) || (playerTriColInfo2.botLeft || playerTriColInfo2.botRight))){
+                    //if(collision2.inLadder == false && ((collision2.up == false && collision2.down == true) || (playerTriColInfo2.botLeft || playerTriColInfo2.botRight))){
+                    if(collision2.inLadder == false && collision2.up == false && collision2.down == true){
                         // does it make a difference if it's = and not +=? 
                         //it's more messy this way but i feel like it changes the movement and therefore im not messing with it.
                         velocity2 += jumpHeight; 
@@ -813,7 +815,7 @@ int main(int argc, char* argv[]){
                         gameState = STATE_END;
                     }else{
                         printf("Attemping to load level %d because posX: %f > width: %d\n", selectedLevel, playerPos.x, screenWidth);
-                        if(loadNew(selectedLevel, false, levelImagePath, backgroundPath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip, levelPath) == 0){
+                        if(loadNew(selectedLevel, false, levelImagePath, backgroundPath, &startingPos, &startingPos2, Col, levelText, crate, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip, levelPath) == 0){
                             printf("Succesfully loaded\n");
                         }else{
                             printf("Failed loading level.\n");
@@ -825,7 +827,7 @@ int main(int argc, char* argv[]){
                 }else{
                     customLevel++;
                     printf("main: CUSTOM - Attemping to load level %d because posX: %f > width: %d\n", customLevel, playerPos.x, screenWidth);
-                    if(loadNew(customLevel, true, levelImagePath, backgroundPath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip, levelPath) == 0){
+                    if(loadNew(customLevel, true, levelImagePath, backgroundPath, &startingPos, &startingPos2, Col, levelText, crate, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip, levelPath) == 0){
                         printf("Succesfully loaded\n");
                     }else{
                         printf("Failed loading level.\n");
@@ -1079,10 +1081,10 @@ int main(int argc, char* argv[]){
                         }
                         if(!(IsKeyDown(KEY_A) && IsKeyDown(KEY_D)) && (IsKeyDown(KEY_A) || IsKeyDown(KEY_D)) && !disablePlayerAnim) DrawRectangle(playerPos.x, playerPos.y, playerSizeLarge.x, playerSizeLarge.y, PINK);
                             else DrawRectangle(playerPos.x, playerPos.y, playerSize.x, playerSize.y, PINK);
-                        if(triCollision.botRight) DrawCircleV(addVec2(playerPos, playerSize), 3, PURPLE);
-                        if(triCollision.topLeft) DrawCircleV(playerPos, 3, PURPLE);
-                        if(triCollision.topRight) DrawCircle(playerPos.x + playerSize.x, playerPos.y, 3, PURPLE);
-                        if(triCollision.botLeft) DrawCircle(playerPos.x, playerPos.y + playerSize.y, 3, PURPLE);
+                        //if(triCollision.botRight) DrawCircleV(addVec2(playerPos, playerSize), 3, PURPLE);
+                        //if(triCollision.topLeft) DrawCircleV(playerPos, 3, PURPLE);
+                        //if(triCollision.topRight) DrawCircle(playerPos.x + playerSize.x, playerPos.y, 3, PURPLE);
+                        //if(triCollision.botLeft) DrawCircle(playerPos.x, playerPos.y + playerSize.y, 3, PURPLE);
                         int colsToResize = colliderNum + leverNum + doorNum + portalNum;
                         for(int i = 0; i < colsToResize; i++){
                             switch(collision.colsTouched[i]){
@@ -1219,7 +1221,7 @@ int main(int argc, char* argv[]){
                         if(IsMouseButtonPressed(0) && isMouseInGuiBox(levelSelect[i])){
                             selectedLevel = i;
                             customLevel = 0;
-                            loadNew(selectedLevel, false, levelImagePath, backgroundPath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip, levelPath);
+                            loadNew(selectedLevel, false, levelImagePath, backgroundPath, &startingPos, &startingPos2, Col, levelText, crate, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip, levelPath);
                             prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, &startingPos, &startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip, levelPath);
                             gameState = STATE_ACTIVE;
                             levelSelectVisibilityMode = 0;
@@ -1302,7 +1304,7 @@ int main(int argc, char* argv[]){
                     gameState = STATE_ACTIVE;
                     customLevel = 0;
                     selectedLevel = 0;
-                    loadNew(selectedLevel, false, levelImagePath, backgroundPath, &startingPos, &startingPos2, Col, levelText, crate, realTri, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip, levelPath);
+                    loadNew(selectedLevel, false, levelImagePath, backgroundPath, &startingPos, &startingPos2, Col, levelText, crate, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip, levelPath);
                     prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, &startingPos, &startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip, levelPath);
                 }
             }
@@ -1319,17 +1321,15 @@ void prepareLevel(int resolutionMultiplier,
                     TextBox levelText[2], int textNum, 
                     int crateNum, PhysicsObject crate[8], 
                     int ladderNum, BoxCollider2D ladderCol[16], char levelImagePath[64],
-                    Animation** doorList, SwitchAnimation** leverList, //bool** door_isClosedList,
-                    int customLevel, 
-                    //char* levelWallsImgPath, int* pathLength, 
+                    Animation** doorList, SwitchAnimation** leverList,
+                    int customLevel,
                     int wallNum, Texture2D wallImg[16], int wallTags[16], uint16_t* wallEnabled, BoxCollider2D* goal, uint64_t leverFlip, char levelPath[128]
                     //Texture* defaultDoor, Texture* leverOn, Texture* leverOff
                     //Animation* background, char backgroundPath[128]
                     ){
     printf("prepareLevel: Preparing level...\n");
     //load level image
-    //char* tempString;
-    //int processedChars = 0;
+
     if(customLevel == 0){
         sprintf(str, "resources/levels/%d.png", selectedLevel + 1);
         printf("prepareLevel: Attemping to load image: %s\n", str);
@@ -1354,16 +1354,6 @@ void prepareLevel(int resolutionMultiplier,
         printf("prepareLevel: Attemping to load custom image: %s\n", str);
         *level = LoadTexture(str);
         //if(!TextIsEqual("@", backgroundPath)) background->texture = LoadTexture(TextFormat("custom_levels/%s", backgroundPath));
-        
-        /*for(int i = 0; i < wallNum; i++){
-            tempString = malloc(sizeof(int) * (pathLength[i] + 1));
-            for(int s = 0; s < pathLength[i]; s++){
-                tempString[s] = levelWallsImgPath[s + processedChars];
-            }
-            processedChars += pathLength[i];
-            tempString[pathLength[i] + 1] = '\0';
-            (*wallImg)[i] = LoadTexture(TextFormat("custom_levels/%s", tempString));
-        }*/
     }
     
 

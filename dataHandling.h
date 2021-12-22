@@ -4,7 +4,7 @@
 #include "levelStructs.h"
 #include "compareString.h"
 //#include "camera.h"
-#include "triangles.h"
+//#include "triangles.h"
 #pragma once
 
 
@@ -942,7 +942,7 @@ int parseWallTag(char input[128], int inputSize, int returnValue){
 int readFileSF(char path[128], 
             char levelImagePath[64], char backgroundPath[64],
             Vector2* startingPos, Vector2* startingPos2,
-            BoxCollider2D levelCol[64], BoxCollider2D ladders[16], TextBox texts[2], PhysicsObject physobjects[8], Triangle triCol[10],
+            BoxCollider2D levelCol[64], BoxCollider2D ladders[16], TextBox texts[2], PhysicsObject physobjects[8],
             int* levelTexts, int* levelColNum, int* ladderNum, int* physObjNum,
             int* isLever, int* isDoor, int* isMultiplayer, int* portalNum,
             int wallTags[16], int* wallNum, uint16_t* wallEnabled,
