@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "raylib.h"
 
-//vector2pp Version 1.1
+//vector2pp Version 2
 
 #define VECTOR2PP_H
 #define VEC2ZERO (Vector2){0,0}
@@ -12,6 +12,7 @@ Vector2 addVec2(Vector2 input, Vector2 input2);
 Vector2 subVec2(Vector2 input, Vector2 input2);
 Vector2 negVec2(Vector2 input);
 Vector2 addNewVec2(Vector2 input, float inX, float inY);
+Vector2 resizeVec2(Vector2 input, float multiplier);
 
 //deprecated because (Vector2){0,0} is a thing
 //Vector2 newVec2(float inX, float inY);

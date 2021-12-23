@@ -1493,6 +1493,187 @@ int readFileSF(char path[128],
 
 
 
+int writeFileSF(char path[128], 
+    char levelImagePath[64], char backgroundPath[64],
+    Vector2 startingPos, Vector2 startingPos2,
+    BoxCollider2D levelCol[64], BoxCollider2D ladders[16], TextBox texts[2], PhysicsObject crate[8],
+    int textNum, int colNum, int ladderNum, int crateNum,
+    int leverNum, int doorNum, int isMultiplayer, int portalNum,
+    int wallTags[16], int wallNum, uint16_t wallEnabled,
+    BoxCollider2D goal, int scrollType, uint64_t leverFlip
+){
+    FILE* fp;
+    fp = fopen(path, "w");
+
+    fprintf(fp, "/ Colliders\n");
+    for(int i = 0; i < colNum - wallNum; i++){
+        fprintf(
+            fp,
+            "    %%(%d,%d,%d,%d,%d,%d,%d)\n", 
+            levelCol[i].x,
+            levelCol[i].y,
+            levelCol[i].sizeX,
+            levelCol[i].sizeY,
+            levelCol[i].trigger,
+            levelCol[i].enabled,
+            levelCol[i].tag
+        );
+    }
+    fprintf(fp,"\n\n");
+
+    fprintf(fp, "/ Disappearing walls\n");
+    for(int i = colNum - wallNum; i < colNum; i++){
+        fprintf(
+            fp,
+            "    %%(%d,%d,%d,%d,%d,%d,%d)\n", 
+            levelCol[i].x,
+            levelCol[i].y,
+            levelCol[i].sizeX,
+            levelCol[i].sizeY,
+            levelCol[i].trigger,
+            levelCol[i].enabled,
+            levelCol[i].tag
+        );
+    }
+    for(int i = 0; i < wallNum; i++){
+        fprintf(fp, "    $(%d,%d,%d)\n", i, wallTags[i], (wallEnabled >> i) & 0b1);
+    }
+    fprintf(fp, "    ~wallNum=%d\n", wallNum);
+    fprintf(fp,"\n\n");
+
+    fprintf(fp, "/ Levers\n");
+    for(int i = colNum; i < colNum + leverNum; i++){
+        fprintf(
+            fp,
+            "    %%(%d,%d,%d,%d,%d,%d,%d)\n", 
+            levelCol[i].x,
+            levelCol[i].y,
+            levelCol[i].sizeX,
+            levelCol[i].sizeY,
+            levelCol[i].trigger,
+            levelCol[i].enabled,
+            levelCol[i].tag
+        );
+    }
+    fprintf(fp, "    ~leverNum=%d", leverNum);
+    fprintf(fp,"\n\n");
+
+    fprintf(fp, "/ Doors\n");
+    for(int i = colNum + leverNum; i < colNum + leverNum + doorNum; i++){
+        fprintf(
+            fp,
+            "    %%(%d,%d,%d,%d,%d,%d,%d)\n", 
+            levelCol[i].x,
+            levelCol[i].y,
+            levelCol[i].sizeX,
+            levelCol[i].sizeY,
+            levelCol[i].trigger,
+            levelCol[i].enabled,
+            levelCol[i].tag
+        );
+    }
+    fprintf(fp, "    ~doorNum=%d", doorNum);
+    fprintf(fp,"\n\n");
+
+    fprintf(fp, "/ Portals\n");
+    for(int i = colNum + leverNum + doorNum; i < colNum + leverNum + doorNum + portalNum; i++){
+        fprintf(
+            fp,
+            "    %%(%d,%d,%d,%d,%d,%d,%d)\n", 
+            levelCol[i].x,
+            levelCol[i].y,
+            levelCol[i].sizeX,
+            levelCol[i].sizeY,
+            levelCol[i].trigger,
+            levelCol[i].enabled,
+            levelCol[i].tag
+        );
+    }
+    fprintf(fp, "    ~portalNum=%d", portalNum);
+    fprintf(fp,"\n\n");
+
+    fprintf(fp, "/ Ladders\n");
+    for(int i = 0; i < ladderNum; i++){
+        fprintf(
+            fp,
+            "    *(%d,%d,%d,%d,%d,%d,%d)\n", 
+            ladders[i].x,
+            ladders[i].y,
+            ladders[i].sizeX,
+            ladders[i].sizeY,
+            ladders[i].trigger,
+            ladders[i].enabled,
+            ladders[i].tag
+        );
+    }
+    fprintf(fp,"\n\n");
+
+    fprintf(fp, "/ Crates\n");
+    for(int i = 0; i < crateNum; i++){
+        fprintf(
+            fp,
+            "    ^(%d,%d,%d,%d,%d,%d)\n",
+            (int)crate[i].position.x,
+            (int)crate[i].position.y,
+            crate[i].sizeX,
+            crate[i].sizeY,
+            crate[i].trigger,
+            crate[i].enabled
+        );
+    }
+    fprintf(fp,"\n\n");
+
+    fprintf(fp, "/ TextBoxes\n");
+    for(int i = 0; i < textNum; i++){
+        fprintf(
+            fp,
+            "    &(%d,%d,%d,",
+            texts[i].x,
+            texts[i].y,
+            texts[i].size
+        );
+        for(int s = 0; texts[i].text[s] != '\0'; s++){
+            if(texts[i].text[s] == ',') fputc('\\', fp);
+            fputc(texts[i].text[s], fp);
+        }
+        fprintf(
+            fp,
+            ",?(%d,%d,%d,%d))\n",
+            texts[i].colour.r,
+            texts[i].colour.g,
+            texts[i].colour.b,
+            texts[i].colour.a
+        );
+    }
+    fprintf(fp,"\n\n");
+
+    fprintf(fp, "/ Properties\n");
+    fprintf(
+            fp,
+            "    ~goal=%%(%d,%d,%d,%d,%d,%d,%d)\n", 
+            goal.x,
+            goal.y,
+            goal.sizeX,
+            goal.sizeY,
+            goal.trigger,
+            goal.enabled,
+            goal.tag
+        );
+    fprintf(fp, "    ~sp=@(%d,%d)\n", (int)startingPos.x, (int)startingPos.y);
+    fprintf(fp, "    ~sp2=@(%d,%d)\n", (int)startingPos2.x, (int)startingPos2.y);
+    fprintf(fp, "    ~scrollType=%d\n", scrollType);
+    fprintf(fp, "    ~isMultiplayer=%d\n", isMultiplayer);
+    fprintf(fp, "    ~leverFlip=");
+    for(int i = 0; i < leverNum; i++){
+        if(((leverFlip >> i) & 0b1) == 1) fputc('1', fp);
+        else fputc('0', fp);
+    }
+
+    fclose(fp);
+    //texts, textNum, leverFlip, levelimg ,bgpath
+
+    return 0;
+}
 
 
 // Reads generic int data 

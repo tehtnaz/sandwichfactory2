@@ -3,27 +3,18 @@
 #include "vector2pp.h"
 #include <math.h>
 
-//vector2pp Version 1.1
+//vector2pp Version 2
 
 Vector2 addVec2(Vector2 input, Vector2 input2){
-    Vector2 temp = input;
-    temp.x += input2.x;
-    temp.y += input2.y;
-    return temp;
+    return (Vector2){input.x + input2.x, input.y + input2.y};
 }
 
 Vector2 subVec2(Vector2 input, Vector2 input2){
-    Vector2 temp = input;
-    temp.x -= input2.x;
-    temp.y -= input2.y;
-    return temp;
+    return (Vector2){input.x - input2.x, input.y - input2.y};
 }
 
 Vector2 negVec2(Vector2 input){
-    Vector2 temp = input;
-    temp.x = -input.x;
-    temp.y = -input.y;
-    return temp;
+    return (Vector2){-input.x, -input.y};
 }
 
 Vector2 addNewVec2(Vector2 input, float inX, float inY){
@@ -33,6 +24,9 @@ Vector2 addNewVec2(Vector2 input, float inX, float inY){
     return temp;
 }
 
+Vector2 resizeVec2(Vector2 input, float multiplier){
+    return (Vector2){input.x * multiplier, input.y * multiplier};
+}
 
 //deprecated because (Vector2){0,0} is a thing
 /*Vector2 newVec2(float inX, float inY){
