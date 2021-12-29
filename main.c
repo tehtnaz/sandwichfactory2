@@ -149,10 +149,6 @@ int main(int argc, char* argv[]){
             printf("Enter desired FPS: ");
             scanf("%d", &screenFPS);
         }
-
-        /*if(argv[3] == "1" || argv[3] == "s"){
-
-        }*/
     }
 
 
@@ -187,15 +183,23 @@ int main(int argc, char* argv[]){
     camera.rotation = 0;
     camera.zoom = 1.0f;
 
-
-
-    //Level prompt
-    printf("Type 0 for the regular levels and 1 for a custom level: ");
     int customLevel = 2;
-    while(customLevel != 0 && customLevel != 1){
-        scanf("%d", &customLevel);
-        if(customLevel != 0 && customLevel != 1){
-            printf("Enter 0 or 1\n");
+    if(argc > 3){
+        printf("Loading level from arg 3\n");
+        customLevel = readFileSF(argv[3], levelImagePath, backgroundPath, &startingPos, &startingPos2, Col, ladderCol, levelText, crate, &textNum, &colliderNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip);
+        if(customLevel == 0){
+            customLevel = 3;
+        }
+    }
+
+    if(customLevel == 2){
+        //Level prompt
+        printf("Type 0 for the regular levels and 1 for a custom level: ");
+        while(customLevel != 0 && customLevel != 1){
+            scanf("%d", &customLevel);
+            if(customLevel != 0 && customLevel != 1){
+                printf("Enter 0 or 1\n");
+            }
         }
     }
 
@@ -378,7 +382,7 @@ int main(int argc, char* argv[]){
         pauseIcon = resizeGuiImg(pauseIcon, screenHeight / 1080.0f);
 
 
-    if(customLevel == 1){
+    if(customLevel == 1 || customLevel == 3){
         gameState = STATE_ACTIVE;
         prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, &startingPos, &startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip, levelPath);
     }
