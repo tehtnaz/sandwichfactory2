@@ -10,3 +10,4 @@ bool strEquals(char str1[32], char str2[32]){
         return true;
     }
 }
+//lol
