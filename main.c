@@ -225,7 +225,6 @@ int main(int argc, char* argv[]){
     Animation* doorList = malloc(sizeof(Animation));
     SwitchAnimation* leverList = malloc(sizeof(SwitchAnimation));
     //bool* door_isClosedList = malloc(sizeof(bool));
-
     //Note: For future, use this method to save memory
     //Texture defaultDoor = getTextureFromFolder("resources/objects/door/", 12);
     //Texture leverOn = LoadTexture("resources/objects/lever/0.png");
