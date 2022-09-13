@@ -11,7 +11,7 @@ Features:
   * Lever-controlled doors
   * Crates with custom physics
     * Can be grabed
-  * Camera following (not seen in game)
+  * Camera following
   * You choose your own FPS and resolution
     * Any selected FPS above 30 is 100% functional (ie. if you have a high refresh rate monitor, you can choose a higher FPS)
     * Recommended Resolution >= 540p
