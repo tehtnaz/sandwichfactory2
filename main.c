@@ -127,11 +127,11 @@ int main(int argc, char* argv[]){
 
     }else{
         printf("Getting arg1: ");
-        screenHeight = parseInt(argv[1], 10);
+        screenHeight = parseInt(argv[1]);
         screenWidth = screenHeight / 9.00f * 16.00f;
 
         printf("Getting arg2: ");
-        screenFPS = parseInt(argv[2], 10);
+        screenFPS = parseInt(argv[2]);
 
         if(screenHeight == 0){
             printf("ERROR: readArgs - screenHeight (argument 1) is not valid\n");
@@ -196,9 +196,8 @@ int main(int argc, char* argv[]){
         //Level prompt
         printf("Type 0 for the regular levels and 1 for a custom level: ");
         while(customLevel != 0 && customLevel != 1){
-            scanf("%d", &customLevel);
-            if(customLevel != 0 && customLevel != 1){
-                printf("Enter 0 or 1\n");
+            if(scanf("%d", &customLevel) < 1){
+                printf("Enter 0 or 1: \n");
             }
         }
     }
@@ -1364,7 +1363,7 @@ void prepareLevel(int resolutionMultiplier,
     //Resize doors + levers lists
     //Uses double-pointers so that we reference the locations of the actual arrays and not the ones given to the function
     printf("prepareLevel: Resizing lists...\n");
-    printf("prepareLevel: doorList size: %I64d\n", sizeof(Animation) * doorNum);
+    printf("prepareLevel: doorList size: %I64ld\n", sizeof(Animation) * doorNum);
     *doorList = (Animation*)realloc(*doorList, sizeof(Animation) * doorNum);
 
     //printf("prepareLevel: door_isClosedList size: %I64d\n", sizeof(bool) * doorNum);
@@ -1385,7 +1384,7 @@ void prepareLevel(int resolutionMultiplier,
         printf("prepareLevel: default vals - Completed obj %d\n", i);
     }
 
-    printf("prepareLevel: leverList size: %I64d\n", sizeof(SwitchAnimation) * leverNum);
+    printf("prepareLevel: leverList size: %I64ld\n", sizeof(SwitchAnimation) * leverNum);
     *leverList = (SwitchAnimation*)realloc(*leverList, sizeof(SwitchAnimation) * leverNum);
     for(int i = 0; i < leverNum; i++){
         (*leverList)[i] = switchAssignProperties(0, 10, false);

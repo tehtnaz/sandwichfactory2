@@ -248,7 +248,7 @@ Vector2 readVector2Float(char input[20]){
     char ch;
     int inputSelect = 0;
     Vector2 output;
-    char sendToParse[11];
+    char sendToParse[12];
     int i;
 
     ch = input[inputSelect];
@@ -312,7 +312,7 @@ Color parseColor(char input[17], int inputSize){
 
     for(int s = 0; s < 4; s++){
         i = 0;
-        while(input[select] != ',' && i < 12 && input[select] != ')' && input[select] != '\0'){
+        while(input[select] != ',' && i < 11 && input[select] != ')' && input[select] != '\0'){
             //printf("select: %d, i: %d, char: %c\n", select, i, input[select]);
             sendToParse[i] = input[select];
             select++;
@@ -1476,7 +1476,7 @@ int readFileSF(char path[128],
     printf("readFileSF: portal1: %d, %d, %d, %d, %d, %d, %d\n", levelCol[levelColID + doorNum + leverNum].x, levelCol[levelColID + doorNum + leverNum].y, levelCol[levelColID + doorNum + leverNum].sizeX, levelCol[levelColID + doorNum + leverNum].sizeY, levelCol[levelColID + doorNum + leverNum].trigger, levelCol[levelColID + doorNum + leverNum].ladder, levelCol[levelColID + doorNum + leverNum].enabled);
     printf("readFileSF: leverFlip: ");
     for(int i = 0; i < 64; i++){
-        printf("%I64d", (*leverFlip << i) & 0b1);
+        printf("%I64ld", (*leverFlip << i) & 0b1);
     }
     printf("\n");
     printf("readFileSF: textBox1: %d, %d, %d, %s, %d, %d, %d, %d\n", texts[0].x, texts[0].y, texts[0].size, texts[0].text, texts[0].colour.r, texts[0].colour.g, texts[0].colour.b, texts[0].colour.a);

@@ -56,10 +56,10 @@ typedef enum CycleType{
 Animation assignProperties(int spriteSize, int currentFrame, int fps, bool isAnimating, int frameCount, bool allowsnap);
 SwitchAnimation switchAssignProperties(int currentFrame, int fps, bool isAnimation);
 
-Animation getFromFolder(Animation input, const char path[64], bool autoSize);
-SwitchAnimation switchGetFromFolder(SwitchAnimation input, const char path[64]);
+Animation getFromFolder(Animation input, const char* path, bool autoSize);
+SwitchAnimation switchGetFromFolder(SwitchAnimation input, const char* path);
 
-Texture getTextureFromFolder(const char path[64], int textureCount);
+Texture getTextureFromFolder(const char* path, int textureCount);
 
 Animation cycleAnimation(Animation input, float screenFPS);
 Animation cycleAnimationBackwards(Animation input, float screenFPS);

@@ -1,4 +1,4 @@
-#include "dataHandling.h"
+#include "dataHandling2.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -59,6 +59,7 @@ int loadNew(int selectedLevel, bool custom,
         *doorNum = false;
         levelImagePath[0] = '\0';
         sprintf(str, "resources/levels/%d.sf", selectedLevel + 1);
+        printf("reading...");
         temp = readFileSF(str, levelImagePath, backgroundPath, startingPos, startingPos2, Col, ladderCol, levelText, crate, textNum, colliderNum, ladderNum, crateNum, leverNum, doorNum, isMultiplayer, portalNum, wallTags, wallNum, wallEnabled, goal, scrollType, leverFlip);
         printf("loadNew: test: %d\n", levelImagePath[0]);
     }

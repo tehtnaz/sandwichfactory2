@@ -31,7 +31,7 @@ SwitchAnimation switchAssignProperties(int currentFrame, int fps, bool isAnimati
 
 
 
-Animation getFromFolder(Animation input, const char path[64], bool autoSize){
+Animation getFromFolder(Animation input, const char* path, bool autoSize){
     Animation temp = input;
     char str[70];
     sprintf(str, "%s0.png", path);
@@ -55,7 +55,7 @@ Animation getFromFolder(Animation input, const char path[64], bool autoSize){
     return temp;
 }
 
-Texture getTextureFromFolder(const char path[64], int textureCount){
+Texture getTextureFromFolder(const char* path, int textureCount){
     char str[70];
     sprintf(str, "%s0.png", path);
     printf("getFromFolder: Base Image = %s\n", str);
@@ -72,7 +72,7 @@ Texture getTextureFromFolder(const char path[64], int textureCount){
     return tempTexture;
 }
 
-SwitchAnimation switchGetFromFolder(SwitchAnimation input, const char path[64]){
+SwitchAnimation switchGetFromFolder(SwitchAnimation input, const char* path){
     SwitchAnimation temp = input;
     char str[70];
     sprintf(str, "%s0.png", path);

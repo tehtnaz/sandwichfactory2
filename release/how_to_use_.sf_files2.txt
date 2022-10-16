@@ -1,39 +1,33 @@
 Documentation - How to use the .sf file (creating and loading)
 
+Version 3.0
 
 FILE STRUCTURE and how to add objects
 ----------------------------------------------------------------
     There are many objects in the game and each have their own type and represeting character
 
     / acts as a single line comment (aka: you can write anything on the same line and it will be skipped by the file reader)
-    ; seperates each object (if on same line)
-    ! = terminates the file immediately (cannot be done within a string, deprecated, however still functions)
 
+    To declare an object (struct), just write the symbol then surround the next required value[s] in parentheses
 
-    Anything you write (if not cancelled by a comment) will be treated as an object
-    To declare an object (struct), just write the symbol then surround the next required value in parentheses
+    Note: You can use square brackets or parentheses to stay organized (they both equal the same thing in the code)
+        eg. ~("sp2", @[12.23, 138.32]) is the same as using only parentheses.
 
-    Properties (* required)
-        ~ = property   =  ~propertyname=data;
+    Properties (* = required)
+        ~ = property   =  ~("property_name", data)
 
         ex. 
-            ~img=awesome.png
-            ~sp=@(4,80)
-            ~leverNum=5
-            ~leverFlip12=f
-            ~leverFlip=[1]t
-            ~leverFlip=f,f,f,f,f
+            ~("img", "awesome.png"))
+            ~("sp", @(4,80))
+            ~("leverFlip", 2, true)
+            ~("leverFlip", (f,f,f,f,f))
 
-        Property names
+        Property names + other arguments to give it
         img            * - string   (level Image)
         goal           * - BoxCollider2D (area which triggers the move to the next level)
         sp               - Vector2  (starting point)
         sp2              - Vector2  (starting point - player 2)
         isMultiplayer    - bool     (enable player 2?)
-        leverNum         - int      (must specify lever num if using levers)
-        doorNum          - int      (must specify if using doors)
-        portalNum        - int      (must specify if using portals)
-        wallNum          - int      (number of wall colliders)
         scrollType       - int      (
             0 = scrolling disabled (default)
             1 = scroll left-right only
@@ -43,70 +37,79 @@ FILE STRUCTURE and how to add objects
         )   
         leverFlip        - array item
         leverFlip        - array (max size 64)
+        wallImgNum       - int (number of wallImgs to load)
 
     Structs
-        % = level collider   = %(x,  y,  sizeX,sizeY,trigger, enabled, tag)
-                                int,int,int,  int,  int,     bool,    int
-        * = ladder collider  = same as levelCollider but with star   = *()
+        % = level collider   = %(posX,posY, sizeX,sizeY)
+                                 int, int,  int,  int
 
-        ^ = Physics object   = ^(position,sizeX,sizeY,isTrigger,enabled)
-                                Vector2, int,  int,  bool,     bool
+        ^ = Physics object   = ^(position, sizeX,sizeY, isTrigger,enabled)
+                                 Vector2,  int,  int,   bool,     bool
 
-        & = textBox          = &(x, y,  size,text,  colour)
-                                int,int,int, string,colour
+        & = textBox          = &(x,  y,  size,text,  colour)
+                                 int,int,int, string,colour
 
-            Notes: The string must be expressed without quotes. 
-                        Any attempts to add a comma in the text must be preceeded by a backslash ( \, ) This will display only the comma.
+            Note: The string must be expressed with quotes. 
+                    Any attempts to add a quote in the text must be preceeded by a backslash ( \" ) This will display only the comma.
+                    This string cannot support more than 39 characters;
 
         $ = wallTag          = $(wallID, tag, enabled)
-                                int,    int, bool
-            Notes: You need to use wallID 0 to the number of images you have
+                                 int,    int, bool
+            Note: You need to use wallID 0 to the number of images you have
                 ex. you cannot do $(10,1,t) if you do not have 0-9 as images    
-
-        Note: Spaces are strongly disencouraged in structs since this breaks anything involving bool because of my lazy coding. Please don't add spaces inside a struct unless you're entering a string
-
+        
+        Lever  = Levers can also be disabled by portals, which is why they need tags
+            Lever(posX,posY, sizeX,sizeY, trigger, enabled, tag)
+                 int, int,  int,  int,    int,     bool,    int
+        Door =  Disappears when its tag is activated by an associated lever trigger
+            Door(posX,posY, sizeX,sizeY, tag, enabled)
+                 int, int,  int,  int,   int,     bool
+        Portal = 
+            Portal(posX,posY, sizeX,sizeY, trigger, enabled)
+                 int, int,  int,  int,   int,     bool
+        Disappearing walls =  Disappears when its tag is activated by an associated portal trigger
+            Wall(posX,posY, sizeX,sizeY, tag, enabled)
+                 int, int,  int,  int,   int
+        * = ladder collider  = same arguments as walls but with star   = *()
+        
+        Note: Internally, Lever, Door, Portal, Disappearing walls, Ladders and regular levels colliders are all stored as the same type
+    
     Types
-        @ = vector 2 (int)   = @(x,y)
-        @f= vector 2 (float) = @f(x,y) broken (do not use)
-            instead, input the numbers directly; 0,0 instead of @f(0,0)
-        ? = colour     = ?(r,g,b,a)
+        @ = vector 2 (accepts int and float values)   = @(x,y)
+        ? = colour (0-255, integers) = ?(r,g,b,a)
 
-        bool  - accepts: 0, 1, t, T, f, T
-        int   - just put a number
-        array - types seperated by commas
-        array select - [id]value   ex. [15]f
+        bool         - true / false
+        int          - number without decimals
+        float        - number WITH decimals
+        array        - any parentheses without a struct at the beginning
+        string       - must be surrounded by "quotes" (escape sequences are supported, \n, \t, \\, \")
 
     Examples can be found in the custom_levels/template folder.
 
 
     Extra notes:
     The file does not need to have the .sf extension since its just a text file (it's just cool to have .sf)
-
+    A portal and lever trigger cannot be the same number because they use the same system lol (bad coding, the main project is old now)
 
 
 
 REQUIREMENTS
 ----------------------------------------------------------------
     You ABSOLUTELY MUST:
-        declare level colliders in this order
-            - walls (disappearing or not)
-            - lever
-            - door
-            - portal
-        declare how many levers/doors/portals there are unless there's none
         declare a goal
         declare a level image (if you're making custom levels and not editing the ones already in the game)
 
     You CANNOT have:
-        more than 64 level colliders (doors, levers, portals, walls)
+        a portal and lever trigger which are the same number
+        more than 64 colliders (doors, levers, portals, disappearing walls; all combined)
         more than 16 ladders
         more than 8 crates
         more than 2 level texts
         more than 16 different images representing disappearing walls
         a file with a period in the name
 
-    Not Recommended:
-        files with spaces (just use underscores)
+    Not Recommended / Undefined behaviour:
+        giving the program files with spaces (use underscores instead, anything but spaces)
 
 
 

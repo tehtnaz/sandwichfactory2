@@ -1,0 +1,1 @@
+gcc-12 main.c dataHandling2.c src/*.c -o sandwich -O3 -Wall -std=c99 -Wno-missing-braces -I include/4.0/ -I src/include/ -L lib/4.0-linux/ -lraylib -lGL -lm -lpthread -ldl -lrt -lX11

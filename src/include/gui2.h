@@ -10,7 +10,7 @@
         Vector2 center; // default = (0, 0)   can be used to make a GuiBox a parent object
         Vector2 offset;
 
-        char text[50];
+        char text[64];
 
         Color color;
         int size;
@@ -66,12 +66,14 @@
         return temp;
     }
 
-    GuiText assignGuiText(Font* font, Vector2 center, Vector2 offset, const char text[50], int size, Color color, float spacing){
+//max text array size: 64
+    GuiText assignGuiText(Font* font, Vector2 center, Vector2 offset, const char* text, int size, Color color, float spacing){
         GuiText temp;
         temp.font = font;
         temp.center = center;
         temp.offset = offset;
-        TextCopy(temp.text, text);
+        if(TextLength(text) < 64) TextCopy(temp.text, text);
+        else printf("WARNING: assignGuiText - Tried adding more than 64 chars to GuiText\n");
         temp.size = size;
         temp.color = color;
         temp.spacing = spacing;
@@ -117,7 +119,7 @@
         return temp;
     }
 
-    Vector2 GetTextCenter(Font font, const char text[64], float fontSize, float spacing, int screenWidth, int screenHeight){
+    Vector2 GetTextCenter(Font font, const char* text, float fontSize, float spacing, int screenWidth, int screenHeight){
         Vector2 textSize = MeasureTextEx(font, text, fontSize, spacing);
         return (Vector2){screenWidth / 2 - textSize.x / 2, screenHeight / 2 - textSize.y / 2};
     }

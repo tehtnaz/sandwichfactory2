@@ -1,0 +1,33 @@
+Differences between .sf version 2.0 and .sf version 3.0
+-------------------------------------------------------
+
+!!! BREAKING Changes !!!
+
+- Properties are now their own struct
+    The property name should now be expressed as a string
+    eg. ~sp=@(2,2) would now be ~("sp", @(2, 2))
+
+- PhysObjs must have a Vector for position now
+    ex. v2 = ^(181,58,15,13,f,t)
+        v3 = ^(@(181,58),15,13,false,true)
+
+- Removed wallNum, leverNum, doorNum
+    They are now auto-set by using the new Lever(), Door(), and Wall() structs
+
+- Doors, Levers, Portals are now their own structs. Refer to new argument structure
+
+- Level Collider and Ladders have had arguments which have been stripped
+    Only 4 arguments now in LevelCols, as the other were only required by Levers, Doors, and Walls before
+    Ladders now match Wall()
+
+- Vector2Float has been removed. Regular Vector2 types now accept floats 
+- Booleans must be either "true" or "false", you cannot use "t" or "f" or integers anymore
+- Strings must now be surrounded in quotes
+- wallNum has been renamed to wallImgNum
+
+## Other changes ##
+- Whitespace is now 100% supported anywhere
+- Commas are no longer required to seperate items, although they're still recommended to keep your files clean looking
+- Square brackets and parentheses are interchangeable
+
+
