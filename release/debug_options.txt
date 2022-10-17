@@ -25,3 +25,5 @@ F8 + UP / DOWN - Increases / decreases scrollType
 SHIFT + Functions Keys (F1 - F12)
     * Activate tag according to number of function key
     * Ex. SHIFT+F1 = toggle tag 1,  SHIFT+F7 = toggle tag 7 
+
+SHIFT + Tab = Skip level

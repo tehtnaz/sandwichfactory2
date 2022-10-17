@@ -550,7 +550,7 @@ int readFileSF(char path[128],
     }
     fclose(fp);
 
-
+    #ifdef DEBUG_DATA_HANDLING
     printf("DEBUG: readFileSF[scan] - Begin info print at %p\n", infoRoot);
     tokenInfo = infoRoot;
     while(tokenInfo != NULL){
@@ -563,9 +563,8 @@ int readFileSF(char path[128],
             printf("  type: %d | line: %d | text: %s | loc: %p\n", tokenInfo->type, tokenInfo->line, tokenInfo->text, tokenInfo);
         }
         tokenInfo = tokenInfo->next;
-        //printf("freeing %p\n", tokenInfo);
-        //free(tokenInfo);
     }
+    #endif
 
     // -----------------
     // readFileSF[group]
@@ -618,6 +617,8 @@ int readFileSF(char path[128],
         }
         
     }
+
+    #ifdef DEBUG_DATA_HANDLING
     structGroup = groupRoot;
     for(int i = 0; structGroup != NULL;){
         printf("\n---GROUP %d---\n", i);
@@ -647,6 +648,8 @@ int readFileSF(char path[128],
         }
         i++;
     }
+    #endif
+    
     printf("[DEBUG] readFileSF[group] - Done using [scan] materials. Freeing...\n");
     tokenInfo = infoRoot;
     while(tokenInfo != NULL){
@@ -716,7 +719,7 @@ int readFileSF(char path[128],
             }
         }
     }
-
+    #ifdef DEBUG_DATA_HANDLING
     structGroup = groupRoot;
     for(int i = 0; structGroup != NULL;){
         printf("\n---GROUP %d---\n", i);
@@ -746,6 +749,7 @@ int readFileSF(char path[128],
         }
         i++;
     }
+    #endif
     
     // -----------------
     // readFileSF[parse]

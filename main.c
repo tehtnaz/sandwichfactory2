@@ -116,7 +116,7 @@ int main(int argc, char* argv[]){
     int ShowCollider = 0;
 
     //Get Window properties
-    if(argc == 1){
+    if(argc != 3){
         //Window properties prompt
         printf("Enter Resolution (recommended: 135, 270, 540, 1080): ");
         scanf("%d", &screenHeight);
@@ -380,6 +380,8 @@ int main(int argc, char* argv[]){
         pauseIcon = resizeGuiImg(pauseIcon, screenHeight / 1080.0f);
 
 
+    //prepare level (if custom, unneeded at this point if not custom)
+    //cannot be placed before init window since it loads textures and scales
     if(customLevel == 1 || customLevel == 3){
         gameState = STATE_ACTIVE;
         prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, &startingPos, &startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip, levelPath);
@@ -432,13 +434,6 @@ int main(int argc, char* argv[]){
 
             //Cycle anims
             for(int i = 0; i < doorNum; i++){
-                /*if(doorList[i].isAnimating){
-                    if(door_isClosedList[i]){
-                        doorList[i] = cycleAnimationBackwards(doorList[i], screenFPS);
-                    }else{
-                        doorList[i] = cycleAnimation(doorList[i], screenFPS);
-                    }
-                }*/
                 if(doorList[i].isAnimating){
                     if(Col[i + colliderNum + leverNum].enabled){
                         doorList[i] = cycleAnimationBackwards(doorList[i], screenFPS);
@@ -1384,7 +1379,7 @@ void prepareLevel(int resolutionMultiplier,
         printf("prepareLevel: default vals - Completed obj %d\n", i);
     }
 
-    printf("prepareLevel: leverList size: %I64ld\n", sizeof(SwitchAnimation) * leverNum);
+    printf("prepareLevel: leverList size: %I64lld\n", sizeof(SwitchAnimation) * leverNum);
     *leverList = (SwitchAnimation*)realloc(*leverList, sizeof(SwitchAnimation) * leverNum);
     for(int i = 0; i < leverNum; i++){
         (*leverList)[i] = switchAssignProperties(0, 10, false);
@@ -1403,7 +1398,7 @@ void prepareLevel(int resolutionMultiplier,
         Col[i].y *= resolutionMultiplier;
         Col[i].sizeX *= resolutionMultiplier;
         Col[i].sizeY *= resolutionMultiplier;
-        printf("%d\n",Col[i].x + Col[i].sizeX);
+        printf("Collider[%d].x + .sizeX = %d\n",i, Col[i].x + Col[i].sizeX);
     }
 
     // resize goal

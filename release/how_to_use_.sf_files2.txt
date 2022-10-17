@@ -27,7 +27,7 @@ FILE STRUCTURE and how to add objects
         goal           * - BoxCollider2D (area which triggers the move to the next level)
         sp               - Vector2  (starting point)
         sp2              - Vector2  (starting point - player 2)
-        isMultiplayer    - bool     (enable player 2?)
+        isMultiplayer    - bool     (enable player 2)
         scrollType       - int      (
             0 = scrolling disabled (default)
             1 = scroll left-right only

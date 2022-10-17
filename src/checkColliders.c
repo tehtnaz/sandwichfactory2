@@ -144,13 +144,13 @@ int checkCollider(int box[4], Rectangle self, bool trigger, bool enabled, bool l
     if(betweenX(box, self) && objectBetweenY(box, self)){
         if(trigger) return 5;
         if(ladder) return 6;
-        printf("WARNING: checkCollider - Object is somehow partially inside a wide collider that is solid (not a ladder / ladder). Ignoring...\n");
+        printf("WARNING: checkCollider - Object is somehow partially inside a wide collider that is solid (not a ladder / ladder). Ignoring...\r");
         return 0;
     }
     if(betweenY(box, self) && objectBetweenX(box, self)){
         if(trigger) return 5;
         if(ladder) return 6;
-        printf("WARNING: checkCollider - Object is somehow partially inside a tall collider that is solid (not a ladder / ladder). Ignoring...\n");
+        printf("WARNING: checkCollider - Object is somehow partially inside a tall collider that is solid (not a ladder / ladder). Ignoring...\r");
         return 0;
     }
 

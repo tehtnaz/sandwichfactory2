@@ -17,3 +17,9 @@ Features:
     * Recommended Resolution >= 540p
     * _Only supported aspect ratio is 16:9!!_
   * It is now possible to load custom files! (pls refer to how_to_use_.sf_file.txt)
+
+
+# Controls:
+  * Player 1: WASD + E for crates
+  * Player 2: Arrow Keys + Right Ctrl for crates
+    * If player 2 is enabled, it's still only player 1 which can trigger the goal

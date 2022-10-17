@@ -3,9 +3,11 @@
 /
 /
 
-(1, 0, 0)
     %(8,9,270,25)
-    %(215,88,-53,-14,0,1,0)
+
+    / this is bad. never use negative sizes on level colliders
+    / check out the F1 collider debug mode and you'll see it exists, but cannot collide
+    %(215,88,-53,-14)
 
 / Disappearing walls
     ~("wallNum", 0)
