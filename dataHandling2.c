@@ -95,7 +95,7 @@ void advanceChar(){
 void readString(TokenInfo* tokenInfo){
     tokenInfo->type = STRING;
     int stringSize = 8;
-    tokenInfo->text = (char*)malloc(sizeof(char) * stringSize);
+    tokenInfo->text = (char*)calloc(stringSize, sizeof(char));
     for(int i = 0; peek != '"'; i++){
         if(i == (stringSize - 1)){
             stringSize *= 2;
@@ -133,7 +133,7 @@ void readNumber(TokenInfo* tokenInfo){
     char* string;
     int stringSize = 8;
     tokenInfo->type = INTEGER;
-    string = (char*)malloc(sizeof(char) * stringSize);
+    string = (char*)calloc(stringSize, sizeof(char));
     string[0] = ch;
     for(int i = 1; isDigit(peek); i++){
         if(i == stringSize){
@@ -157,7 +157,7 @@ void readNumber(TokenInfo* tokenInfo){
 void readKeyword(TokenInfo* tokenInfo){
     tokenInfo->type = UNDEFINED;
     int stringSize = 8;
-    tokenInfo->text = (char*)malloc(sizeof(char) * stringSize);
+    tokenInfo->text = (char*)calloc(stringSize, sizeof(char));
     tokenInfo->text[0] = ch;
     int i = 1;
     while(isAlphaNumeric(peek)){
@@ -170,7 +170,9 @@ void readKeyword(TokenInfo* tokenInfo){
         i++;
     }
     tokenInfo->text[i] = '\0';
-    printf("[DEBUG] - readKeyword - %s\n", tokenInfo->text);
+    #ifdef DEBUG_DATA_HANDLING 
+        printf("[DEBUG] - readKeyword - %s\n", tokenInfo->text); 
+    #endif
     if(TextIsEqual(tokenInfo->text, "true")){
         tokenInfo->type = TRUE;
     }else if(TextIsEqual(tokenInfo->text, "false")){
@@ -304,7 +306,7 @@ BoxCollider2D parseBoxCollider2D(StructGroup* group){
         }
         if(temp->token.type != INTEGER){
             printf("WARNING: readFileSF[parse/parseBoxCollider2D] - [line %d] Received non-integer argument for arg 5. Argument skipped.\n", temp->token.line);
-        }else if(temp->token.integer > 0){
+        }else if(temp->token.integer >= 0){
             if(group->token.type == LEVER || group->token.type == PORTAL){
                 box.trigger = temp->token.integer;
             }else{
@@ -459,6 +461,7 @@ int readFileSF(char path[128],
             int wallTags[16], int* wallImgNum, uint16_t* wallEnabled,
             BoxCollider2D* goal, int* scrollType, uint64_t* leverFlip)
 {
+    printf("INFO: readFileSF - Attemping to open: %s\n", path);
     fp = fopen(path, "r");
     if(fp == NULL){
         printf("ERROR: readFileSF - ERROR opening. File may not exist.\n");
@@ -549,6 +552,12 @@ int readFileSF(char path[128],
         }
     }
     fclose(fp);
+    tokenInfo = infoRoot;
+    if(tokenInfo != NULL && tokenInfo->next != NULL){
+        while (tokenInfo->next->next != NULL) tokenInfo = tokenInfo->next;
+        free(tokenInfo->next);
+        tokenInfo->next = NULL;
+    }
 
     #ifdef DEBUG_DATA_HANDLING
     printf("DEBUG: readFileSF[scan] - Begin info print at %p\n", infoRoot);
@@ -655,6 +664,8 @@ int readFileSF(char path[128],
     while(tokenInfo != NULL){
         TokenInfo* safeItem = tokenInfo;
         tokenInfo = tokenInfo->next;
+        //if(tokenInfo->text != NULL && tokenInfo->type != INTEGER && tokenInfo->type != FLOAT) free(tokenInfo->text); 
+            // ^^ won't this crash the program because we just ref this pointer in the structGroup?
         free(safeItem);
     }
     printf("[DEBUG] readFileSF[group] - Successfully freed all old tokens\n");
@@ -928,7 +939,7 @@ int readFileSF(char path[128],
                 }
                 break;
             default:
-                printf("WARNING: readFileSF[parse] - [line %d] Received non-struct as parent group. Skipping...\n", structGroup->token.line);
+                printf("WARNING: readFileSF[parse] - [line %d] Received non-struct as parent group. [TOKEN_TYPE: %d] Skipping...\n", structGroup->token.line, structGroup->token.type);
                 break;
         }
         structGroup = structGroup->next;
