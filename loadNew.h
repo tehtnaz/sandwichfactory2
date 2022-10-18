@@ -26,17 +26,18 @@ int loadNew(int selectedLevel, bool custom,
 ){
     char str[128];
     int temp = 1;
-    //s_Camera* nullCam = malloc(sizeof(s_Camera));
-    //BoxCollider2D nullLadders[2];
+
     if(custom){
         if(selectedLevel == 1){
             while(temp == 1 && custom){
                 printf("Enter path to .sf file or a folder (must be placed in custom_levels folder): ");
                 char temp2[110];
-                scanf("%109s", temp2);
-                if(temp2[TextLength(temp2) - 1] == '/' || temp2[TextLength(temp2) - 1] != '\\') sprintf(str, "custom_levels/%s1.sf", temp2);
+                //scanf("%109s", temp2);
+                fgets(temp2, 110, stdin);
+                TextCopy(temp2, TextSubtext(temp2, 0, TextLength(temp2) - 1));
+                
+                if(temp2[TextLength(temp2) - 1] == '/' || temp2[TextLength(temp2) - 1] == '\\') sprintf(str, "custom_levels/%s1.sf", temp2);
                 else sprintf(str, "custom_levels/%s", temp2);
-                printf("%s\n",temp2);
 
                 temp = readFileSF(str, levelImagePath, backgroundPath, startingPos, startingPos2, Col, ladderCol, levelText, crate, textNum, colliderNum, ladderNum, crateNum, leverNum, doorNum, isMultiplayer, portalNum, wallTags, wallNum, wallEnabled, goal, scrollType, leverFlip);
                 if(temp == 1){
