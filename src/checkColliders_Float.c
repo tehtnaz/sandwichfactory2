@@ -1,16 +1,11 @@
 #include <stdbool.h>
 #include "checkColliders_Float.h"
 #include "raylib.h"
-/*
-*  0 = x Position
-*  1 = y Position
-*  2 = size X
-*  3 = size Y
-*/
 
-//checkColliders_Float.h version 2
+//checkColliders_Float.h version 2.1
 //changelog
-//version 2: changed float arrays into Rectangle type
+    //version 2: changed float arrays into Rectangle type
+    //version 2.1: added comments, removed pragma, used define
 
 bool f_up(Rectangle box, Rectangle self){
     if((self.y < box.y + box.height && self.y > box.y) || self.y == box.y){
@@ -116,13 +111,6 @@ bool f_topRightEdgeCheck(Rectangle box, Rectangle self){
         return false;
     }
 }
-
-/*
-*  0 = x Position
-*  1 = y Position
-*  2 = size X
-*  3 = size Y
-*/
 
 /*
 * Return value = direction of collision

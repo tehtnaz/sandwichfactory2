@@ -5,6 +5,9 @@
     #include "vector2pp.h"
     #include "recpp.h"
 
+    //version 2.1
+    //removed char string limits
+
     typedef struct GuiText{
         Font* font;
         Vector2 center; // default = (0, 0)   can be used to make a GuiBox a parent object

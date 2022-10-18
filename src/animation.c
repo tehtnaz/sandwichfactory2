@@ -3,7 +3,7 @@
 #include "animation.h"
 #include "vector2pp.h"
 
-// Animation.h version 2.0
+// Animation.h version 2.1
 
 Animation assignProperties(int spriteSize, int currentFrame, int fps, bool isAnimating, int frameCount, bool allowsnap){
     Animation temp;
@@ -35,8 +35,10 @@ Animation getFromFolder(Animation input, const char* path, bool autoSize){
     Animation temp = input;
     char str[70];
     sprintf(str, "%s0.png", path);
+    //const char* str = TextFormat("%s0.png", path);
     printf("getFromFolder: Base Image = %s\n", str);
     Image img = LoadImage(str);
+
     if(autoSize){
         temp.spriteSize = img.width;
         printf("getFromFolder: animation spriteSize (AUTO): %d\n", temp.spriteSize);
@@ -47,6 +49,7 @@ Animation getFromFolder(Animation input, const char* path, bool autoSize){
     for(int i = 0; i < input.frameCount; i++){
         sprintf(str, "%s%d.png", path, i);
         img = LoadImage(str);
+        //img = LoadImage(TextFormat("%s%d.png", path, i));
         ImageDraw(&atlas, img, (Rectangle){0,0,img.width,img.height}, (Rectangle){temp.spriteSize * i,0,img.width,img.height}, WHITE);
     }
     UnloadImage(img);
@@ -58,12 +61,15 @@ Animation getFromFolder(Animation input, const char* path, bool autoSize){
 Texture getTextureFromFolder(const char* path, int textureCount){
     char str[70];
     sprintf(str, "%s0.png", path);
+    //const char* str = TextFormat("%s0.png", path);
     printf("getFromFolder: Base Image = %s\n", str);
     Image img = LoadImage(str);
+
     Image atlas = GenImageColor(img.width * textureCount, img.height, BLANK);
     for(int i = 0; i < textureCount; i++){
         sprintf(str, "%s%d.png", path, i);
         img = LoadImage(str);
+        //img = LoadImage(TextFormat("%s%d.png", path, i));
         ImageDraw(&atlas, img, (Rectangle){0,0,img.width,img.height}, (Rectangle){img.width * i,0,img.width,img.height}, WHITE);
     }
     Texture tempTexture = LoadTextureFromImage(atlas);
@@ -74,34 +80,29 @@ Texture getTextureFromFolder(const char* path, int textureCount){
 
 SwitchAnimation switchGetFromFolder(SwitchAnimation input, const char* path){
     SwitchAnimation temp = input;
-    char str[70];
-    sprintf(str, "%s0.png", path);
-    temp.frames[0] = LoadTexture(str);
-    sprintf(str, "%s1.png", path);
-    temp.frames[1] = LoadTexture(str);
+    temp.frames[0] = LoadTexture(TextFormat("%s0.png", path));
+    temp.frames[1] = LoadTexture(TextFormat("%s1.png", path));
     return temp;
 }
 
 
 
-Animation cycleAnimation(Animation input, float screenFPS){
+Animation cycleAnimation(Animation input){
     if(input.isAnimating == false){
         printf("Warning: cycleAnimation - Attempted to cycle an animation which was disabled.\n");
         return input;
     }
     if(input.fps < 0){
-        printf("ERROR: cycleAnimation - Attempted to cycle with negative fps");
+        printf("ERROR: cycleAnimation - Attempted to cycle with negative fps\n");
         return input;
     }
     Animation temp = input;
 
-    temp.frameBuffer += temp.fps / screenFPS;
-    
+    temp.frameBuffer += temp.fps * GetFrameTime();
     while(temp.frameBuffer >= 1){
             temp.frameBuffer--;
             temp.currentFrame++;
     }
-
     if(temp.currentFrame > temp.frameCount - 1 && temp.allowSnap){
         temp.currentFrame = 0;
     }
@@ -112,18 +113,18 @@ Animation cycleAnimation(Animation input, float screenFPS){
     return temp;
 }
 
-Animation cycleAnimationBackwards(Animation input, float screenFPS){
+Animation cycleAnimationBackwards(Animation input){
     if(input.isAnimating == false){
         printf("Warning: cycleAnimationBackwards - Attempted to cycle an animation which was disabled.\n");
         return input;
     }
     if(input.fps < 0){
-        printf("ERROR: cycleAnimationBackwards - Attempted to cycleBackwards with negative fps");
+        printf("ERROR: cycleAnimationBackwards - Attempted to cycleBackwards with negative fps\n");
         return input;
     }
     Animation temp = input;
 
-    temp.frameBuffer += temp.fps / screenFPS;
+    temp.frameBuffer += temp.fps * GetFrameTime();
 
     while(temp.frameBuffer >= 1){
             temp.frameBuffer--;
@@ -142,7 +143,7 @@ Animation cycleAnimationBackwards(Animation input, float screenFPS){
 
 //ignores isAnimating property and only works while allowSnap property is disabled
 
-Animation shakeCycleAnimation(Animation input, float screenFPS){
+Animation shakeCycleAnimation(Animation input){
     if(input.allowSnap){
         printf("allowSnap is enabled for this object. Did you mean to cycle it and not shake it? Skipping...\n");
         return input;
@@ -150,10 +151,10 @@ Animation shakeCycleAnimation(Animation input, float screenFPS){
     if(input.isAnimating){
         if(!input.cycleBackward){
             //printf("cycle\n");
-            return cycleAnimation(input, screenFPS);
+            return cycleAnimation(input);
         }else{
             //printf("cycleBack\n");
-            return cycleAnimationBackwards(input, screenFPS);
+            return cycleAnimationBackwards(input);
         }
     }else{
         Animation temp = input;
@@ -161,10 +162,10 @@ Animation shakeCycleAnimation(Animation input, float screenFPS){
         temp.isAnimating = true;
         if(!temp.cycleBackward){
             //printf("cycle+switch\n");
-            return cycleAnimation(temp, screenFPS);
+            return cycleAnimation(temp);
         }else{
             //printf("cycleBack+switch\n");
-            return cycleAnimationBackwards(temp, screenFPS);
+            return cycleAnimationBackwards(temp);
         }
     }
 }
@@ -179,8 +180,9 @@ Animation shakeCycleAnimation(Animation input, float screenFPS){
 
 
 
-void DrawAnimationPro(Animation* input, Vector2 position, float scale, Color tint, float screenFPS, CycleType cycleAnim){
+void DrawAnimationPro(Animation* input, Vector2 position, float scale, Color tint, CycleType cycleAnim){
     DrawTextureTiled(input->texture,
+                    //flipX ? (Rectangle){input->currentFrame + 1 * input->spriteSize, 0, -input->spriteSize, input->texture.height} :
                     (Rectangle){input->currentFrame * input->spriteSize, 0, input->spriteSize, input->texture.height},
                     (Rectangle){0,0,scale*input->spriteSize,scale*input->texture.height},
                     negVec2(position),0,scale,tint);
@@ -188,13 +190,13 @@ void DrawAnimationPro(Animation* input, Vector2 position, float scale, Color tin
         case CYCLE_NONE:
             break;
         case CYCLE_FORWARD:
-            *input = cycleAnimation((*input), screenFPS);
+            *input = cycleAnimation((*input));
             break;
         case CYCLE_BACKWARD:
-            *input = cycleAnimationBackwards((*input), screenFPS);
+            *input = cycleAnimationBackwards((*input));
             break;
         case CYCLE_SHAKE:
-            *input = shakeCycleAnimation((*input), screenFPS);
+            *input = shakeCycleAnimation((*input));
             break;
     }
 }
@@ -204,14 +206,20 @@ void DrawAnimationPro(Animation* input, Vector2 position, float scale, Color tin
 Animation flipAnimationHorizontal(Animation input){
     Animation temp = input;
     Image animTexture = LoadImageFromTexture(temp.texture);
-    Image tempImg = GenImageColor(temp.spriteSize, temp.texture.height, WHITE);
+    printf("a, %d %d; %d %d", animTexture.width, animTexture.height, temp.texture.width, temp.texture.height);
+    Image tempImg = GenImageColor(temp.spriteSize, temp.texture.height, BLANK);
+    printf("b");
     for(int i = 0; i < temp.frameCount; i++){
-        ImageDraw(&tempImg, animTexture, (Rectangle){temp.frameCount * temp.spriteSize, 0, temp.spriteSize, temp.texture.height}, (Rectangle){0,0,temp.spriteSize, temp.texture.height}, WHITE);
+        tempImg = GenImageColor(temp.spriteSize, temp.texture.height, BLANK);
+        ImageDraw(&tempImg, animTexture, (Rectangle){i * temp.spriteSize, 0, temp.spriteSize, temp.texture.height}, (Rectangle){0, 0,temp.spriteSize, temp.texture.height}, WHITE);
+        ImageDrawRectangle(&animTexture, i * temp.spriteSize, 0, temp.spriteSize, temp.texture.height, BLANK);
         ImageFlipHorizontal(&tempImg);
-        ImageDraw(&animTexture, tempImg, (Rectangle){0,0,temp.spriteSize, temp.texture.height}, (Rectangle){temp.frameCount * temp.spriteSize, 0, temp.spriteSize, temp.texture.height}, WHITE);
+        ImageDraw(&animTexture, tempImg, (Rectangle){0, 0,temp.spriteSize, temp.texture.height}, (Rectangle){i * temp.spriteSize, 0, temp.spriteSize, temp.texture.height}, WHITE);
+        printf("d");
     }
+    printf("c");
     UnloadTexture(temp.texture);
-    temp.texture = LoadTextureFromImage(tempImg);
+    temp.texture = LoadTextureFromImage(animTexture);
     UnloadImage(tempImg);
     UnloadImage(animTexture);
     return temp;

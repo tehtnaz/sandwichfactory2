@@ -1,6 +1,8 @@
+
 #ifndef ANIMATION_H_2
     #define ANIMATION_H_2
     #include "raylib.h"
+    #include <stdint.h>
 
 // TODO:
 // Maybe split all the sections of the main.c loop into different functions
@@ -9,7 +11,7 @@
 
 
 
-//Animation.h version 2.0
+//Animation.h version 2.1
 
 // Changes from version 1 (present in sandwich factory)
     // allowSnap has new definition (defined on line 30)
@@ -23,6 +25,11 @@
     //BIG: changed frame array to texture atlas
     //shakeCycleAnimation now relies on negative FPS. Try not to use negative FPS while doing regular anims
     //WATCH OUT: cycleAnimation and cycleAnimationBackwards will still not accept negative FPS!
+
+//2.1 changelog
+    //use GetFPS instead of screenFPS
+    //fixed flipAnimationHorizontal
+    //fixed error printf (added new line char)
 
 
 typedef struct Animation{
@@ -61,11 +68,11 @@ SwitchAnimation switchGetFromFolder(SwitchAnimation input, const char* path);
 
 Texture getTextureFromFolder(const char* path, int textureCount);
 
-Animation cycleAnimation(Animation input, float screenFPS);
-Animation cycleAnimationBackwards(Animation input, float screenFPS);
-Animation shakeCycleAnimation(Animation input, float screenFPS); //ignores isAnimating property and only works while allowSnap property is disabled
+Animation cycleAnimation(Animation input);
+Animation cycleAnimationBackwards(Animation input);
+Animation shakeCycleAnimation(Animation input); //ignores isAnimating property and only works while allowSnap property is disabled
 
-void DrawAnimationPro(Animation* input, Vector2 position, float scale, Color tint, float screenFPS, CycleType cycleAnim);
+void DrawAnimationPro(Animation* input, Vector2 position, float scale, Color tint, CycleType cycleAnim);
 
 Animation flipAnimationHorizontal(Animation input);
 SwitchAnimation flipSwitchAnimationHorizontal(SwitchAnimation input);

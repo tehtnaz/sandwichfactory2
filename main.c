@@ -119,11 +119,13 @@ int main(int argc, char* argv[]){
     if(argc != 3){
         //Window properties prompt
         printf("Enter Resolution (recommended: 135, 270, 540, 1080): ");
-        scanf("%d", &screenHeight);
+        fgets(str, 40, stdin);
+        screenHeight = TextToInteger(str);
         screenWidth = screenHeight / 9.00f * 16.00f;
 
         printf("Enter desired FPS: ");
-        scanf("%d", &screenFPS);
+        fgets(str, 40, stdin);
+        screenFPS = TextToInteger(str);
 
     }else{
         printf("Getting arg1: ");
@@ -143,11 +145,13 @@ int main(int argc, char* argv[]){
         if(screenHeight == 0 || screenFPS == 0){
             //Window properties prompt
             printf("Enter Resolution (recommended: 135, 270, 540, 1080): ");
-            scanf("%d", &screenHeight);
+            fgets(str, 40, stdin);
+            screenHeight = TextToInteger(str);
             screenWidth = screenHeight / 9.00f * 16.00f;
 
             printf("Enter desired FPS: ");
-            scanf("%d", &screenFPS);
+            fgets(str, 40, stdin);
+            screenFPS = TextToInteger(str);
         }
     }
 
@@ -196,7 +200,9 @@ int main(int argc, char* argv[]){
         //Level prompt
         printf("Type 0 for the regular levels and 1 for a custom level: ");
         while(customLevel != 0 && customLevel != 1){
-            if(scanf("%d", &customLevel) < 1){
+            fgets(str, 40, stdin);
+            sscanf(str, "%d", &customLevel);
+            if(customLevel != 0 && customLevel != 1){
                 printf("Enter 0 or 1: \n");
             }
         }
@@ -432,13 +438,13 @@ int main(int argc, char* argv[]){
         //Gameplay related events (collision checking, gravity, animations)
         if(gameState == STATE_ACTIVE){
 
-            //Cycle anims
+            //Cycle door anims
             for(int i = 0; i < doorNum; i++){
                 if(doorList[i].isAnimating){
                     if(Col[i + colliderNum + leverNum].enabled){
-                        doorList[i] = cycleAnimationBackwards(doorList[i], screenFPS);
+                        doorList[i] = cycleAnimationBackwards(doorList[i]);
                     }else{
-                        doorList[i] = cycleAnimation(doorList[i], screenFPS);
+                        doorList[i] = cycleAnimation(doorList[i]);
                     }
                 }
             }
@@ -958,7 +964,6 @@ int main(int argc, char* argv[]){
         BeginDrawing();
         BeginMode2D(camera);
         ClearBackground(RAYWHITE);
-        //printf("rendering!\n");
 
             //Gameplay related textures
             if(gameState == STATE_ACTIVE || gameState == STATE_PAUSED){
@@ -966,10 +971,10 @@ int main(int argc, char* argv[]){
                 //Background
                 if(gameState == STATE_ACTIVE){
                     //active
-                    DrawAnimationPro(&background, bgPosition, backgroundResMultiplier, WHITE, screenFPS, CYCLE_FORWARD);
+                    DrawAnimationPro(&background, bgPosition, backgroundResMultiplier, WHITE, CYCLE_FORWARD);
                 }else{
                     //paused
-                    DrawAnimationPro(&background, bgPosition, backgroundResMultiplier, WHITE, screenFPS, CYCLE_NONE);
+                    DrawAnimationPro(&background, bgPosition, backgroundResMultiplier, WHITE, CYCLE_NONE);
                 }
                 BeginMode2D(camera);
 
@@ -998,7 +1003,7 @@ int main(int argc, char* argv[]){
                 //Doors
                 for(int i = 0; i < doorNum; i++){
                     //give pointer directly
-                    DrawAnimationPro(doorList+i, boxToVec2(Col[colliderNum + leverNum + i]), resolutionMultiplier, WHITE, screenFPS, CYCLE_NONE);
+                    DrawAnimationPro(doorList+i, boxToVec2(Col[colliderNum + leverNum + i]), resolutionMultiplier, WHITE, CYCLE_NONE);
                 }
 
                 //Crates
@@ -1008,7 +1013,7 @@ int main(int argc, char* argv[]){
                     }
                 }
                 for(int i = colliderNum + leverNum + doorNum; i < colliderNum + leverNum + doorNum + portalNum; i++){
-                    DrawAnimationPro((i % 2) == 0 ? &portal : &portal2, boxToVec2(Col[i]), resolutionMultiplier, WHITE, screenFPS, gameState == STATE_ACTIVE ? CYCLE_FORWARD : CYCLE_NONE);
+                    DrawAnimationPro((i % 2) == 0 ? &portal : &portal2, boxToVec2(Col[i]), resolutionMultiplier, WHITE, gameState == STATE_ACTIVE ? CYCLE_FORWARD : CYCLE_NONE);
                 }
 
                 //Ladders
@@ -1023,9 +1028,9 @@ int main(int argc, char* argv[]){
                 //Player
                 if(!(IsKeyDown(KEY_A) && IsKeyDown(KEY_D)) && (IsKeyDown(KEY_A) || IsKeyDown(KEY_D)) && gameState == STATE_ACTIVE && !disablePlayerAnim){
                     if(player_flipX){
-                        DrawAnimationPro(&playerAnim_flipped, playerPos, resolutionMultiplier, WHITE, screenFPS, CYCLE_SHAKE);
+                        DrawAnimationPro(&playerAnim_flipped, playerPos, resolutionMultiplier, WHITE, CYCLE_SHAKE);
                     }else{
-                        DrawAnimationPro(&playerAnim, playerPos, resolutionMultiplier, WHITE, screenFPS, CYCLE_SHAKE);
+                        DrawAnimationPro(&playerAnim, playerPos, resolutionMultiplier, WHITE, CYCLE_SHAKE);
                     }
                 }else if(gameState == STATE_ACTIVE || inputVelocity.x == 0 || disablePlayerAnim){
                     if(player_flipX){
@@ -1035,9 +1040,9 @@ int main(int argc, char* argv[]){
                     }
                 }else{
                     if(inputVelocity.x < 0){
-                        DrawAnimationPro(&playerAnim_flipped, playerPos, resolutionMultiplier, WHITE, screenFPS, CYCLE_NONE);
+                        DrawAnimationPro(&playerAnim_flipped, playerPos, resolutionMultiplier, WHITE, CYCLE_NONE);
                     }else{
-                        DrawAnimationPro(&playerAnim, playerPos, resolutionMultiplier, WHITE, screenFPS, CYCLE_NONE);
+                        DrawAnimationPro(&playerAnim, playerPos, resolutionMultiplier, WHITE, CYCLE_NONE);
                     }
                 }
 
@@ -1249,7 +1254,6 @@ int main(int argc, char* argv[]){
             }
             
             //Pause GUI
-
             if(gameState == STATE_PAUSED){
 
                 renderGuiBox(resumeGame, true);
@@ -1265,7 +1269,7 @@ int main(int argc, char* argv[]){
             }
 
             if(gameState == STATE_END){
-                DrawAnimationPro(&background, bgPosition, backgroundResMultiplier, WHITE, screenFPS, CYCLE_NONE);
+                DrawAnimationPro(&background, bgPosition, backgroundResMultiplier, WHITE, CYCLE_NONE);
                 DrawTextureEx(end_screen, (Vector2){0,0}, 0, resolutionMultiplier, WHITE);
             }
 
@@ -1275,14 +1279,14 @@ int main(int argc, char* argv[]){
                 ClearBackground(BLACK);
                 timer -= GetFrameTime();
                 if(timer < 0.0f){
-                    DrawAnimationPro(&cutscene, VEC2ZERO, resolutionMultiplier, GRAY, screenFPS, CYCLE_NONE);
+                    DrawAnimationPro(&cutscene, VEC2ZERO, resolutionMultiplier, GRAY, CYCLE_NONE);
                     cutscene.currentFrame++;
                     if(cutscene.currentFrame > cutscene.frameCount - 1){
                         cutscene.isAnimating = false;
                     }
                     timer = 1.5f;
                 }else if(timer < 1.0f){
-                    DrawAnimationPro(&cutscene, VEC2ZERO, resolutionMultiplier, GRAY, screenFPS, CYCLE_NONE);
+                    DrawAnimationPro(&cutscene, VEC2ZERO, resolutionMultiplier, GRAY, CYCLE_NONE);
                 }
                 
                 if(anyButtonPrompt){
@@ -1296,7 +1300,7 @@ int main(int argc, char* argv[]){
                     }
                 }
 
-                printf("time: %f\n", timer);
+                //printf("time: %f\n", timer);
                 if(!cutscene.isAnimating){
                     gameState = STATE_ACTIVE;
                     customLevel = 0;
@@ -1379,7 +1383,7 @@ void prepareLevel(int resolutionMultiplier,
         printf("prepareLevel: default vals - Completed obj %d\n", i);
     }
 
-    printf("prepareLevel: leverList size: %I64lld\n", sizeof(SwitchAnimation) * leverNum);
+    printf("prepareLevel: leverList size: %I64ld\n", sizeof(SwitchAnimation) * leverNum);
     *leverList = (SwitchAnimation*)realloc(*leverList, sizeof(SwitchAnimation) * leverNum);
     for(int i = 0; i < leverNum; i++){
         (*leverList)[i] = switchAssignProperties(0, 10, false);
