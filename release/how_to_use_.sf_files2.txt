@@ -84,7 +84,7 @@ FILE STRUCTURE and how to add objects
         array        - any parentheses without a struct at the beginning
         string       - must be surrounded by "quotes" (escape sequences are supported, \n, \t, \\, \")
 
-    Examples can be found in the custom_levels/template folder.
+    Small examples can be found in the custom_levels folder, or you cna just look at the level files in (resources/levels/).
 
 
     Extra notes:
