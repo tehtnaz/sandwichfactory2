@@ -40,6 +40,30 @@ typedef enum PlayerMode{
     TWO_PLAYERS
 }PlayerMode;
 
+// Colliders / Objects
+static BoxCollider2D Col[64];
+static int colliderNum = 0;
+
+static TextBox levelText[2];
+static int textNum = 0;
+
+static PhysicsObject crate[8];
+static int crateNum = 0;
+
+//static TriSlope triCol[10];
+//static Triangle realTri[10];
+
+static BoxCollider2D ladderCol[16];
+static int ladderNum = 0;
+
+//other level properties
+static int leverNum = 0;
+static int doorNum = 0;
+static int portalNum = 0;
+static Vector2 startingPos = {0,0};
+static Vector2 startingPos2 = {0,0};
+static char levelPath[128];
+
 int main(int argc, char* argv[]){
 
     //init variables and set default values
@@ -61,19 +85,11 @@ int main(int argc, char* argv[]){
     Vector2 bgPosition = {0,0};
 
     //declare prepareLevel
-    void prepareLevel(int resolutionMultiplier, 
-                    Vector2* playerPos, Vector2* playerPos2, Vector2* startingPos, Vector2* startingPos2, 
-                    int selectedLevel, Texture2D* level, char str[40], 
-                    int colliderNum, int leverNum, int doorNum, int portalNum, BoxCollider2D Col[64], 
-                    TextBox levelText[2], int textNum, 
-                    int crateNum, PhysicsObject crate[8], 
-                    int ladderNum, BoxCollider2D ladderCol[16], char levelImagePath[64],
-                    Animation** doorList, SwitchAnimation** leverList, //bool** door_isClosedList,
-                    int customLevel, 
-                    //char* levelWallsImgPath, int* pathLength, 
-                    int wallNum, Texture2D wallImg[16], int wallTags[16], uint16_t* wallEnabled, BoxCollider2D* goal, uint64_t leverFlip, char levelPath[128]
-                    //Texture* defaultDoor, Texture* leverOn, Texture* leverOff
-                    );
+    void prepareLevel(int customLevel, int selectedLevel, int resolutionMultiplier,
+                    Vector2* playerPos, Vector2* playerPos2,
+                    Texture2D* level, char levelImagePath[64],
+                    Animation** doorList, SwitchAnimation** leverList,
+                    int wallNum, Texture2D wallImg[16], BoxCollider2D* goal, uint64_t leverFlip, char levelPath[128]);
 
     //load colliders and resize starting position and declare which level we start with
     int selectedLevel = 0;
@@ -86,28 +102,6 @@ int main(int argc, char* argv[]){
     bool player2_flipX = false;
     Vector2 playerPos = {0,0};
     Vector2 playerPos2 = {0,0};
-
-    //objects
-    BoxCollider2D Col[64];
-    TextBox levelText[2];
-    PhysicsObject crate[8];
-    //TriSlope triCol[10];
-    //Triangle realTri[10];
-    BoxCollider2D ladderCol[16];
-
-    //# of objs
-    int colliderNum = 0;
-    int textNum = 0;
-    int ladderNum = 0;
-    int crateNum = 0;
-
-    //other level properties
-    int leverNum = 0;
-    int doorNum = 0;
-    int portalNum = 0;
-    Vector2 startingPos = {0,0};
-    Vector2 startingPos2 = {0,0};
-    char levelPath[128];
 
     //debug variables
     bool ColliderDebugMode = false;
@@ -390,7 +384,7 @@ int main(int argc, char* argv[]){
     //cannot be placed before init window since it loads textures and scales
     if(customLevel == 1 || customLevel == 3){
         gameState = STATE_ACTIVE;
-        prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, &startingPos, &startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip, levelPath);
+        prepareLevel(customLevel, selectedLevel, resolutionMultiplier, &playerPos, &playerPos2, &level, levelImagePath, &doorList, &leverList, wallNum, wallImg, &goal, leverFlip, levelPath);
     }
 
     //start sound
@@ -825,7 +819,7 @@ int main(int argc, char* argv[]){
                             CloseWindow();
                             return 0;
                         }
-                        prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, &startingPos, &startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip, levelPath);
+                        prepareLevel(customLevel, selectedLevel, resolutionMultiplier, &playerPos, &playerPos2, &level, levelImagePath, &doorList, &leverList, wallNum, wallImg, &goal, leverFlip, levelPath);
                     }
                 }else{
                     customLevel++;
@@ -837,7 +831,7 @@ int main(int argc, char* argv[]){
                         CloseWindow();
                         return 0;
                     }
-                    prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, &startingPos, &startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip, levelPath);
+                    prepareLevel(customLevel, selectedLevel, resolutionMultiplier, &playerPos, &playerPos2, &level, levelImagePath, &doorList, &leverList, wallNum, wallImg, &goal, leverFlip, levelPath);
                 }
             }
 
@@ -1224,7 +1218,7 @@ int main(int argc, char* argv[]){
                             selectedLevel = i;
                             customLevel = 0;
                             loadNew(selectedLevel, false, levelImagePath, backgroundPath, &startingPos, &startingPos2, Col, levelText, crate, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip, levelPath);
-                            prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, &startingPos, &startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip, levelPath);
+                            prepareLevel(customLevel, selectedLevel, resolutionMultiplier, &playerPos, &playerPos2, &level, levelImagePath, &doorList, &leverList, wallNum, wallImg, &goal, leverFlip, levelPath);
                             gameState = STATE_ACTIVE;
                             levelSelectVisibilityMode = 0;
                             break;
@@ -1300,13 +1294,12 @@ int main(int argc, char* argv[]){
                     }
                 }
 
-                //printf("time: %f\n", timer);
                 if(!cutscene.isAnimating){
                     gameState = STATE_ACTIVE;
                     customLevel = 0;
                     selectedLevel = 0;
                     loadNew(selectedLevel, false, levelImagePath, backgroundPath, &startingPos, &startingPos2, Col, levelText, crate, ladderCol, &colliderNum, &textNum, &ladderNum, &crateNum, &leverNum, &doorNum, &playerMode, &portalNum, wallTags, &wallNum, &wallEnabled, &goal, &scrollType, &leverFlip, levelPath);
-                    prepareLevel(resolutionMultiplier, &playerPos, &playerPos2, &startingPos, &startingPos2, selectedLevel, &level, str, colliderNum, leverNum, doorNum, portalNum, Col, levelText, textNum, crateNum, crate, ladderNum, ladderCol, levelImagePath, &doorList, &leverList, customLevel, wallNum, wallImg, wallTags, &wallEnabled, &goal, leverFlip, levelPath);
+                    prepareLevel(customLevel, selectedLevel, resolutionMultiplier, &playerPos, &playerPos2, &level, levelImagePath, &doorList, &leverList, wallNum, wallImg, &goal, leverFlip, levelPath);
                 }
             }
         EndDrawing();
@@ -1315,22 +1308,20 @@ int main(int argc, char* argv[]){
     return 0;
 }
 
-void prepareLevel(int resolutionMultiplier, 
-                    Vector2* playerPos, Vector2* playerPos2, Vector2* startingPos, Vector2* startingPos2, 
-                    int selectedLevel, Texture2D* level, char str[40], 
-                    int colliderNum, int leverNum, int doorNum, int portalNum, BoxCollider2D Col[64], 
-                    TextBox levelText[2], int textNum, 
-                    int crateNum, PhysicsObject crate[8], 
-                    int ladderNum, BoxCollider2D ladderCol[16], char levelImagePath[64],
+void prepareLevel(int customLevel, int selectedLevel, int resolutionMultiplier,
+                    Vector2* playerPos, Vector2* playerPos2,
+                    Texture2D* level, char levelImagePath[64],
                     Animation** doorList, SwitchAnimation** leverList,
-                    int customLevel,
-                    int wallNum, Texture2D wallImg[16], int wallTags[16], uint16_t* wallEnabled, BoxCollider2D* goal, uint64_t leverFlip, char levelPath[128]
+                    int wallNum, Texture2D wallImg[16], BoxCollider2D* goal, uint64_t leverFlip, char levelPath[128]
+
+                    //bool** door_isClosedList,
+                    //char* levelWallsImgPath, int* pathLength, 
                     //Texture* defaultDoor, Texture* leverOn, Texture* leverOff
                     //Animation* background, char backgroundPath[128]
                     ){
     printf("prepareLevel: Preparing level...\n");
     //load level image
-
+    char str[256];
     if(customLevel == 0){
         sprintf(str, "resources/levels/%d.png", selectedLevel + 1);
         printf("prepareLevel: Attemping to load image: %s\n", str);
@@ -1432,15 +1423,15 @@ void prepareLevel(int resolutionMultiplier,
         levelText[i].y *= resolutionMultiplier;
         levelText[i].size *= resolutionMultiplier;
     }
-    startingPos->x *= resolutionMultiplier;
-    startingPos->y *= resolutionMultiplier;
-    playerPos->x = startingPos->x;
-    playerPos->y = startingPos->y;
+    startingPos.x *= resolutionMultiplier;
+    startingPos.y *= resolutionMultiplier;
+    playerPos->x = startingPos.x;
+    playerPos->y = startingPos.y;
 
-    startingPos2->x *= resolutionMultiplier;
-    startingPos2->y *= resolutionMultiplier;
-    playerPos2->x = startingPos2->x;
-    playerPos2->y = startingPos2->y;
+    startingPos2.x *= resolutionMultiplier;
+    startingPos2.y *= resolutionMultiplier;
+    playerPos2->x = startingPos2.x;
+    playerPos2->y = startingPos2.y;
 
     for(int i = 0; i < crateNum; i++){
         crate[i].position.x *= resolutionMultiplier;

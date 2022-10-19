@@ -31,8 +31,8 @@ int loadNew(int selectedLevel, bool custom,
         if(selectedLevel == 1){
             while(temp == 1 && custom){
                 printf("Enter path to .sf file or a folder (must be placed in custom_levels folder): ");
+                
                 char temp2[110];
-                //scanf("%109s", temp2);
                 fgets(temp2, 110, stdin);
                 TextCopy(temp2, TextSubtext(temp2, 0, TextLength(temp2) - 1));
                 
@@ -57,8 +57,8 @@ int loadNew(int selectedLevel, bool custom,
             }
         }
     }else{
-        *leverNum = false;
-        *doorNum = false;
+        *leverNum = 0;
+        *doorNum = 0;
         levelImagePath[0] = '\0';
         sprintf(str, "resources/levels/%d.sf", selectedLevel + 1);
         printf("reading...\n");

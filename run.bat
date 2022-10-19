@@ -1,2 +1,0 @@
-:: main and all of src - includes icon (info.res)
-gcc main.c dataHandling2.c src/*.c info.res -o sandwich.exe -O3 -Wall -std=c99 -Wno-missing-braces -I include/4.0/ -I src/include/ -L lib/4.0/ -lraylib -lopengl32 -lgdi32 -lwinmm
