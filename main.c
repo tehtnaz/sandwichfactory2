@@ -8,18 +8,14 @@
 #include "rlgl.h"
 #include "recpp.h"
 #include "gui2.h"
-//#include "triangles.h"
 
 
 #define GHOST (Color){130, 130, 130, 130}
 
 
 /* Backlog (stuff i dont want to do) (Top to bottom)
-
-* change collisionInfo so that floor is returned as the position and not a collider selection
-* VECTOR 2 READING FROM PHYSICS OBJECTS IS BROKEN!!!
+* change collisionInfo so that floor is returned as the position and not a collider selection (allows integration with triangle collisions)
 * Allow for crates to give velocity to one another
-
 */
 
 /* BUGS
