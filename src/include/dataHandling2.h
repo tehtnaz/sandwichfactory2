@@ -5,6 +5,7 @@
 #include "levelStructs.h"
 #include "raylib.h"
 
+//#define DEBUG_DATA_HANDLING
 #pragma once
 
 // dataHandling v3 (proper tokenization, complete rewrite, v2 completely thrown out)

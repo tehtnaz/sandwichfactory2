@@ -1,6 +1,6 @@
 #include <stdbool.h>
 #include "checkColliders_Float.h"
-#include "raylib.h"
+//#include "raylib.h"
 
 //checkColliders_Float.h version 2.1
 //changelog
